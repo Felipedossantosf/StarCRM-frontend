@@ -11,28 +11,26 @@ import { Link, useNavigate } from 'react-router-dom';
 function Login() {
 
   
-  const URL = 'http://localhost:5039/api/Usuario/login';
+  //const URL = 'http://localhost:5039/api/Usuario/login';
 
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const token = localStorage.getItem("token");
- 
+  
+  //const token = localStorage.getItem("token");
+  const success = useSelector(state => state.login.success);
+  const token = useSelector(state => state.login.token);
+
   useEffect(() => {
-    if(token != undefined){
-      return navigate("/Dashboard")
+    if(token){
+      return navigate("/dashboard")
     }
-  }, [token]);
+  }, [token, navigate]);
   
-  
-
-  const validarse = () => {
-  dispatch(loginUser({usuario, password}));
-}
-
-
-
+  const validarse = async () => {
+    await dispatch(loginUser({usuario, password}));
+  }
 
   return (
     <div style={{ backgroundColor: 'rgb(43,44,44)' }} className="flex items-center justify-center min-h-screen" >
@@ -84,10 +82,7 @@ function Login() {
           Iniciar sesión
         </button>
 
-        
-       
 
-   
     </div>
   </div>
   
