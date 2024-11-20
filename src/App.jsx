@@ -4,15 +4,12 @@ import Login from './Componentes/Login'
 
 
 function App() {
-  
 
   return (
-<div>
-  <Registro />
-  <Login />
-</div>
- 
-
+    <div>
+      <Registro />
+      <Login />
+    </div>
   )
 }
 
