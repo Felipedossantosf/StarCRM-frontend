@@ -1,6 +1,41 @@
 import React from 'react'
+import { registroUser } from '../redux/RegistroSlice';
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from 'react-redux';
+
+
 
 function Registro() {
+
+
+  const [username1, setusername1] = useState('');
+  const [otro, setotro] = useState('');
+  const [password1, setpassword1] = useState('');
+  const [rol1, setrol1] = useState('');
+  const [nombre1, setnombre1] = useState('');
+  const [apellido1, setapellido1] = useState('');
+  const [cargo, setcargo] = useState('');
+
+
+  const dispatch = useDispatch();
+ 
+
+  
+
+  const handleRegistro = async () => {
+
+    await dispatch(registroUser({ username1, otro, password1, rol1, nombre1, apellido1, cargo}));
+
+    setusername1("");
+    setotro("");
+    setpassword1("");
+    setrol1("");
+    setnombre1("");
+    setapellido1("");
+    setcargo("");
+     
+}
+
   return (
     <div style={{ backgroundColor: 'rgb(43,44,44)' }} className="flex items-center justify-center min-h-screen p-4">
     <div style={{ backgroundColor: 'rgb(43,44,44)' }} className="w-full max-w-lg p-8 space-y-8 rounded-lg shadow-lg">
@@ -22,7 +57,9 @@ function Registro() {
             <input
               id="firstName"
               name="firstName"
+              value={nombre1}
               type="text"
+              onChange={(e)=>setnombre1(e.target.value)}
               style={{ backgroundColor: '#14919f'}}
               required
               className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -38,6 +75,8 @@ function Registro() {
               id="lastName"
               name="lastName"
               type="text"
+              value={apellido1}
+              onChange={(e)=>setapellido1(e.target.value)}
               style={{ backgroundColor: '#14919f'}}
               required
               className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -54,6 +93,8 @@ function Registro() {
             id="username"
             name="username"
             type="text"
+            value={username1}
+            onChange={(e)=>setusername1(e.target.value)}
             style={{ backgroundColor: '#14919f'}}
             required
             className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -69,10 +110,29 @@ function Registro() {
             id="password"
             name="password"
             type="password"
+            value={password1}
+            onChange={(e)=>setpassword1(e.target.value)}
             style={{ backgroundColor: '#14919f'}}
             required
             className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="Contraseña"
+          />
+        </div>
+
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+           Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="text"
+            value={otro}
+            onChange={(e)=>setotro(e.target.value)}
+            style={{ backgroundColor: '#14919f'}}
+            required
+            className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="Email"
           />
         </div>
 
@@ -85,17 +145,34 @@ function Registro() {
             name="role"
             style={{ backgroundColor: '#14919f'}}
             required
+            value={rol1} onChange={(e) => setrol1(e.target.value)}
             className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
           >
             <option value="">Selecciona un rol</option>
-            <option value="admin">Administrador</option>
-            <option value="user">Usuario</option>
-            <option value="guest">Invitado</option>
+            <option value="comun">comun</option>
           </select>
         </div>
 
+        <div>
+          <label htmlFor="cargo" className="block text-sm font-medium text-gray-700">
+           Cargo
+          </label>
+          <input
+            id="Cargo"
+            name="Cargo"
+            type="text"
+            value={cargo}
+            onChange={(e)=>setcargo(e.target.value)}
+            style={{ backgroundColor: '#14919f'}}
+            required
+            className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="Cargo"
+          />
+        </div>
+
         <button
-          type="submit"
+          onClick={handleRegistro}
+          type="button"
           style={{ backgroundColor: '#04536b'}}
           className="w-full py-2 mt-4 text-black placeholder-black rounded-md focus:outline-none focus:ring-2"
         >

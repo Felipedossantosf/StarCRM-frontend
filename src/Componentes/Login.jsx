@@ -18,16 +18,19 @@ function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   
-  //const token = localStorage.getItem("token");
+  const token2 = localStorage.getItem("token");
   const success = useSelector(state => state.login.success);
   const token = useSelector(state => state.login.token);
+  console.log(token)
+  
 
   useEffect(() => {
-    if(token){
+    if(token || token2 != undefined ){
       return navigate("/dashboard")
     }
-  }, [token, navigate]);
-  
+  }, [token, token2]);
+
+
   const validarse = async () => {
     await dispatch(loginUser({usuario, password}));
   }
