@@ -41,7 +41,7 @@ function Login() {
       
       <div className="flex justify-center">
           <img 
-            src='../../img/starfish-logo_Mesa-de-trabajo-1.svg' // Puedes reemplazar esta URL con la de tu imagen
+            src='../../img/starfish-logo_Mesa-de-trabajo-1.svg'
             alt="Logo" 
             className="w-60 h-22"
           />
