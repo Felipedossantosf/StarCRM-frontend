@@ -2,12 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router";
 import Header from "./Header";
 
-function Dashboard() {
+function Clientes() {
   const navigate = useNavigate();
   const nombre = localStorage.getItem("nombre");
   const apellido = localStorage.getItem("apellido");
 
-  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [activeTab, setActiveTab] = useState("Clientes");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const handleTabClick = (tab, route) => {
@@ -47,4 +47,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default Clientes;
