@@ -37,8 +37,8 @@ function Registro() {
 }
 
   return (
-    <div style={{ backgroundColor: 'rgb(43,44,44)' }} className="flex items-center justify-center min-h-screen p-4">
-    <div style={{ backgroundColor: 'rgb(43,44,44)' }} className="w-full max-w-lg p-8 space-y-8 rounded-lg shadow-lg">
+    <div className="bg-[#2B2C2C] flex items-center justify-center min-h-screen p-4">
+    <div className="bg-white bg-opacity-5 w-full max-w-lg p-8 space-y-8 rounded-lg shadow-lg">
 
     <div className="flex justify-center">
           <img 
@@ -48,10 +48,10 @@ function Registro() {
           />
     </div>
 
-      <form className="space-y-6">
-        <div className="grid gap-4 sm:grid-cols-2">
+      <form className="space-y-3">
+        <div className="grid gap-2 sm:grid-cols-2">
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="firstName" className="block text-sm font-medium text-white">
               Nombre
             </label>
             <input
@@ -60,15 +60,14 @@ function Registro() {
               value={nombre1}
               type="text"
               onChange={(e)=>setnombre1(e.target.value)}
-              style={{ backgroundColor: '#14919f'}}
               required
-              className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
               placeholder="Nombre"
             />
           </div>
 
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="lastName" className="block text-sm font-medium text-white">
               Apellido
             </label>
             <input
@@ -77,17 +76,17 @@ function Registro() {
               type="text"
               value={apellido1}
               onChange={(e)=>setapellido1(e.target.value)}
-              style={{ backgroundColor: '#14919f'}}
               required
-              className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+              className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
               placeholder="Apellido"
             />
           </div>
         </div>
 
+        <div className="grid gap-2 sm:grid-cols-2">
         <div>
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-            Nombre de Usuario
+          <label htmlFor="username" className="block text-sm font-medium text-white">
+            Nombre de usuario
           </label>
           <input
             id="username"
@@ -95,15 +94,14 @@ function Registro() {
             type="text"
             value={username1}
             onChange={(e)=>setusername1(e.target.value)}
-            style={{ backgroundColor: '#14919f'}}
             required
-            className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="Usuario"
+            className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+            placeholder="Nombre de usuario"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="password" className="block text-sm font-medium text-white">
             Contraseña
           </label>
           <input
@@ -112,15 +110,15 @@ function Registro() {
             type="password"
             value={password1}
             onChange={(e)=>setpassword1(e.target.value)}
-            style={{ backgroundColor: '#14919f'}}
             required
-            className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
             placeholder="Contraseña"
           />
         </div>
+        </div>
 
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="block text-sm font-medium text-white">
            Email
           </label>
           <input
@@ -129,52 +127,64 @@ function Registro() {
             type="text"
             value={otro}
             onChange={(e)=>setotro(e.target.value)}
-            style={{ backgroundColor: '#14919f'}}
             required
-            className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
             placeholder="Email"
           />
         </div>
 
+        <div className="grid gap-2 sm:grid-cols-2">
         <div>
-          <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-            Rol
-          </label>
-          <select
-            id="role"
-            name="role"
-            style={{ backgroundColor: '#14919f'}}
-            required
-            value={rol1} onChange={(e) => setrol1(e.target.value)}
-            className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <option value="">Selecciona un rol</option>
-            <option value="comun">comun</option>
-          </select>
-        </div>
+  <label htmlFor="role" className="block text-sm font-medium text-white">
+    Rol
+  </label>
+  <select
+    id="role"
+    name="role"
+    required
+    value={rol1}
+    onChange={(e) => setrol1(e.target.value)}
+    className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+  >
+    <option
+      value=""
+    >
+                  Selecciona un rol
+    </option>
+    <option
+      value="COMUN"
+    >
+      Común
+    </option>
+    <option
+      value="ADMIN"
+    >
+      Administrador
+    </option>
+  </select>
+</div>
 
         <div>
-          <label htmlFor="cargo" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="cargo" className="block text-sm font-medium text-white">
            Cargo
           </label>
           <input
             id="Cargo"
             name="Cargo"
             type="text"
-            value={cargo}
+                value={cargo}
             onChange={(e)=>setcargo(e.target.value)}
-            style={{ backgroundColor: '#14919f'}}
             required
-            className="w-full px-3 py-2 mt-1 bg-black  placeholder-black rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="w-full px-3 py-2 mt-1 mb-3 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
             placeholder="Cargo"
           />
+        </div>
         </div>
 
         <button
           onClick={handleRegistro}
           type="button"
-          style={{ backgroundColor: '#04536b'}}
-          className="w-full py-2 mt-4 text-black placeholder-black rounded-md focus:outline-none focus:ring-2"
+          className="w-full py-3 rounded bg-[#005469] hover:bg-[#00728F] text-white duration-300"
         >
           Registrar
         </button>

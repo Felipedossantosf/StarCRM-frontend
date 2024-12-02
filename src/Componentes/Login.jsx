@@ -56,7 +56,7 @@ function Login() {
             onChange={(e) => setUsuario(e.target.value)}
             value={usuario}
             required
-            className="w-full px-3 py-2 mt-6 rounded focus:outline-none"
+            className="w-full px-3 py-2 mt-6 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
             placeholder="Ingresa tu usuario"
           />
         </div>
@@ -69,7 +69,7 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
              value={password}
             required
-            className="w-full px-3 py-2 mb-6 rounded focus:outline-none"
+            className="w-full px-3 py-2 mb-6 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
             placeholder="Ingresa tu contraseña"
           />
         </div>
