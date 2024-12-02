@@ -36,8 +36,8 @@ function Login() {
   }
 
   return (
-    <div style={{ backgroundColor: 'rgb(43,44,44)' }} className="flex items-center justify-center min-h-screen" >
-    <div style={{ backgroundColor: 'rgb(43,44,44)' }} className="w-full max-w-md p-8 space-y-8 rounded-lg shadow-lg">
+    <div className="bg-[#2B2C2C] flex items-center justify-center min-h-screen" >
+    <div className="bg-white bg-opacity-5 w-full max-w-md p-8 space-y-8 rounded-lg shadow-lg">
       
       <div className="flex justify-center">
           <img 
@@ -55,9 +55,8 @@ function Login() {
             type="text"
             onChange={(e) => setUsuario(e.target.value)}
             value={usuario}
-            style={{ backgroundColor: '#14919f'}}
             required
-            className="w-full px-3 py-2 mt-1 text-black placeholder-black  rounded-md focus:outline-none focus:ring-2"
+            className="w-full px-3 py-2 mt-6 rounded focus:outline-none"
             placeholder="Ingresa tu usuario"
           />
         </div>
@@ -69,9 +68,8 @@ function Login() {
             type="password"
             onChange={(e) => setPassword(e.target.value)}
              value={password}
-            style={{ backgroundColor: '#14919f'}}
             required
-            className="w-full px-3 py-2 mt-1 text-black placeholder-black  rounded-md focus:outline-none focus:ring-2"
+            className="w-full px-3 py-2 mb-6 rounded focus:outline-none"
             placeholder="Ingresa tu contraseña"
           />
         </div>
@@ -79,8 +77,7 @@ function Login() {
         <button
         onClick={() => validarse()}
           type="submit"
-          style={{ backgroundColor: '#04536b'}}
-          className="w-full px-3 py-2 mt-1 text-black placeholder-black  rounded-md focus:outline-none focus:ring-2"
+          className="w-full py-3 rounded bg-[#005469] hover:bg-[#00728F] text-white duration-300"
         >
           Iniciar sesión
         </button>

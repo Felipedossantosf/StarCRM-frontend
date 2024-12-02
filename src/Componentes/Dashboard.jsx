@@ -129,7 +129,7 @@ function Dashboard() {
               <img
                 src="../../img/user-icon.png"
                 alt="Profile"
-                className="w-8 h-8"
+                className="w-auto h-12"
               />
               <div className="text-white font-medium">
                 {nombre} {apellido}
