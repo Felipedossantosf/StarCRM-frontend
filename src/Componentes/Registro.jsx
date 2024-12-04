@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { registroUser } from "../redux/RegistroSlice";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
+import { registroUser } from "../redux/RegistroSlice";
 import Header from "./Header";
 
 function Registro() {
+  const [activeTab, setActiveTab] = useState("Registrar usuario");
+
   const [username1, setUsername1] = useState("");
   const [otro, setOtro] = useState("");
   const [password1, setPassword1] = useState("");
@@ -12,10 +13,8 @@ function Registro() {
   const [nombre1, setNombre1] = useState("");
   const [apellido1, setApellido1] = useState("");
   const [cargo, setCargo] = useState("");
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // State for menu visibility
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const handleRegistro = async () => {
     await dispatch(
@@ -32,47 +31,17 @@ function Registro() {
     setCargo("");
   };
 
-  const handleTabClick = (tab, route) => {
-    navigate(route);
-  };
-
-  const menuItems = [
-    { name: "Dashboard", route: "/dashboard" },
-    { name: "Registrar usuario", route: "/registro" },
-    { name: "Asignaciones", route: "/asignaciones" },
-    { name: "Clientes", route: "/clientes" },
-    { name: "Proveedores", route: "/proveedores" },
-    { name: "Eventos", route: "/eventos" },
-    { name: "Historial de actividad", route: "/historialActividad" },
-    { name: "Cotizaciones", route: "/cotizaciones" },
-  ];
-
   return (
-    <div className="flex flex-col min-h-screen bg-[#2B2C2C]">
-      {/* Header */}
-      <Header
-        nombre={localStorage.getItem("nombre")}
-        apellido={localStorage.getItem("apellido")}
-        isMenuOpen={isMenuOpen}
-        setIsMenuOpen={setIsMenuOpen}
-        handleTabClick={handleTabClick}
-        activeTab="Registrar usuario"
-        menuItems={menuItems}
-      />
-
-      {/* Form Section */}
-      <main className="flex flex-1 justify-center items-center p-6">
+    <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+      <div className="text-white text-center p-4">
+        <h2 className="text-3xl font-semibold">{activeTab}</h2>
+      </div>
+      <main className="flex-1 flex justify-center items-center px-4 sm:px-6 py-6 sm:py-8">
         <div className="bg-white bg-opacity-5 w-full max-w-lg p-8 space-y-8 rounded-lg shadow-lg">
-          <div className="flex justify-center">
-            <img
-              src="../../img/starfish-logo_Mesa-de-trabajo-1.svg"
-              alt="Logo"
-              className="w-60 h-22"
-            />
-          </div>
-
-          <form className="space-y-3">
-            <div className="grid gap-2 sm:grid-cols-2">
+          <form className="space-y-6">
+            {/* Name and Last Name */}
+            <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-white">
                   Nombre
@@ -106,7 +75,8 @@ function Registro() {
               </div>
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2">
+            {/* Username and Password */}
+            <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-white">
                   Nombre de usuario
@@ -140,6 +110,7 @@ function Registro() {
               </div>
             </div>
 
+            {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-white">
                 Email
@@ -156,7 +127,8 @@ function Registro() {
               />
             </div>
 
-            <div className="grid gap-2 sm:grid-cols-2">
+            {/* Role and Job Title */}
+            <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="role" className="block text-sm font-medium text-white">
                   Rol
@@ -192,6 +164,7 @@ function Registro() {
               </div>
             </div>
 
+            {/* Submit Button */}
             <button
               onClick={handleRegistro}
               type="button"
