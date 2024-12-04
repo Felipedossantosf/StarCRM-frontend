@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
-const URL = 'http://localhost:5039/api/Usuario/login';
+const URL = 'https://starcrm-backend-dfaya2fee9gab8hv.canadacentral-01.azurewebsites.net/api/Usuario/login';
 
 export const loginUser = createAsyncThunk('login/loginUser', async({usuario, password}) => {
 
@@ -14,7 +14,7 @@ export const loginUser = createAsyncThunk('login/loginUser', async({usuario, pas
         
         const token = response.data.token;
         const usuarioLogueado = response.data;
-        console.log(response.data)
+        
         
         if (!token || !usuarioLogueado) {
             throw new Error('Faltan datos en la respuesta');
@@ -29,7 +29,8 @@ export const loginUser = createAsyncThunk('login/loginUser', async({usuario, pas
 
         return { usuarioLogueado, token }; // Asegúrate de que esto es correcto
     } catch (error) {
-        console.error(error);
+      
+        console.log(error.status)
         throw new Error('Usuario o contraseña incorrectos.');
     }
 

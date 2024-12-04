@@ -16,6 +16,7 @@ function Login() {
   
   const token2 = localStorage.getItem("token");
   const success = useSelector(state => state.login.success);
+  const error = useSelector(state => state.login.error);
   const token = useSelector(state => state.login.token);
   console.log(token)
   
@@ -78,6 +79,7 @@ function Login() {
           Iniciar sesión
         </button>
 
+     
 
     </div>
   </div>
