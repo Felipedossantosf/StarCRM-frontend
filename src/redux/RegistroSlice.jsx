@@ -9,13 +9,6 @@ export const registroUser = createAsyncThunk('registro/registroUser', async({ us
     
     try{
 
-        console.log(username1);
-        console.log(otro);
-        console.log(password1);
-        console.log(rol1);
-        console.log(nombre1);
-        console.log(apellido1);
-        
         const response = await axios.post(URL, {
           
           userId: 0,
@@ -27,13 +20,12 @@ export const registroUser = createAsyncThunk('registro/registroUser', async({ us
           apellido: apellido1, 
           cargo: cargo
         });
+
+        console.log(response)
        
-        const usuarioRegistrado = response.data.username; // O cualquier propiedad que sea correcta
+        const usuarioRegistrado = response.data.username; 
         
-        if (!usuarioRegistrado) {
-            throw new Error('Faltan datos en la respuesta');
-        }
-        return { usuarioLogueado }; // Asegúrate de que esto es correcto
+        return { usuarioRegistrado }; 
 
         }catch(error){
             throw new Error("Ya existe un usuario con ese nombre");
@@ -74,11 +66,12 @@ export const registroSlice = createSlice({
             state.email = action.payload.email;
             state.nombre = action.payload.nombre;
             state.apellido = action.payload.apellido;
-            state.success=true;
-            state.error = null;
+            state.success = true;
+            console.log("Bien")
         })
         .addCase(registroUser.rejected, (state, action) => {
             state.error = action.error.message;
+            console.log("MAL")
         })
     }
 })

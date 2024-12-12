@@ -12,6 +12,7 @@ import Asignaciones from './Componentes/Asignaciones'
 import Proveedores from './Componentes/Proveedores'
 import Clientes from './Componentes/Clientes'
 import HistorialActividad from './Componentes/HistorialActividad'
+import NoAutorizado from './Componentes/NoAutorizado'
 import { store } from './redux/store'
 
 import {createBrowserRouter,RouterProvider,} from "react-router-dom";
@@ -65,6 +66,11 @@ const router = createBrowserRouter([
   {
     path: "/historialActividad",
     element: <HistorialActividad />,
+    errorElement: <ErrorPage />
+  },
+  {
+    path: "/no-autorizado",
+    element: <NoAutorizado />,
     errorElement: <ErrorPage />
   },
 ]);

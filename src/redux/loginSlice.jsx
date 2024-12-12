@@ -16,6 +16,7 @@ export const loginUser = createAsyncThunk('login/loginUser', async({usuario, pas
         const usuarioLogueado = response.data;
         
         
+        
         if (!token || !usuarioLogueado) {
             throw new Error('Faltan datos en la respuesta');
         }
@@ -23,6 +24,7 @@ export const loginUser = createAsyncThunk('login/loginUser', async({usuario, pas
         // Guardar el token y usuario en localStorage
         localStorage.setItem('token', token);
         localStorage.setItem('usuario', usuarioLogueado.username);
+        localStorage.setItem('userRole', usuarioLogueado.rol);
         localStorage.setItem('nombre', usuarioLogueado.nombre);
         localStorage.setItem('apellido', usuarioLogueado.apellido);
 

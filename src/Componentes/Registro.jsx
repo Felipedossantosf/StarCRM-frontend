@@ -1,11 +1,16 @@
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import React, { useState, useEffect} from "react";
+import { useSelector, useDispatch } from 'react-redux';
 import { registroUser } from "../redux/RegistroSlice";
+import { Link, useNavigate } from 'react-router-dom';
 import Header from "./Header";
+import Swal from 'sweetalert2'
+
+
+
 
 function Registro() {
   const [activeTab, setActiveTab] = useState("Registrar usuario");
-
+  const navigate = useNavigate();
   const [username1, setUsername1] = useState("");
   const [otro, setOtro] = useState("");
   const [password1, setPassword1] = useState("");
@@ -13,6 +18,29 @@ function Registro() {
   const [nombre1, setNombre1] = useState("");
   const [apellido1, setApellido1] = useState("");
   const [cargo, setCargo] = useState("");
+  const error = useSelector(state => state.registro.error);
+  const success = useSelector(state => state.registro.success); 
+
+useEffect(() => {
+    const userRole = localStorage.getItem("userRole");
+    if (userRole !== "ADMIN") {
+      // Redirigir si no es admin
+      navigate("/no-autorizado"); // Cambiar por la ruta correspondiente
+    }
+  }, [navigate]);
+
+if(success){
+  Swal.fire({
+    title: "Registrado",
+    text: "Usuario Registrado correctamente",
+    icon: "success"
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.reload();
+    }
+});
+}
+
 
   const dispatch = useDispatch();
 
@@ -172,6 +200,18 @@ function Registro() {
             >
               Registrar
             </button>
+
+            {error && (
+             <div class="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+             <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+               <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+             </svg>
+             <span class="sr-only">Info</span>
+             <div>
+               <span class="font-medium">{error}</span> 
+             </div>
+             </div>
+            )}
           </form>
         </div>
       </main>

@@ -7,7 +7,7 @@ import Cotizaciones from './Componentes/Cotizaciones'
 import Eventos from './Componentes/Eventos'
 import HistorialActividad from './Componentes/HistorialActividad'
 import Clientes from './Componentes/Clientes'
-import Proveedores from './Componentes/Proveedores'
+
 
 function App() {
 
@@ -22,6 +22,7 @@ function App() {
       <Proveedores />
       <Eventos />
       <HistorialActividad />
+     
     </div>
   )
 }
