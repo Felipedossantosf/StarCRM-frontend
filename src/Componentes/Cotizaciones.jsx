@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import Header from "./Header";
 
-function Dashboard() {
-  const [activeTab, setActiveTab] = useState("Dashboard");
+function Cotizaciones() {
+  const [activeTab, setActiveTab] = useState("Cotizaciones");
 
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
@@ -14,4 +14,4 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default Cotizaciones; 
