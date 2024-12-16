@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Header from "./Header";
@@ -56,7 +57,7 @@ function Clientes() {
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
+      cancelButtonColor: "#56C3CE",
       confirmButtonText: "Eliminar",
       cancelButtonText: "Cancelar",
     });
@@ -73,7 +74,12 @@ function Clientes() {
 
       if (response.ok) {
         setClients((prevClients) => prevClients.filter((client) => client.id !== clientId));
-        await Swal.fire("Eliminado", "El cliente ha sido eliminado correctamente.", "success");
+        await Swal.fire({
+          title: "Eliminado",
+          text: "El cliente ha sido eliminado correctamente.",
+          icon: "success",
+          confirmButtonColor: "#56C3CE"
+        });
       } else {
         Swal.fire("Error", "No se pudo eliminar el cliente. Intenta nuevamente.", "error");
       }
@@ -166,7 +172,7 @@ function Clientes() {
             </button>
           </div>
         </div>
-        <div className="!mt-0 flex space-x-2 w-full sm:w-auto justify-between sm:justify-start pt-2 md-lt:pt-0">
+        <div className="!mt-0 flex space-x-2 w-full sm:w-auto justify-between sm:justify-start pt-2 894-screen:pt-0">
           <button className="px-4 py-2 rounded bg-white hover:bg-gray-200 transition-all w-full sm:w-auto">
             Generar reporte
           </button>
@@ -196,22 +202,19 @@ function Clientes() {
                   {filteredClients.map((client, index) => (
                     <tr key={client.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}>
                       <td className="px-4 py-2 border-b border-gray-300 hover:text-gray-700 hover:underline">
-                        <a href="">
-                          <div className="flex space-x-1">
-                            <b>{client.nombre}</b>
-                            <svg
-                              className="h-6"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <polyline points="9 18 15 12 9 6" />
-                            </svg>
-                          </div>
-                        </a>
+                        <Link to={`/clientes/${client.id}`} className="flex">
+                          <b>{client.nombre}</b>
+                          <svg
+                            className="h-6"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round">
+                            <polyline points="9 18 15 12 9 6" />
+                          </svg>
+                        </Link>
                       </td>
                       <td className="px-4 py-2 border-b border-gray-300">{client.estado == "Asignado" ? "Asignado a: " : client.estado}</td> {/* traer nombre de asignado */}
                       <td className="px-4 py-2 border-b border-gray-300">

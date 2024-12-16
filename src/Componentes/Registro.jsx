@@ -5,9 +5,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import Header from "./Header";
 import Swal from 'sweetalert2'
 
-
-
-
 function Registro() {
   const [activeTab, setActiveTab] = useState("Registrar usuario");
   const navigate = useNavigate();
@@ -25,15 +22,16 @@ function Registro() {
     const userRole = localStorage.getItem("userRole");
     if (userRole !== "ADMIN") {
       // Redirigir si no es admin
-      navigate("/no-autorizado");
+      navigate("/accesoDenegado");
     }
   }, [navigate]);
 
   if (success) {
     Swal.fire({
       title: "Registrado",
-      text: "Usuario Registrado correctamente",
-      icon: "success"
+      text: "Usuario registrado correctamente",
+      icon: "success",
+      confirmButtonColor: "#56C3CE"
     }).then((result) => {
       if (result.isConfirmed) {
         window.location.reload();
