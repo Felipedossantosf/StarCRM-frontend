@@ -3,19 +3,19 @@ import Header from './Header';
 import { useDispatch } from 'react-redux';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import { agregarProveedor } from '../redux/ProveedoresSlice';
+import { agregarCliente } from '../redux/clientesSlice';
 
-function CrearProveedor() {
-  const [formData, setFormData] = useState({
-    nombre: '',
-    telefono: '',
-    correo: '',
-    credito: '',
-    razonSocial: '',
-    rut: '',
-    direccion: '',
-    sitioWeb: ''
-  });
+function CrearCliente() {
+  const [nombre1, setNombre1] = useState('');
+  const [telefono1, setTelefono1] = useState('');
+  const [correo1, setCorreo1] = useState('');
+  const [credito1, setCredito1] = useState('');
+  const [razonSocial1, setRazonSocial1] = useState('');
+  const [rut1, setRut1] = useState('');
+  const [direccion1, setDireccion] = useState('');
+  const [sitioWeb1, setSitioWeb] = useState('');
+  const [zafras, setZafras] = useState('');
+  const [notas, setNotas] = useState('');
 
   const [activeTab, setActiveTab] = useState('');
   const [error, setError] = useState(null);
@@ -23,33 +23,43 @@ function CrearProveedor() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
   const handleCrear = async () => {
-    const { nombre, telefono, correo } = formData;
-    if (!nombre || !telefono || !correo) {
+    if (!nombre1 || !telefono1 || !correo1) {
       setError('Por favor, completa todos los campos obligatorios.');
       return;
     }
     try {
-      const response = await dispatch(agregarProveedor({ url: '/Proveedor', data: { ...formData, tipoComercial: 'Proveedor' } }));
-      
+      const clienteData = {
+        nombre: nombre1,
+        telefono: telefono1,
+        correo: correo1,
+        credito: credito1,
+        razonSocial: razonSocial1,
+        rut: rut1,
+        direccion: direccion1,
+        sitioWeb: sitioWeb1,
+        tipoComercial: 'Cliente',
+        zafras: zafras,
+        notas: notas,
+        esInactivo: true,
+        fechaUltCarga: null,
+        estado: 'Libre'
+      };
+
+      const response = await dispatch(agregarCliente({ url: '/cliente', data: clienteData }));
       if (response?.payload?.id) {
         Swal.fire({
           icon: 'success',
-          title: 'Proveedor creado exitosamente.',
+          title: 'Cliente creado exitosamente.',
           showConfirmButton: false,
           timer: 1500,
         });
-        navigate('/proveedores');
+        navigate('/clientes');
       } else {
-        setError('Hubo un problema al crear el proveedor. Por favor, inténtalo de nuevo.');
+        setError('Hubo un problema al crear el cliente. Por favor, inténtalo de nuevo.');
       }
     } catch (error) {
-      setError('Hubo un error al crear el proveedor.');
+      setError('Hubo un error al crear el cliente.');
     }
   };
 
@@ -60,7 +70,7 @@ function CrearProveedor() {
       <div className="flex items-center text-white pt-4 pb-1">
         <div className="flex-none">
           <button
-            onClick={() => navigate("/proveedores")}
+            onClick={() => navigate("/clientes")}
             className="pl-6 flex hover:text-gray-200 hover:underline"
           >
             <svg
@@ -82,17 +92,18 @@ function CrearProveedor() {
       <main className="flex justify-center flex-grow items-center px-4 sm:px-6 py-6 sm:py-8">
         <div className="bg-white bg-opacity-5 w-full max-w-lg p-10 space-y-8 rounded-lg shadow-lg">
           <form className="space-y-6">
+            {/* Name and Last Name */}
             <div className="grid gap-1 grid-cols-2">
               <div>
-                <label htmlFor="nombre" className="block text-sm font-medium text-white">
+                <label htmlFor="firstName" className="block text-sm font-medium text-white">
                   Nombre
                 </label>
                 <input
-                  id="nombre"
-                  name="nombre"
-                  value={formData.nombre}
+                  id="firstName"
+                  name="firstName"
+                  value={nombre1}
                   type="text"
-                  onChange={handleChange}
+                  onChange={(e) => setNombre1(e.target.value)}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Nombre"
@@ -100,15 +111,15 @@ function CrearProveedor() {
               </div>
 
               <div>
-                <label htmlFor="telefono" className="block text-sm font-medium text-white">
+                <label htmlFor="telefono1" className="block text-sm font-medium text-white">
                   Teléfono
                 </label>
                 <input
-                  id="telefono"
+                  id="telefono1"
                   name="telefono"
                   type="number"
-                  value={formData.telefono}
-                  onChange={handleChange}
+                  value={telefono1}
+                  onChange={(e) => setTelefono1(e.target.value)}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Teléfono"
@@ -116,17 +127,18 @@ function CrearProveedor() {
               </div>
             </div>
 
+            {/* Correo and Crédito */}
             <div className="grid gap-1 grid-cols-2">
               <div>
-                <label htmlFor="correo" className="block text-sm font-medium text-white">
+                <label htmlFor="correo1" className="block text-sm font-medium text-white">
                   Correo
                 </label>
                 <input
-                  id="correo"
+                  id="correo1"
                   name="correo"
                   type="text"
-                  value={formData.correo}
-                  onChange={handleChange}
+                  value={correo1}
+                  onChange={(e) => setCorreo1(e.target.value)}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Correo"
@@ -134,47 +146,48 @@ function CrearProveedor() {
               </div>
 
               <div>
-                <label htmlFor="credito" className="block text-sm font-medium text-white">
+                <label htmlFor="credito1" className="block text-sm font-medium text-white">
                   Crédito
                 </label>
                 <input
-                  id="credito"
+                  id="credito1"
                   name="credito"
                   type="text"
-                  value={formData.credito}
-                  onChange={handleChange}
+                  value={credito1}
+                  onChange={(e) => setCredito1(e.target.value)}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Crédito"
                 />
               </div>
             </div>
 
+            {/* Razon Social, RUT, Dirección, and Sitio Web */}
             <div className="grid gap-1 grid-cols-2">
               <div>
-                <label htmlFor="razonSocial" className="block text-sm font-medium text-white">
+                <label htmlFor="razonSocial1" className="block text-sm font-medium text-white">
                   Razón Social
                 </label>
                 <input
-                  id="razonSocial"
+                  id="razonSocial1"
                   name="razonSocial"
                   type="text"
-                  value={formData.razonSocial}
-                  onChange={handleChange}
+                  value={razonSocial1}
+                  onChange={(e) => setRazonSocial1(e.target.value)}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Razón Social"
                 />
               </div>
 
               <div>
-                <label htmlFor="rut" className="block text-sm font-medium text-white">
+                <label htmlFor="rut1" className="block text-sm font-medium text-white">
                   RUT
                 </label>
                 <input
-                  id="rut"
+                  id="rut1"
                   name="rut"
                   type="text"
-                  value={formData.rut}
-                  onChange={handleChange}
+                  value={rut1}
+                  onChange={(e) => setRut1(e.target.value)}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="RUT"
                 />
@@ -183,36 +196,69 @@ function CrearProveedor() {
 
             <div className="grid gap-1 grid-cols-2">
               <div>
-                <label htmlFor="direccion" className="block text-sm font-medium text-white">
+                <label htmlFor="direccion1" className="block text-sm font-medium text-white">
                   Dirección
                 </label>
                 <input
-                  id="direccion"
+                  id="direccion1"
                   name="direccion"
                   type="text"
-                  value={formData.direccion}
-                  onChange={handleChange}
+                  value={direccion1}
+                  onChange={(e) => setDireccion(e.target.value)}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Dirección"
                 />
               </div>
 
               <div>
-                <label htmlFor="sitioWeb" className="block text-sm font-medium text-white">
+                <label htmlFor="sitioWeb1" className="block text-sm font-medium text-white">
                   Sitio web
                 </label>
                 <input
-                  id="sitioWeb"
+                  id="sitioWeb1"
                   name="sitioWeb"
                   type="text"
-                  value={formData.sitioWeb}
-                  onChange={handleChange}
+                  value={sitioWeb1}
+                  onChange={(e) => setSitioWeb(e.target.value)}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Sitio web"
                 />
               </div>
             </div>
 
+            <div className="grid gap-1 grid-cols-2">
+              <div>
+                <label htmlFor="zafras" className="block text-sm font-medium text-white">
+                  Zafras
+                </label>
+                <input
+                  id="zafras"
+                  name="zafras"
+                  type="text"
+                  value={zafras}
+                  onChange={(e) => setZafras(e.target.value)}
+                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+                  placeholder="Zafras"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="notas" className="block text-sm font-medium text-white">
+                  Notas
+                </label>
+                <input  
+                  id="notas"
+                  name="notas"
+                  type="text"
+                  value={notas}
+                  onChange={(e) => setNotas(e.target.value)}
+                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+                  placeholder="Notas"
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
             <button
               onClick={handleCrear}
               type="button"
@@ -239,4 +285,4 @@ function CrearProveedor() {
   );
 }
 
-export default CrearProveedor;
+export default CrearCliente;

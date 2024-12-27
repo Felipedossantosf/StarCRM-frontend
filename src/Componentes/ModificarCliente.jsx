@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
-import Header from './Header';
-import { useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { useNavigate } from 'react-router-dom';
-import { agregarProveedor } from '../redux/ProveedoresSlice';
+import { fetchClienteById, editarCliente } from '../redux/ClientesSlice';
+import Header from './Header';
 
-function CrearProveedor() {
-  const [formData, setFormData] = useState({
+function ModificarCliente() {
+  const { clienteId } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [activeTab, setActiveTab] = useState('');
+
+  const clienteDetail = useSelector((state) => state.cliente.clienteDetail);
+  const [cliente, setCliente] = useState({
     nombre: '',
     telefono: '',
     correo: '',
@@ -14,42 +20,42 @@ function CrearProveedor() {
     razonSocial: '',
     rut: '',
     direccion: '',
-    sitioWeb: ''
+    sitioWeb: '',
+    tipoComercial: 'Cliente',
+    zafras: '',
+    notas: '',
+    esInactivo: true,
+    fechaUltCarga: null,
+    estado: 'Libre'
   });
 
-  const [activeTab, setActiveTab] = useState('');
-  const [error, setError] = useState(null);
+  useEffect(() => {
+    if (!clienteDetail || clienteDetail.id !== parseInt(clienteId)) {
+      dispatch(fetchClienteById({ url: 'cliente/', id: clienteId }));
+    } else {
+      setCliente(clienteDetail);
+    }
+  }, [dispatch, clienteId, clienteDetail]);
 
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  useEffect(() => {
+    if (clienteDetail && clienteDetail.id === parseInt(clienteId)) {
+      setCliente(clienteDetail);
+    }
+  }, [clienteDetail, clienteId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setCliente({ ...cliente, [name]: value });
   };
 
-  const handleCrear = async () => {
-    const { nombre, telefono, correo } = formData;
-    if (!nombre || !telefono || !correo) {
-      setError('Por favor, completa todos los campos obligatorios.');
-      return;
-    }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const response = await dispatch(agregarProveedor({ url: '/Proveedor', data: { ...formData, tipoComercial: 'Proveedor' } }));
-      
-      if (response?.payload?.id) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Proveedor creado exitosamente.',
-          showConfirmButton: false,
-          timer: 1500,
-        });
-        navigate('/proveedores');
-      } else {
-        setError('Hubo un problema al crear el proveedor. Por favor, inténtalo de nuevo.');
-      }
+      await dispatch(editarCliente({ url: '/cliente', id: clienteId, data: cliente }));
+      Swal.fire('Éxito', 'Cliente actualizado correctamente', 'success');
+      navigate(`/clientes/${clienteId}`);
     } catch (error) {
-      setError('Hubo un error al crear el proveedor.');
+      Swal.fire('Error', 'Hubo un error al actualizar el cliente', 'error');
     }
   };
 
@@ -60,7 +66,7 @@ function CrearProveedor() {
       <div className="flex items-center text-white pt-4 pb-1">
         <div className="flex-none">
           <button
-            onClick={() => navigate("/proveedores")}
+            onClick={() => navigate("/clientes")}
             className="pl-6 flex hover:text-gray-200 hover:underline"
           >
             <svg
@@ -77,28 +83,33 @@ function CrearProveedor() {
             <b>Volver</b>
           </button>
         </div>
+
+        <div className="flex-grow text-center text-3xl font-semibold flex items-center justify-center space-x-2">
+          <h2>{cliente.nombre}</h2>
+        </div>
+
+        <div className="flex-none w-20"></div>
       </div>
 
       <main className="flex justify-center flex-grow items-center px-4 sm:px-6 py-6 sm:py-8">
         <div className="bg-white bg-opacity-5 w-full max-w-lg p-10 space-y-8 rounded-lg shadow-lg">
-          <form className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid gap-1 grid-cols-2">
               <div>
-                <label htmlFor="nombre" className="block text-sm font-medium text-white">
+                <label htmlFor="nombre1" className="block text-sm font-medium text-white">
                   Nombre
                 </label>
                 <input
                   id="nombre"
                   name="nombre"
-                  value={formData.nombre}
                   type="text"
+                  value={cliente.nombre}
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Nombre"
                 />
               </div>
-
               <div>
                 <label htmlFor="telefono" className="block text-sm font-medium text-white">
                   Teléfono
@@ -107,7 +118,7 @@ function CrearProveedor() {
                   id="telefono"
                   name="telefono"
                   type="number"
-                  value={formData.telefono}
+                  value={cliente.telefono}
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
@@ -119,17 +130,81 @@ function CrearProveedor() {
             <div className="grid gap-1 grid-cols-2">
               <div>
                 <label htmlFor="correo" className="block text-sm font-medium text-white">
-                  Correo
+                  Correo electrónico
                 </label>
                 <input
                   id="correo"
                   name="correo"
-                  type="text"
-                  value={formData.correo}
+                  type="email"
+                  value={cliente.correo}
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                  placeholder="Correo"
+                  placeholder="Correo electrónico"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="razonSocial" className="block text-sm font-medium text-white">
+                  Razón social
+                </label>
+                <input
+                  id="razonSocial"
+                  name="razonSocial"
+                  type="text"
+                  value={cliente.razonSocial}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+                  placeholder="Razón social"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-1 grid-cols-2">
+              <div>
+                <label htmlFor="rut" className="block text-sm font-medium text-white">
+                  RUT
+                </label>
+                <input
+                  id="rut"
+                  name="rut"
+                  type="text"
+                  value={cliente.rut}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+                  placeholder="RUT"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="direccion" className="block text-sm font-medium text-white">
+                  Dirección
+                </label>
+                <input
+                  id="direccion"
+                  name="direccion"
+                  type="text"
+                  value={cliente.direccion}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+                  placeholder="Dirección"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-1 grid-cols-2">
+              <div>
+                <label htmlFor="sitioWeb" className="block text-sm font-medium text-white">
+                  Sitio web
+                </label>
+                <input
+                  id="sitioWeb"
+                  name="sitioWeb"
+                  type="text"
+                  value={cliente.sitioWeb}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+                  placeholder="Sitio web"
                 />
               </div>
 
@@ -141,7 +216,7 @@ function CrearProveedor() {
                   id="credito"
                   name="credito"
                   type="text"
-                  value={formData.credito}
+                  value={cliente.credito}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Crédito"
@@ -151,87 +226,42 @@ function CrearProveedor() {
 
             <div className="grid gap-1 grid-cols-2">
               <div>
-                <label htmlFor="razonSocial" className="block text-sm font-medium text-white">
-                  Razón Social
+                <label htmlFor="zafras" className="block text-sm font-medium text-white">
+                  Zafras
                 </label>
                 <input
-                  id="razonSocial"
-                  name="razonSocial"
+                  id="zafras"
+                  name="zafras"
                   type="text"
-                  value={formData.razonSocial}
+                  value={cliente.zafras}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                  placeholder="Razón Social"
+                  placeholder="Zafras"
                 />
               </div>
 
               <div>
-                <label htmlFor="rut" className="block text-sm font-medium text-white">
-                  RUT
+                <label htmlFor="notas" className="block text-sm font-medium text-white">
+                  Notas
                 </label>
                 <input
-                  id="rut"
-                  name="rut"
+                  id="notas"
+                  name="notas"
                   type="text"
-                  value={formData.rut}
+                  value={cliente.notas}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                  placeholder="RUT"
-                />
-              </div>
-            </div>
-
-            <div className="grid gap-1 grid-cols-2">
-              <div>
-                <label htmlFor="direccion" className="block text-sm font-medium text-white">
-                  Dirección
-                </label>
-                <input
-                  id="direccion"
-                  name="direccion"
-                  type="text"
-                  value={formData.direccion}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                  placeholder="Dirección"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="sitioWeb" className="block text-sm font-medium text-white">
-                  Sitio web
-                </label>
-                <input
-                  id="sitioWeb"
-                  name="sitioWeb"
-                  type="text"
-                  value={formData.sitioWeb}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                  placeholder="Sitio web"
+                  placeholder="Notas"
                 />
               </div>
             </div>
 
             <button
-              onClick={handleCrear}
-              type="button"
+              type="submit"
               className="w-full py-3 rounded bg-[#005469] hover:bg-[#00728F] text-white duration-300"
             >
-              Crear
+              Actualizar Cliente
             </button>
-
-            {error && (
-              <div className="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                <svg className="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-                </svg>
-                <span className="sr-only">Error</span>
-                <div>
-                  <span className="font-medium">{error}</span>
-                </div>
-              </div>
-            )}
           </form>
         </div>
       </main>
@@ -239,4 +269,4 @@ function CrearProveedor() {
   );
 }
 
-export default CrearProveedor;
+export default ModificarCliente;

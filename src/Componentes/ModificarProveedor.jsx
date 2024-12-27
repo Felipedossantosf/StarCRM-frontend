@@ -1,302 +1,221 @@
-import React from 'react'
-import { useState } from 'react'
-import Header from './Header'
-import axios from 'axios'
-import Swal from 'sweetalert2'
-import { useDispatch } from 'react-redux'
-import { use } from 'react'
-import { useEffect } from 'react'
-import { useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useParams, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+import { fetchProveedorById, editarProveedor } from '../redux/ProveedoresSlice';
+import Header from './Header';
 
 function ModificarProveedor() {
-    const [activeTab, setActiveTab] = useState(0);
-    const [nombre1, setNombre1] = useState('');
-    const [telefono1, setTelefono1] = useState('');
-    const [correo1, setCorreo1] = useState('');
-    const [credito1, setCredito1] = useState('');
-    const [razonSocial1, setrazonSocial1] = useState('');
-    const [rut1, setRut1] = useState('');
-    const [direccion1, setrazonDireccion] = useState('');
-    const [sitioWeb1, setSitioWeb] = useState('');
-    const [tipoMercaderia1, setTipoMercaderia1] = useState('');
-    const [paises1, setPaises1] = useState('');
-    const [error, setError] = useState('');
-    const Proveedores = useSelector(state => state.proveedor.proveedores)
-    const dispatch = useDispatch();
-    const { proveedorId } = useParams();
+  const { proveedorId } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [activeTab, setActiveTab] = useState('');
 
-    useEffect(() => {
-        // Despachar la acción al cargar el componente      
-        const proveedor = Proveedores.find(pro => pro.id == proveedorId);
-        if (proveedor) {
-            setNombre1(proveedor.nombre);
-            setTelefono1(proveedor.telefono);
-            setCorreo1(proveedor.correo);
-            setCredito1(proveedor.credito);
-            setrazonSocial1(proveedor.razonSocial);
-            setRut1(proveedor.rut);
-            setrazonDireccion(proveedor.direccion);
-            setSitioWeb(proveedor.sitioWeb);
-            setTipoMercaderia1(proveedor.tipoMercaderia);
-            setPaises1(proveedor.paises);
-        }
-    }, [proveedorId, Proveedores]);
+  const proveedorDetail = useSelector((state) => state.proveedor.proveedorDetail);
+  const [proveedor, setProveedor] = useState({
+    nombre: '',
+    telefono: '',
+    correo: '',
+    sitioWeb: '',
+    direccion: '',
+    credito: '',
+    razonSocial: '',
+    rut: ''
+  });
 
+  useEffect(() => {
+    if (!proveedorDetail || proveedorDetail.id !== parseInt(proveedorId)) {
+      dispatch(fetchProveedorById({ url: 'proveedor/', id: proveedorId }));
+    } else {
+      setProveedor(proveedorDetail);
+    }
+  }, [dispatch, proveedorId, proveedorDetail]);
 
-    const handleModificar  =  async () => {
-        try {
-    
-            const response = await axios.put(`https://starcrm-backenddev-hme7aae8g4f2b6g6.centralus-01.azurewebsites.net/api/Proveedor/${proveedorId}`, {
-              id: 0,
-              nombre: nombre1,
-              telefono: telefono1,
-              correo: correo1,
-              credito: credito1,
-              razonSocial: razonSocial1,
-              rut: rut1,
-              direccion: direccion1,
-              sitioWeb: sitioWeb1,
-              tipoComercial: "Proveedor",
-              paises: paises1,
-              tipoMercaderia: tipoMercaderia1
-            });
-           console.log(response)
-             if (response.status == 200) {
-                      Swal.fire({
-                        icon: 'success',
-                        title: 'Proveedor Modificado',
-                        showConfirmButton: false,
-                        timer: 1500
-                      });
+  useEffect(() => {
+    if (proveedorDetail && proveedorDetail.id === parseInt(proveedorId)) {
+      setProveedor(proveedorDetail);
+    }
+  }, [proveedorDetail, proveedorId]);
 
-                    }else {
-                    Swal.fire({
-                      icon: 'error',
-                      title: 'Error al Modificar proveedor',
-                      text: 'Hubo un problema al modificar el proveedor. Por favor, inténtalo de nuevo.',
-                      showConfirmButton: true
-                    });
-                  }  
-          } catch (error) {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'Ya existe un usuario con ese nombre',
-              showConfirmButton: true
-            });
-          }
-        // Handle create logic here
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await dispatch(editarProveedor({ url: '/proveedor', id: proveedorId, data: proveedor }));
+      Swal.fire('Éxito', 'Proveedor actualizado correctamente', 'success');
+      navigate(`/proveedores/${proveedorId}`);
+    } catch (error) {
+      Swal.fire('Error', 'Hubo un error al actualizar el proveedor', 'error');
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
-    <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      <div className="flex items-center text-white pt-4 pb-1">
+        <div className="flex-none">
+          <button
+            onClick={() => navigate("/proveedores")}
+            className="pl-6 flex hover:text-gray-200 hover:underline"
+          >
+            <svg
+              className="h-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            <b>Volver</b>
+          </button>
+        </div>
+
+        <div className="flex-grow text-center text-3xl font-semibold flex items-center justify-center space-x-2">
+          <h2>{proveedor.nombre}</h2>
+        </div>
+
+        <div className="flex-none w-20"></div>
+      </div>
+
       <main className="flex justify-center flex-grow items-center px-4 sm:px-6 py-6 sm:py-8">
         <div className="bg-white bg-opacity-5 w-full max-w-lg p-10 space-y-8 rounded-lg shadow-lg">
-          <form className="space-y-6 mt-10 mb-10">
-            {/* Name and Last Name */}
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid gap-1 grid-cols-2">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-white">
+                <label htmlFor="nombre" className="block text-sm font-medium text-white">
                   Nombre
                 </label>
                 <input
-                  id="firstName"
-                  name="firstName"
-                  value={nombre1}
+                  id="nombre"
                   type="text"
-                  onChange={(e) => setNombre1(e.target.value)}
+                  value={proveedor.nombre}
+                  onChange={(e) => setProveedor({ ...proveedor, nombre: e.target.value })}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Nombre"
                 />
               </div>
-
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-white">
-                  Telefono
+                <label htmlFor="telefono" className="block text-sm font-medium text-white">
+                  Teléfono
                 </label>
                 <input
-                  id="telefono1"
-                  name="telefono"
-                  type="text"
-                  value={telefono1}
-                  onChange={(e) => setTelefono1(e.target.value)}
+                  id="telefono"
+                  type="number"
+                  value={proveedor.telefono}
+                  onChange={(e) => setProveedor({ ...proveedor, telefono: e.target.value })}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                  placeholder="Telefono"
-                />
-              </div>
-            </div>
-
-            {/* Username and Password */}
-            <div className="grid gap-1 grid-cols-2">
-              <div>
-                <label htmlFor="username" className="block text-sm font-medium text-white">
-                  Correo
-                </label>
-                <input
-                  id="Correo1"
-                  name="Correo"
-                  type="text"
-                  value={correo1}
-                  onChange={(e) => setCorreo1(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                  placeholder="Correo"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="password" className="block text-sm font-medium text-white">
-                credito
-                </label>
-                <input
-                  id="credito1"
-                  name="credito"
-                  type="text"
-                  value={credito1}
-                  onChange={(e) => setCredito1(e.target.value)}
-                  required
-                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                  placeholder="credito"
+                  placeholder="Teléfono"
                 />
               </div>
             </div>
 
             <div className="grid gap-1 grid-cols-2">
-                <div>
-                <label htmlFor="email" className="block text-sm font-medium text-white">
-                razonSocial
+              <div>
+                <label htmlFor="correo" className="block text-sm font-medium text-white">
+                  Correo electrónico
                 </label>
                 <input
-                    id="razonSocial1"
-                    name="razonSocial"
-                    type="text"
-                    value={razonSocial1}
-                    onChange={(e) => setrazonSocial1(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                    placeholder="razonSocial"
+                  id="correo"
+                  type="email"
+                  value={proveedor.correo}
+                  onChange={(e) => setProveedor({ ...proveedor, correo: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+                  placeholder="Correo electrónico"
                 />
-                </div>
+              </div>
 
-                <div>
-                <label htmlFor="cargo" className="block text-sm font-medium text-white">
-                rut
+              <div>
+                <label htmlFor="razonSocial" className="block text-sm font-medium text-white">
+                  Razón social
+                </label>
+                <input
+                  id="razonSocial"
+                  type="text"
+                  value={proveedor.razonSocial}
+                  onChange={(e) => setProveedor({ ...proveedor, razonSocial: e.target.value })}
+                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+                  placeholder="Razón social"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-1 grid-cols-2">
+              <div>
+                <label htmlFor="rut" className="block text-sm font-medium text-white">
+                  RUT
                 </label>
                 <input
                   id="rut"
-                  name="rut"
                   type="text"
-                  value={rut1}
-                  onChange={(e) => setRut1(e.target.value)}
-                  required
+                  value={proveedor.rut}
+                  onChange={(e) => setProveedor({ ...proveedor, rut: e.target.value })}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                  placeholder="rut"
+                  placeholder="RUT"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="sitioWeb" className="block text-sm font-medium text-white">
+                  Sitio web
+                </label>
+                <input
+                  id="sitioWeb"
+                  type="text"
+                  value={proveedor.sitioWeb}
+                  onChange={(e) => setProveedor({ ...proveedor, sitioWeb: e.target.value })}
+                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+                  placeholder="Sitio web"
                 />
               </div>
             </div>
-       
-            <div className="grid gap-1 grid-cols-2">
-                <div>
-                <label htmlFor="email" className="block text-sm font-medium text-white">
-                direccion
-                </label>
-                <input
-                    id="direccion1"
-                    name="direccion"
-                    type="text"
-                    value={direccion1}
-                    onChange={(e) => setrazonDireccion(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                    placeholder="direccion"
-                />
-                </div>
 
-                <div>
-                <label htmlFor="email" className="block text-sm font-medium text-white">
-                sitioWeb
-                </label>
-                <input
-                    id="sitioWeb1"
-                    name="sitioWeb"
-                    type="text"
-                    value={sitioWeb1}
-                    onChange={(e) => setSitioWeb(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                    placeholder="sitioWeb"
-                />
-                </div>
-            </div>
-           
             <div className="grid gap-1 grid-cols-2">
-                <div>
-                <label htmlFor="email" className="block text-sm font-medium text-white">
-                tipoMercaderia
+              <div>
+                <label htmlFor="direccion" className="block text-sm font-medium text-white">
+                  Dirección
                 </label>
                 <input
-                    id="tipoMercaderia1"
-                    name="tipoMercaderia"
-                    type="text"
-                    value={tipoMercaderia1}
-                    onChange={(e) => setTipoMercaderia1(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                    placeholder="tipoMercaderia"
+                  id="direccion"
+                  type="text"
+                  value={proveedor.direccion}
+                  onChange={(e) => setProveedor({ ...proveedor, direccion: e.target.value })}
+                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+                  placeholder="Dirección"
                 />
-                </div>
+              </div>
 
-                <div>
-                <label htmlFor="email" className="block text-sm font-medium text-white">
-                paises
+              <div>
+                <label htmlFor="credito" className="block text-sm font-medium text-white">
+                  Crédito
                 </label>
                 <input
-                    id="paises1"
-                    name="paises"
-                    type="text"
-                    value={paises1}
-                    onChange={(e) => setPaises1(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
-                    placeholder="paises"
+                  id="credito"
+                  type="text"
+                  value={proveedor.credito}
+                  onChange={(e) => setProveedor({ ...proveedor, credito: e.target.value })}
+                  className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
+                  placeholder="Crédito"
                 />
-                </div>
-          
+              </div>
             </div>
 
-          
-
-           
-
-            {/* Submit Button */}
             <button
-              onClick={handleModificar}
-              type="button"
+              type="submit"
               className="w-full py-3 rounded bg-[#005469] hover:bg-[#00728F] text-white duration-300"
             >
-              Modificar
+              Actualizar Proveedor
             </button>
-
-            {error && (
-              <div class="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-                </svg>
-                <span class="sr-only">Info</span>
-                <div>
-                  <span class="font-medium">{error}</span>
-                </div>
-              </div>
-            )}
           </form>
         </div>
       </main>
     </div>
   );
-  
 }
 
-export default ModificarProveedor
+export default ModificarProveedor;

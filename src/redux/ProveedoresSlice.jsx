@@ -1,57 +1,75 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice } from '@reduxjs/toolkit';
+import { fetchData, fetchById, deleteData, postData, updateData } from './apiSlice';
 
-export const fetchProveedores = createAsyncThunk('proveedores/fetchProveedores', async () => {
-       const API_URL = "https://starcrm-backenddev-hme7aae8g4f2b6g6.centralus-01.azurewebsites.net/api";
-    
-       try {
-            const response = await axios.get(API_URL+"/Proveedor",
-                {
-                    headers:{
-                        'Content-Type': 'application/json',
-                    }
-                })
-                const proveedores = response.data;
-                return proveedores;
-       } catch (error) {
-        throw new Error("Error obteniendo Proveedores")
-       }
-})
+export const fetchProveedores = fetchData;
+export const fetchProveedorById = fetchById;
+export const borrarProveedor = deleteData;
+export const agregarProveedor = postData;
+export const editarProveedor = updateData;
 
 const initialState = {
-    proveedores: [],
-}
+  proveedor: [], 
+  proveedorDetail: null,
+  status: 'idle',
+  error: null,
+};
 
 export const proveedoresSlice = createSlice({
-    name: "proveedores",
-    initialState,
-    reducers:{
-        guardarProveedores: (state, action) => {
-            state.proveedores = action.payload
-        },
-        agregarProveedor: (state, action) => {
-            state.proveedores.push(action.payload);
-        },
-        borrarProveedores: (state, action) => {
-            const update = state.proveedores.filter((pro) => {
-                return pro.id !== action.payload;
-            });
-            state.proveedores = update;
-        },
-        modificarProveedor: (state, action) => {
-            const index = state.proveedores.findIndex(pro => pro.id === action.payload.id);
-            if (index !== -1) {
-                state.proveedores[index] = action.payload;
-            }
+  name: 'proveedor',
+  initialState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchProveedores.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchProveedores.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.proveedor = action.payload;
+      })
+      .addCase(fetchProveedores.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(fetchProveedorById.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchProveedorById.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.proveedorDetail = action.payload;
+      })
+      .addCase(fetchProveedorById.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(borrarProveedor.fulfilled, (state, action) => {
+        const { id } = action.payload;
+        state.proveedor = state.proveedor.filter(prov => prov.id !== id);
+      })
+      .addCase(borrarProveedor.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      })
+      .addCase(agregarProveedor.fulfilled, (state, action) => {
+        state.proveedor.push(action.payload);
+      })
+      .addCase(editarProveedor.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(editarProveedor.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        const updatedProveedor = action.payload;
+        const index = state.proveedor.findIndex(prov => prov.id === updatedProveedor.id);
+        if (index !== -1) {
+          state.proveedor[index] = updatedProveedor;
         }
-    },
-    extraReducers: (builder) => {
-        builder.addCase(fetchProveedores.fulfilled, (state, action) => {        
-            state.proveedores = action.payload
-        })
-    }
-})
-
-export const { guardarProveedores, borrarProveedores, agregarProveedor} = proveedoresSlice.actions;
+        state.proveedorDetail = updatedProveedor; 
+      })
+      .addCase(editarProveedor.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message;
+      });
+  },
+});
 
 export default proveedoresSlice.reducer;

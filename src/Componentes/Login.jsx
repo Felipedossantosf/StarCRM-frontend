@@ -17,8 +17,6 @@ function Login() {
   const success = useSelector(state => state.login.success);
   const error = useSelector(state => state.login.error);
   const token = useSelector(state => state.login.token);
-  console.log(error)
-
 
   useEffect(() => {
     if (token || token2 != undefined) {

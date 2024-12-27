@@ -15,6 +15,8 @@ import ErrorPage from './Componentes/ErrorPage';
 import DetalleProveedor from './Componentes/DetalleProveedor';
 import CrearProveedor from './Componentes/CrearProveedor';
 import ModificarProveedor from './Componentes/ModificarProveedor';
+import CrearCliente from './Componentes/CrearCliente';
+import ModificarCliente from './Componentes/ModificarCliente';
 
 function App() {
   return (
@@ -30,14 +32,17 @@ function App() {
         <Route path="/asignaciones" element={<Asignaciones />} />
         <Route path="/cotizaciones" element={<Cotizaciones />} />
         <Route path="/clientes" element={<Clientes />} />
-        <Route path="/clientes/:clientId" element={<DetalleCliente />} />
+        <Route path="/clientes/:clienteId" element={<DetalleCliente />} />
         <Route path="/proveedores" element={<Proveedores />} />
        <Route path="/proveedores/:proveedorId" element={<DetalleProveedor />} />
+       <Route path="/detalleProveedor/:proveedorId" element={<DetalleProveedor />} />
         <Route path="/eventos" element={<Eventos />} />
         <Route path="/historialActividad" element={<HistorialActividad />} />
         <Route path="/accesoDenegado" element={<NoAutorizado />} />
         <Route path="/crearProveedor" element={<CrearProveedor />} />
         <Route path="/modificarProveedor/:proveedorId" element={<ModificarProveedor />} />
+        <Route path="/modificarCliente/:clienteId" element={<ModificarCliente />} />
+        <Route path="/crearCliente" element={<CrearCliente />} />
 
         {/* Error Route */}
         <Route path="*" element={<ErrorPage />} />

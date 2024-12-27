@@ -31,8 +31,6 @@ export const loginUser = createAsyncThunk('login/loginUser', async({usuario, pas
 
         return { usuarioLogueado, token }; // Asegúrate de que esto es correcto
     } catch (error) {
-      
-        console.log(error.status)
         throw new Error('Usuario o contraseña incorrectos.');
     }
 
