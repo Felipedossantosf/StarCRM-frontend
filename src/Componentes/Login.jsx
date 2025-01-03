@@ -5,9 +5,6 @@ import { loginUser } from '../redux/loginSlice';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Login() {
-
-  //const URL = 'http://localhost:5039/api/Usuario/login';
-
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -26,7 +23,7 @@ function Login() {
 
 
   const validarse = async () => {
-    await dispatch(loginUser({ usuario, password }));
+    await dispatch(loginUser(usuario, password));
   }
 
   return (

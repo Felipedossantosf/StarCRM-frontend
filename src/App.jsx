@@ -17,6 +17,7 @@ import CrearProveedor from './Componentes/CrearProveedor';
 import ModificarProveedor from './Componentes/ModificarProveedor';
 import CrearCliente from './Componentes/CrearCliente';
 import ModificarCliente from './Componentes/ModificarCliente';
+import EditarUsuario from './Componentes/EditarUsuario';
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
         <Route path="/modificarProveedor/:proveedorId" element={<ModificarProveedor />} />
         <Route path="/modificarCliente/:clienteId" element={<ModificarCliente />} />
         <Route path="/crearCliente" element={<CrearCliente />} />
+        <Route path="/EditarUsuario" element={<EditarUsuario />} />
 
         {/* Error Route */}
         <Route path="*" element={<ErrorPage />} />

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { postData, resetError } from "../redux/apiSlice";
+import { postData, resetError, fetchData } from "../redux/apiSlice";
 import { useNavigate } from 'react-router-dom';
 import Header from "./Header";
 import Swal from "sweetalert2";
@@ -12,7 +12,7 @@ function Registro() {
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
     if (userRole !== "ADMIN") {
-      navigate("/accesoDenegado");
+      //navigate("/accesoDenegado");
     }
   }, [navigate]);
 
@@ -24,11 +24,55 @@ function Registro() {
   const [nombre, setNombre] = useState("");
   const [apellido, setApellido] = useState("");
   const [cargo, setCargo] = useState("");
-  const [errorCamposVacios, setErrorCamposVacios] = useState('');
+  const [errorCamposVacios, setErrorCamposVacios] = useState("");
+  const contraseñaActual = "";
 
   const camposCompletos = username && email && password && rol && nombre && apellido && cargo;
 
-  const {error} = useSelector((state) => state.api);
+  const { error } = useSelector((state) => state.api);
+
+  // Generar username dinámicamente
+  const generarUsername = async (nombre, apellido) => {
+    if (!nombre || !apellido) return "";
+
+    // Generar la base del nombre de usuario
+    const inicial = lower(nombre.charAt(0));
+    const apellidoLower = lower(apellido);
+    const baseUsername = `${inicial}${apellidoLower}`;
+
+    try {
+      const response = await dispatch(fetchData('usuario'));
+      const usuariosBD = response.payload;
+      let contador = 0;
+      
+      for (let i = 0; i < usuariosBD.length; i++) {
+        const user = usuariosBD[i];
+        if(lower(user.nombre) == lower(nombre) && lower(user.apellido) == apellidoLower)
+          contador++;
+      }
+      // Si ya existen registros con ese nombre base, incrementar el número
+      return contador > 0 ? `${baseUsername}${contador + 1}` : baseUsername + '1';
+
+    } catch (error) {
+      return baseUsername;
+    }
+  };
+
+  function lower(texto) {
+    return texto.toLowerCase();
+  }
+
+  // useEffect para actualizar el username cuando cambien nombre o apellido
+  useEffect(() => {
+    const actualizarUsername = async () => {
+      const nuevoUsername = await generarUsername(nombre, apellido);
+      setUsername(nuevoUsername);
+    };
+
+    if (nombre || apellido) {
+      actualizarUsername();
+    }
+  }, [nombre, apellido]);
 
   useEffect(() => {
     if (error) {
@@ -38,14 +82,14 @@ function Registro() {
         icon: "error",
         confirmButtonColor: "#56C3CE"
       });
-      dispatch(resetError())
+      dispatch(resetError());
     }
   }, [error, dispatch]);
 
   const handleRegistro = async () => {
     if (camposCompletos) {
       const resultAction = await dispatch(
-        postData({ url: '/usuario', data: { username, email, password, rol, nombre, apellido, cargo } })
+        postData({ url: 'usuario', data: { username, email, password, rol, nombre, apellido, cargo, contraseñaActual } })
       );
 
       if (resultAction.type === 'postData/fulfilled') {
@@ -121,8 +165,8 @@ function Registro() {
                   name="username"
                   type="text"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
                   required
+                  disabled
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Nombre de usuario"
                 />
