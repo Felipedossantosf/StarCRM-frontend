@@ -2,55 +2,27 @@ import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Header from "./Header";
+import { useDispatch, useSelector } from "react-redux";
+import { fetch, borrarCliente } from "../redux/clientesSlice";
+import { useNavigate } from 'react-router-dom';
 
 function Clientes() {
-  const [activeTab, setActiveTab] = useState("Clientes");
-  const [clients, setClients] = useState([]);
-  const [assignees, setAssignees] = useState([]);
-  const [assignedFilter, setAssignedFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    dispatch(fetch('/cliente'));
+    dispatch(fetch('/usuario'));
+  }, [dispatch]);
+
+  const { cliente, assignees, status, error } = useSelector((state) => state.cliente);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [assignedFilter, setAssignedFilter] = useState("");
+  const [activeTab, setActiveTab] = useState("Clientes");
 
-  // Fetch client data from the API
-  useEffect(() => {
-    const fetchClients = async () => {
-      try {
-        const response = await fetch("https://starcrm-backenddev-hme7aae8g4f2b6g6.centralus-01.azurewebsites.net/api/cliente");
-        if (response.ok) {
-          const data = await response.json();
-          setClients(data);
-        } else {
-          Swal.fire("Error", "No se pudieron obtener los clientes.", "error");
-        }
-      } catch (error) {
-        Swal.fire("Error", "Ocurrió un error al obtener los clientes.", "error");
-      }
-    };
 
-    fetchClients();
-  }, []);
-
-  // Fetch assignees data from the API
-  useEffect(() => {
-    const fetchAssignees = async () => {
-      try {
-        const response = await fetch("https://starcrm-backenddev-hme7aae8g4f2b6g6.centralus-01.azurewebsites.net/api/usuario");
-        if (response.ok) {
-          const data = await response.json();
-          setAssignees(data);
-        } else {
-          Swal.fire("Error", "No se pudieron obtener los asignados.", "error");
-        }
-      } catch (error) {
-        Swal.fire("Error", "Ocurrió un error al obtener los asignados.", "error");
-      }
-    };
-
-    fetchAssignees();
-  }, []);
-
-  // Handle delete client
-  const handleDeleteClient = async (clientId) => {
+  const handleDeleteCliente = async (clienteId) => {
     const result = await Swal.fire({
       title: "¿Estás seguro?",
       text: "Una vez eliminado, no podrás recuperar este cliente.",
@@ -65,46 +37,36 @@ function Clientes() {
     if (!result.isConfirmed) return;
 
     try {
-      const response = await fetch(
-        `https://starcrm-backenddev-hme7aae8g4f2b6g6.centralus-01.azurewebsites.net/api/cliente/${clientId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      await dispatch(borrarCliente({ url: '/cliente', id: clienteId }));
 
-      if (response.ok) {
-        setClients((prevClients) => prevClients.filter((client) => client.id !== clientId));
-        await Swal.fire({
-          title: "Eliminado",
-          text: "El cliente ha sido eliminado correctamente.",
-          icon: "success",
-          confirmButtonColor: "#56C3CE"
-        });
-      } else {
-        Swal.fire("Error", "No se pudo eliminar el cliente. Intenta nuevamente.", "error");
-      }
+      await Swal.fire({
+        title: "Eliminado",
+        text: "El cliente ha sido eliminado correctamente.",
+        icon: "success",
+        confirmButtonColor: "#56C3CE"
+      });
     } catch (error) {
-      Swal.fire("Error", "Ocurrió un error al intentar eliminar el cliente.", "error");
+      Swal.fire("Error", "No se pudo eliminar el cliente. Intenta nuevamente.", "error");
     }
   };
 
+  if (status === 'loading') {
+    return <div>Loading...</div>;
+  }
+
+  if (status === 'failed') {
+    return <div>Error: {error}</div>;
+  }
+
   // Filter clients based on assignedFilter, statusFilter, and search
-  const filteredClients = clients.filter((client) => {
-    // Filter by assigned to
-
-    // Filter by estado/inactividad/perdido
-    if (statusFilter) {
-      //falta perdidos que es con calculo
-      return client.estado === statusFilter || client.esInactivo.toString() === statusFilter;
-    }
-
-    // Filter by search term
+  const filteredClients = cliente.filter((client) => {
+    if (statusFilter && (client.estado !== statusFilter && client.esInactivo.toString() !== statusFilter)) return false;
+    if (assignedFilter && client.assigned !== assignedFilter) return false;
     if (search && !client.nombre.toLowerCase().startsWith(search.toLowerCase())) return false;
 
     return true;
   });
 
-  // Clear all filters
   const clearFilters = () => {
     setAssignedFilter("");
     setStatusFilter("");
@@ -178,6 +140,7 @@ function Clientes() {
           </button>
           <button
             className="px-4 py-2 rounded bg-[#56C3CE] hover:bg-[#59b1ba] text-white transition-all"
+            onClick={() => navigate("/crearCliente")}
           >
             <div className="flex space-x-1">
               <p>Nuevo</p>
@@ -236,14 +199,15 @@ function Clientes() {
                       <td className="px-4 py-2 border-b border-gray-300">
                         <div className="flex justify-end space-x-2">
                           {/* WhatsApp Button */}
-                          <button title="WhatsApp" className="text-green-600 hover:text-green-700">
+                          <a target="blank" href={`https://wa.me/${client.telefono}`} className="text-green-600 hover:text-green-700">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
                             </svg>
-                          </button>
+                          </a>
 
                           {/* Edit Button */}
-                          <button className="text-black hover:text-gray-600" title="Editar">
+                          <button className="text-black hover:text-gray-600" title="Editar"
+                            onClick={() => navigate(`/modificarCliente/${client.id}`)}>
                             <svg className="h-8 w-8" viewBox="0 0 24 24" stroke="currentColor" fill="none">
                               <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
                               <line x1="13.5" y1="6.5" x2="17.5" y2="10.5" />
@@ -253,7 +217,7 @@ function Clientes() {
                           <button
                             className="text-red-500 hover:text-red-700"
                             title="Eliminar"
-                            onClick={() => handleDeleteClient(client.id)}
+                            onClick={() => handleDeleteCliente(client.id)}
                           >
                             <svg
                               className="h-8 w-8"

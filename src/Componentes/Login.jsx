@@ -5,9 +5,6 @@ import { loginUser } from '../redux/loginSlice';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Login() {
-
-  //const URL = 'http://localhost:5039/api/Usuario/login';
-
   const [usuario, setUsuario] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
@@ -17,8 +14,6 @@ function Login() {
   const success = useSelector(state => state.login.success);
   const error = useSelector(state => state.login.error);
   const token = useSelector(state => state.login.token);
-  console.log(error)
-
 
   useEffect(() => {
     if (token || token2 != undefined) {
@@ -28,7 +23,7 @@ function Login() {
 
 
   const validarse = async () => {
-    await dispatch(loginUser({ usuario, password }));
+    await dispatch(loginUser(usuario, password));
   }
 
   return (

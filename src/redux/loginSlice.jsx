@@ -1,41 +1,51 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
+import { createSlice } from "@reduxjs/toolkit";
+import { postData } from "../redux/apiSlice"; // Ensure postData is imported from apiSlice
 
-const URL = 'https://starcrm-backend-dfaya2fee9gab8hv.canadacentral-01.azurewebsites.net/api/Usuario/login';
-
-export const loginUser = createAsyncThunk('login/loginUser', async({usuario, password}) => {
-
+// Define loginUser action
+export const loginUser = (usuario, password) => async (dispatch) => {
     try {
-        const response = await axios.post(URL, {
-            username: usuario,
-            password: password
-        });
-
-        
-        const token = response.data.token;
-        const usuarioLogueado = response.data;
-        
-        
-        
-        if (!token || !usuarioLogueado) {
-            throw new Error('Faltan datos en la respuesta');
+        if (usuario == "" || password == "") {
+            throw new Error('Completar los campos');
         }
 
-        // Guardar el token y usuario en localStorage
-        localStorage.setItem('token', token);
-        localStorage.setItem('usuario', usuarioLogueado.username);
-        localStorage.setItem('userRole', usuarioLogueado.rol);
-        localStorage.setItem('nombre', usuarioLogueado.nombre);
-        localStorage.setItem('apellido', usuarioLogueado.apellido);
+        const response = await dispatch(postData({
+            url: 'usuario/login', data: JSON.stringify({
+                username: usuario,
+                password: password
+            })
+        }));
 
+        if (response.type == 'postData/fulfilled') {
+            const data = response.payload; 
+            const token = data.token;
+            const usuarioLogueado = data;
 
-        return { usuarioLogueado, token }; // Asegúrate de que esto es correcto
+            localStorage.setItem('token', token);
+            localStorage.setItem('usuario', usuarioLogueado.username);
+            localStorage.setItem('userRole', usuarioLogueado.rol);
+            localStorage.setItem('nombre', usuarioLogueado.nombre);
+            localStorage.setItem('apellido', usuarioLogueado.apellido);
+
+            dispatch(loginSuccess({ usuarioLogueado, token }));
+        } else {
+            throw new Error('Datos incorrectos');
+        }
+
     } catch (error) {
-      
-        console.log(error.status)
-        throw new Error('Usuario o contraseña incorrectos.');
+        dispatch(loginFailure(error.message)); // Dispatch error action on failure
     }
+};
 
+// Success action
+const loginSuccess = (data) => ({
+    type: 'login/loginSuccess',
+    payload: data,
+});
+
+// Failure action
+const loginFailure = (error) => ({
+    type: 'login/loginFailure',
+    payload: error,
 });
 
 const initialState = {
@@ -45,6 +55,7 @@ const initialState = {
     error: null,
 };
 
+// Create the login slice
 export const loginSlice = createSlice({
     name: 'login',
     initialState,
@@ -54,26 +65,21 @@ export const loginSlice = createSlice({
             state.usuario = '';
             state.token = '';
             state.success = false;
-        }
-    },
-    extraReducers: (builder) =>{
-        builder
-        .addCase(loginUser.fulfilled, (state, action) => {
-            if (action.payload && action.payload.usuarioLogueado && action.payload.token) {
-                state.usuario = action.payload.usuarioLogueado;
-                state.token = action.payload.token;
-                state.success = true;
-            } else {
-                state.success = false;
-                state.error = 'Datos incompletos en la respuesta';
-            }
-        })
-        .addCase(loginUser.rejected, (state, action) => {
-            state.error = action.error.message;
+            state.error = null;
+        },
+        loginSuccess: (state, action) => {
+            const { usuarioLogueado, token } = action.payload;
+            state.usuario = usuarioLogueado;
+            state.token = token;
+            state.success = true;
+            state.error = null;
+        },
+        loginFailure: (state, action) => {
+            state.error = action.payload;
             state.success = false;
-        })
+        }
     }
-})
+});
 
 export const { logoutUser } = loginSlice.actions;
 

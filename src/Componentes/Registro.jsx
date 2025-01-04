@@ -1,60 +1,116 @@
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { registroUser } from "../redux/RegistroSlice";
-import { Link, useNavigate } from 'react-router-dom';
+import { postData, resetError, fetchData } from "../redux/apiSlice";
+import { useNavigate } from 'react-router-dom';
 import Header from "./Header";
-import Swal from 'sweetalert2'
+import Swal from "sweetalert2";
 
 function Registro() {
-  const [activeTab, setActiveTab] = useState("Registrar usuario");
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [username1, setUsername1] = useState("");
-  const [otro, setOtro] = useState("");
-  const [password1, setPassword1] = useState("");
-  const [rol1, setRol1] = useState("");
-  const [nombre1, setNombre1] = useState("");
-  const [apellido1, setApellido1] = useState("");
-  const [cargo, setCargo] = useState("");
-  const error = useSelector(state => state.registro.error);
-  const success = useSelector(state => state.registro.success);
 
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
     if (userRole !== "ADMIN") {
-      // Redirigir si no es admin
-      navigate("/accesoDenegado");
+      //navigate("/accesoDenegado");
     }
   }, [navigate]);
 
-  if (success) {
-    Swal.fire({
-      title: "Registrado",
-      text: "Usuario registrado correctamente",
-      icon: "success",
-      confirmButtonColor: "#56C3CE"
-    }).then((result) => {
-      if (result.isConfirmed) {
-        window.location.reload();
+  const [activeTab, setActiveTab] = useState("Registrar usuario");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rol, setRol] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [apellido, setApellido] = useState("");
+  const [cargo, setCargo] = useState("");
+  const [errorCamposVacios, setErrorCamposVacios] = useState("");
+  const contraseñaActual = "";
+
+  const camposCompletos = username && email && password && rol && nombre && apellido && cargo;
+
+  const { error } = useSelector((state) => state.api);
+
+  // Generar username dinámicamente
+  const generarUsername = async (nombre, apellido) => {
+    if (!nombre || !apellido) return "";
+
+    // Generar la base del nombre de usuario
+    const inicial = lower(nombre.charAt(0));
+    const apellidoLower = lower(apellido);
+    const baseUsername = `${inicial}${apellidoLower}`;
+
+    try {
+      const response = await dispatch(fetchData('usuario'));
+      const usuariosBD = response.payload;
+      let contador = 0;
+      
+      for (let i = 0; i < usuariosBD.length; i++) {
+        const user = usuariosBD[i];
+        if(lower(user.nombre) == lower(nombre) && lower(user.apellido) == apellidoLower)
+          contador++;
       }
-    });
+      // Si ya existen registros con ese nombre base, incrementar el número
+      return contador > 0 ? `${baseUsername}${contador + 1}` : baseUsername + '1';
+
+    } catch (error) {
+      return baseUsername;
+    }
+  };
+
+  function lower(texto) {
+    return texto.toLowerCase();
   }
 
+  // useEffect para actualizar el username cuando cambien nombre o apellido
+  useEffect(() => {
+    const actualizarUsername = async () => {
+      const nuevoUsername = await generarUsername(nombre, apellido);
+      setUsername(nuevoUsername);
+    };
 
-  const dispatch = useDispatch();
+    if (nombre || apellido) {
+      actualizarUsername();
+    }
+  }, [nombre, apellido]);
+
+  useEffect(() => {
+    if (error) {
+      Swal.fire({
+        title: "Error",
+        text: error || "Ocurrió un error al registrar el usuario",
+        icon: "error",
+        confirmButtonColor: "#56C3CE"
+      });
+      dispatch(resetError());
+    }
+  }, [error, dispatch]);
 
   const handleRegistro = async () => {
-    await dispatch(
-      registroUser({ username1, otro, password1, rol1, nombre1, apellido1, cargo })
-    );
+    if (camposCompletos) {
+      const resultAction = await dispatch(
+        postData({ url: 'usuario', data: { username, email, password, rol, nombre, apellido, cargo, contraseñaActual } })
+      );
 
-    // Clear form
-    setUsername1("");
-    setOtro("");
-    setPassword1("");
-    setRol1("");
-    setNombre1("");
-    setApellido1("");
-    setCargo("");
+      if (resultAction.type === 'postData/fulfilled') {
+        Swal.fire({
+          title: "Registrado",
+          text: "Usuario registrado correctamente",
+          icon: "success",
+          confirmButtonColor: "#56C3CE"
+        });
+        setUsername("");
+        setEmail("");
+        setPassword("");
+        setRol("");
+        setNombre("");
+        setApellido("");
+        setCargo("");
+        setErrorCamposVacios("");
+      }
+    } else {
+      setErrorCamposVacios("Completar todos los campos");
+    }
   };
 
   return (
@@ -72,9 +128,9 @@ function Registro() {
                 <input
                   id="firstName"
                   name="firstName"
-                  value={nombre1}
+                  value={nombre}
                   type="text"
-                  onChange={(e) => setNombre1(e.target.value)}
+                  onChange={(e) => setNombre(e.target.value)}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Nombre"
@@ -89,8 +145,8 @@ function Registro() {
                   id="lastName"
                   name="lastName"
                   type="text"
-                  value={apellido1}
-                  onChange={(e) => setApellido1(e.target.value)}
+                  value={apellido}
+                  onChange={(e) => setApellido(e.target.value)}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Apellido"
@@ -108,9 +164,9 @@ function Registro() {
                   id="username"
                   name="username"
                   type="text"
-                  value={username1}
-                  onChange={(e) => setUsername1(e.target.value)}
+                  value={username}
                   required
+                  disabled
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Nombre de usuario"
                 />
@@ -124,8 +180,8 @@ function Registro() {
                   id="password"
                   name="password"
                   type="password"
-                  value={password1}
-                  onChange={(e) => setPassword1(e.target.value)}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Contraseña"
@@ -142,8 +198,8 @@ function Registro() {
                 id="email"
                 name="email"
                 type="text"
-                value={otro}
-                onChange={(e) => setOtro(e.target.value)}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                 placeholder="Email"
@@ -160,8 +216,8 @@ function Registro() {
                   id="role"
                   name="role"
                   required
-                  value={rol1}
-                  onChange={(e) => setRol1(e.target.value)}
+                  value={rol}
+                  onChange={(e) => setRol(e.target.value)}
                   className="w-full px-3 py-2 mt-1 h-10 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                 >
                   <option value="">Selecciona un rol</option>
@@ -196,14 +252,15 @@ function Registro() {
               Registrar
             </button>
 
-            {error && (
-              <div class="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-                <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            {/* Error Message */}
+            {errorCamposVacios && (
+              <div className="flex items-center p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+                <svg className="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
                 </svg>
-                <span class="sr-only">Info</span>
+                <span className="sr-only">Info</span>
                 <div>
-                  <span class="font-medium">{error}</span>
+                  <span className="font-medium">Completar todos los campos</span>
                 </div>
               </div>
             )}
