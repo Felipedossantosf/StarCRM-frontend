@@ -1,3 +1,4 @@
+//delete slice
 import { createSlice } from "@reduxjs/toolkit";
 import { postData } from "../redux/apiSlice"; // Ensure postData is imported from apiSlice
 

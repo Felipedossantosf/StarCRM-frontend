@@ -1,7 +1,7 @@
+//delete slice
 import { createSlice } from '@reduxjs/toolkit';
 import { fetchData, fetchById, deleteData, postData, updateData } from './apiSlice';
 
-// Reutilizar las funciones de fetch, post, delete, y update
 export const fetch = fetchData;
 export const fetchClienteById = fetchById;
 export const borrarCliente = deleteData;
@@ -9,9 +9,9 @@ export const agregarCliente = postData;
 export const editarCliente = updateData;
 
 const initialState = {
-  cliente: [],      // Clientes
-  assignees: [],    // Usuarios/assignees
-  clienteDetail: null,  // Detalle de cliente
+  cliente: [],      
+  assignees: [],    
+  clienteDetail: null,  
   status: 'idle',
   error: null,
 };

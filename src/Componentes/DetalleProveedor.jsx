@@ -16,7 +16,7 @@ function DetalleProveedor() {
   }, [dispatch, proveedorId]);
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div>Cargando...</div>;
   }
 
   if (status === 'failed') {

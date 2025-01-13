@@ -1,31 +1,39 @@
 import React, { useEffect, useState } from 'react';
 import Header from './Header';
 import Swal from "sweetalert2";
-import { useDispatch, useSelector} from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchClienteById, borrarCliente } from '../redux/clientesSlice';
+import { fetchById, deleteData } from '../redux/apiSlice';
 
 function validar(string) {
-  return !string === "" || string === null;
+  return !string == "" || string == null;
 }
 
 function DetalleCliente() {
-  const [activeTab, setActiveTab] = useState("");
-  const { clienteId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { clienteDetail, status, error } = useSelector((state) => state.cliente);
+  const [activeTab, setActiveTab] = useState("");
+  const { clienteId } = useParams();
+  const [clienteDetail, setClienteDetail] = useState(null);
+  const { status } = useSelector((state) => state.api);
 
   useEffect(() => {
-    dispatch(fetchClienteById({ url: 'cliente/', id: clienteId })); // Fetch the specific client by ID
+    dispatch(fetchById({ url: 'cliente', id: clienteId }))
+      .then((response) => {
+        if (response.payload) {
+          setClienteDetail(response.payload);
+        }
+      })
+      .catch((err) => {
+      });
   }, [dispatch, clienteId]);
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div>Cargando...</div>;
   }
 
   if (status === 'failed') {
-    return <div>Error: {error}</div>;
+    navigate('/ErrorPage');
   }
 
   if (!clienteDetail) {
@@ -46,21 +54,20 @@ function DetalleCliente() {
 
     if (!result.isConfirmed) return;
 
-    dispatch(borrarCliente({ url: '/cliente', id: clienteId })); // Dispatch delete action
+    dispatch(deleteData({ url: '/cliente', id: clienteId })); 
     Swal.fire({
       title: "Eliminado",
       text: "El cliente ha sido eliminado correctamente.",
       icon: "success",
       confirmButtonColor: "#56C3CE"
     });
-    navigate("/clientes"); // Navigate back to the clients list
+    navigate("/clientes"); 
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
       <div className="flex items-center text-white pt-4 pb-1">
-        {/* Left-aligned "Volver" button */}
         <div className="flex-none">
           <button
             onClick={() => navigate("/clientes")}
@@ -94,7 +101,7 @@ function DetalleCliente() {
           </svg>
         </div>
 
-        {/* Right-side spacer (optional for symmetry) */}
+        {/* Right-side spacer */}
         <div className="flex-none w-12"></div>
       </div>
 
@@ -130,7 +137,7 @@ function DetalleCliente() {
                   </svg>
                 </button>
               </p>
-              <p><b>Dirección: </b>{clienteDetail.direccion != null ? clienteDetail.direccion : "--"}</p>
+              <p><b>Dirección: </b>{validar(clienteDetail.direccion) ? clienteDetail.direccion : "--"}</p>
               <img className="rounded" src="https://s1.elespanol.com/2024/06/19/elandroidelibre/864174177_244151195_1706x960.jpg" />
             </div>
           </div>

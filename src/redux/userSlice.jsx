@@ -1,3 +1,4 @@
+//delete slice
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {

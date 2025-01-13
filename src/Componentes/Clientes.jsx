@@ -3,24 +3,31 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Header from "./Header";
 import { useDispatch, useSelector } from "react-redux";
-import { fetch, borrarCliente } from "../redux/clientesSlice";
+import { fetchData, deleteData } from "../redux/apiSlice";
 import { useNavigate } from 'react-router-dom';
 
 function Clientes() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [clientes, setClientes] = useState([]);
+  const [assignees, setAssignees] = useState([]);
+
   useEffect(() => {
-    dispatch(fetch('/cliente'));
-    dispatch(fetch('/usuario'));
+    dispatch(fetchData('/cliente'))
+      .then((response) => setClientes(response.payload))
+      .catch((error) => console.error("Error fetching clients", error));
+
+    dispatch(fetchData('/usuario'))
+      .then((response) => setAssignees(response.payload))
+      .catch((error) => console.error("Error fetching assignees", error));
   }, [dispatch]);
 
-  const { cliente, assignees, status, error } = useSelector((state) => state.cliente);
+  const { status, error } = useSelector((state) => state.api);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [assignedFilter, setAssignedFilter] = useState("");
   const [activeTab, setActiveTab] = useState("Clientes");
-
 
   const handleDeleteCliente = async (clienteId) => {
     const result = await Swal.fire({
@@ -37,9 +44,12 @@ function Clientes() {
     if (!result.isConfirmed) return;
 
     try {
-      await dispatch(borrarCliente({ url: '/cliente', id: clienteId }));
-
-      await Swal.fire({
+      const response = await dispatch(deleteData({ url: '/cliente', id: clienteId }));
+      console.log(response)
+      if (response.error) {
+        throw new Error();
+      }
+      Swal.fire({
         title: "Eliminado",
         text: "El cliente ha sido eliminado correctamente.",
         icon: "success",
@@ -51,15 +61,14 @@ function Clientes() {
   };
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div>Cargando...</div>;
   }
 
   if (status === 'failed') {
     return <div>Error: {error}</div>;
   }
 
-  // Filter clients based on assignedFilter, statusFilter, and search
-  const filteredClients = cliente.filter((client) => {
+  const filteredClients = clientes.filter((client) => {
     if (statusFilter && (client.estado !== statusFilter && client.esInactivo.toString() !== statusFilter)) return false;
     if (assignedFilter && client.assigned !== assignedFilter) return false;
     if (search && !client.nombre.toLowerCase().startsWith(search.toLowerCase())) return false;
@@ -75,7 +84,6 @@ function Clientes() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
-      {/* Header */}
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
       {/* Search and Filter Bar */}
@@ -120,11 +128,13 @@ function Clientes() {
                 Asignado a
               </option>
               <option value="JRW">JRW</option>
-              {assignees.map((assignee) => (
+              {assignees.length > 0 ? assignees.map((assignee) => (
                 <option key={assignee.id} value={assignee.id}>
                   {assignee.nombre} {assignee.apellido}
                 </option>
-              ))}
+              )) : (
+                <option value="" disabled>No hay usuarios disponibles</option>
+              )}
             </select>
             <button
               className="px-4 py-2 rounded bg-[#005469] hover:bg-[#00728F] text-white transition-all"

@@ -50,7 +50,7 @@ function Proveedores() {
   );
 
   if (status === 'loading') {
-    return <div>Loading...</div>;
+    return <div>Cargando...</div>;
   }
 
   if (status === 'failed') {

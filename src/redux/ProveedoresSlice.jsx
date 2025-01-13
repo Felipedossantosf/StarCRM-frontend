@@ -1,3 +1,4 @@
+//delete slice
 import { createSlice } from '@reduxjs/toolkit';
 import { fetchData, fetchById, deleteData, postData, updateData } from './apiSlice';
 

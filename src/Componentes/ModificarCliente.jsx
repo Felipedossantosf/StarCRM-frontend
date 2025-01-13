@@ -2,16 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { fetchClienteById, editarCliente } from '../redux/ClientesSlice';
+import { fetchById, updateData } from '../redux/apiSlice';
 import Header from './Header';
 
 function ModificarCliente() {
-  const { clienteId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { status } = useSelector((state) => state.api);
+  const { clienteId } = useParams();
   const [activeTab, setActiveTab] = useState('');
+  const [clienteDetail, setClienteDetail] = useState(null);
 
-  const clienteDetail = useSelector((state) => state.cliente.clienteDetail);
   const [cliente, setCliente] = useState({
     nombre: '',
     telefono: '',
@@ -30,18 +31,27 @@ function ModificarCliente() {
   });
 
   useEffect(() => {
-    if (!clienteDetail || clienteDetail.id !== parseInt(clienteId)) {
-      dispatch(fetchClienteById({ url: 'cliente/', id: clienteId }));
-    } else {
-      setCliente(clienteDetail);
-    }
-  }, [dispatch, clienteId, clienteDetail]);
+    dispatch(fetchById({ url: 'cliente', id: clienteId }))
+      .then((response) => {
+        if (response.payload) {
+          setClienteDetail(response.payload);
+        }
+      })
+      .catch((err) => {
+      });
+  }, [dispatch, clienteId]);
 
-  useEffect(() => {
-    if (clienteDetail && clienteDetail.id === parseInt(clienteId)) {
-      setCliente(clienteDetail);
-    }
-  }, [clienteDetail, clienteId]);
+  if (status === 'loading') {
+    return <div>Cargando...</div>;
+  }
+
+  if (status === 'failed') {
+    navigate('/ErrorPage');
+  }
+
+  if (!clienteDetail) {
+    return <div>Cliente no encontrado</div>;
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,7 +61,7 @@ function ModificarCliente() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(editarCliente({ url: '/cliente', id: clienteId, data: cliente }));
+      await dispatch(updateData({ url: '/cliente', id: clienteId, data: cliente }));
       Swal.fire('Éxito', 'Cliente actualizado correctamente', 'success');
       navigate(`/clientes/${clienteId}`);
     } catch (error) {
@@ -103,7 +113,7 @@ function ModificarCliente() {
                   id="nombre"
                   name="nombre"
                   type="text"
-                  value={cliente.nombre}
+                  value={clienteDetail.nombre}
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
@@ -118,7 +128,7 @@ function ModificarCliente() {
                   id="telefono"
                   name="telefono"
                   type="number"
-                  value={cliente.telefono}
+                  value={clienteDetail.telefono}
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
@@ -136,7 +146,7 @@ function ModificarCliente() {
                   id="correo"
                   name="correo"
                   type="email"
-                  value={cliente.correo}
+                  value={clienteDetail.correo}
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
@@ -152,7 +162,7 @@ function ModificarCliente() {
                   id="razonSocial"
                   name="razonSocial"
                   type="text"
-                  value={cliente.razonSocial}
+                  value={clienteDetail.razonSocial}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Razón social"
@@ -169,7 +179,7 @@ function ModificarCliente() {
                   id="rut"
                   name="rut"
                   type="text"
-                  value={cliente.rut}
+                  value={clienteDetail.rut}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="RUT"
@@ -184,7 +194,7 @@ function ModificarCliente() {
                   id="direccion"
                   name="direccion"
                   type="text"
-                  value={cliente.direccion}
+                  value={clienteDetail.direccion}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Dirección"
@@ -201,7 +211,7 @@ function ModificarCliente() {
                   id="sitioWeb"
                   name="sitioWeb"
                   type="text"
-                  value={cliente.sitioWeb}
+                  value={clienteDetail.sitioWeb}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Sitio web"
@@ -216,7 +226,7 @@ function ModificarCliente() {
                   id="credito"
                   name="credito"
                   type="text"
-                  value={cliente.credito}
+                  value={clienteDetail.credito}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Crédito"
@@ -233,7 +243,7 @@ function ModificarCliente() {
                   id="zafras"
                   name="zafras"
                   type="text"
-                  value={cliente.zafras}
+                  value={clienteDetail.zafras}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Zafras"
@@ -248,7 +258,7 @@ function ModificarCliente() {
                   id="notas"
                   name="notas"
                   type="text"
-                  value={cliente.notas}
+                  value={clienteDetail.notas}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Notas"
@@ -260,7 +270,7 @@ function ModificarCliente() {
               type="submit"
               className="w-full py-3 rounded bg-[#005469] hover:bg-[#00728F] text-white duration-300"
             >
-              Actualizar Cliente
+              Guardar
             </button>
           </form>
         </div>
