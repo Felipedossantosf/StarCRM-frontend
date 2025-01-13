@@ -4,6 +4,9 @@ import loginReducer from "./loginSlice";
 import proveedorReducer from "./ProveedoresSlice";
 import clienteReducer from "./clientesSlice";
 import apiReducer from "./apiSlice";
+import NotificionReducer from "./NotificacionesSlice";
+import AsignacionReducer from "./AsignacionesSlice";
+import ActividadReducer from "./ActividadSlice";
 
 export const store = configureStore({
   reducer: {
@@ -12,5 +15,8 @@ export const store = configureStore({
     proveedor: proveedorReducer,
     cliente: clienteReducer,
     api: apiReducer,
+    notificacion: NotificionReducer,
+    Asignacion: AsignacionReducer,
+    actividad: ActividadReducer,
   },
 });

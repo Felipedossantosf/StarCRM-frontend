@@ -60,7 +60,7 @@ const Header = ({ activeTab, setActiveTab }) => {
           />
         </button>
         <div className="flex items-center lg:space-x-4 relative">
-          <button className="focus:outline-none">
+          <button onClick={() => navigate("/Notifacion")} className="focus:outline-none">
             <img
               src="https://i.imgur.com/0i6ndAu.png"
               alt="Campana"

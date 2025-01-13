@@ -4,11 +4,13 @@ import { postData, resetError, fetchData } from "../redux/apiSlice";
 import { useNavigate } from 'react-router-dom';
 import Header from "./Header";
 import Swal from "sweetalert2";
+import { fetchUsuarios } from "../redux/userSlice";
 
 function Registro() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const { usuarios } = useSelector((state) => state.user);
+  
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
     if (userRole !== "ADMIN") {
@@ -75,6 +77,8 @@ function Registro() {
   }, [nombre, apellido]);
 
   useEffect(() => {
+    dispatch(fetchUsuarios('usuario'));
+    console.log(usuarios);
     if (error) {
       Swal.fire({
         title: "Error",
@@ -85,6 +89,7 @@ function Registro() {
       dispatch(resetError());
     }
   }, [error, dispatch]);
+  
 
   const handleRegistro = async () => {
     if (camposCompletos) {

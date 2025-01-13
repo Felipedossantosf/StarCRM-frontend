@@ -1,30 +1,20 @@
 import React, { useState } from "react";
 import Header from "./Header";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { fetchActividades  } from "../redux/ActividadSlice";
-import { fetch} from "../redux/clientesSlice";
-import { useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { use } from "react";
-
-function HistorialActividad() {
-  const [activeTab, setActiveTab] = useState("Historial de actividad");
-  const { actividades } = useSelector((state) => state.actividad);
-  const { assignees } = useSelector((state) => state.cliente);
-  const dispatch = useDispatch();
-
-useEffect(() => {
-  dispatch(fetchActividades());
-  dispatch(fetch('/usuario'));
-  console.log(actividades);
-} , [dispatch]);
 
 
+function Actividades() {
 
+    const [activeTab, setActiveTab] = useState("Actividades");
+    const navigate = useNavigate();
+    const { actividades } = useSelector((state) => state.actividad);
+    const { assignees } = useSelector((state) => state.cliente);
 
-  return (
-    <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
-      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+    return (
+        <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
+           <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+            
         <div className="container mx-auto p-4">
         
         {/* Tabla para pantallas más grandes */}
@@ -40,7 +30,7 @@ useEffect(() => {
             <tbody>
               {actividades.map((actividad) => (
                 <tr key={actividad.id} className="border-b">
-                  {assignees.filter((d) => d.userId == actividad.usuario_id).map((d) => (
+                  {assignees.filter((d) => d.userId == asignacion.comun_id).map((d) => (
                     <td className="py-2 px-4">{d.username}</td>
                   ))}
                 <td className="py-2 px-4">{actividad.descripcion}</td>
@@ -52,8 +42,8 @@ useEffect(() => {
           </table>
         </div>
         </div>
-    </div>
-  );
+        </div>
+    )
 }
 
-export default HistorialActividad;
+export default Actividades;

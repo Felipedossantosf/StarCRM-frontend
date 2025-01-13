@@ -1,4 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { fetchData } from './apiSlice';
+
+export const fetchUsuarios = fetchData;
 
 const initialState = {
     usuarios: [],
@@ -7,16 +10,18 @@ const initialState = {
 export const userSlice = createSlice ({
     name: "user",
     initialState,
-    reducers: {
-        guardarUsuario: (state, action) => {
-            state.usuarios = action.payload
-        },
-        agregarUsuario: (state, action) => {
-            state.usuarios = action.payload
-        },
+    reducers: {}
+    ,extraReducers: (builder) => {
+        builder.addCase(fetchUsuarios.pending, (state) => {
+            state.status = 'loading';
+        })
+        .addCase(fetchUsuarios.fulfilled, (state, action) => {
+            state.usuarios = action.payload;
+        })
+        .addCase(fetchUsuarios.rejected, (state, action) => {
+            state.error = action.error.message;
+        })
     }
 })
-
-export const { guardarUsuario, agregarUsuario } = userSlice.actions;
 
 export default userSlice.reducer;

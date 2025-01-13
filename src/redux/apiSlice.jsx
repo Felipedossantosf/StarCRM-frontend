@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { data } from 'autoprefixer';
 import axios from 'axios';
 
 const API_URL = "https://starcrm-backenddev-hme7aae8g4f2b6g6.centralus-01.azurewebsites.net/api/";
@@ -17,6 +18,7 @@ const fetchApi = async (url, method = 'GET', data = null) => {
             }
         });
         return response.data;
+        
     } catch (error) {
         const errorMessage = error.response?.data?.message || error.message || 'Error, intente nuevamente.';
         throw new Error(errorMessage);
@@ -24,8 +26,23 @@ const fetchApi = async (url, method = 'GET', data = null) => {
 };
 
 // Thunks for API calls
-export const fetchData = createAsyncThunk('fetchAll', async (url) => {
+export const fetchData = createAsyncThunk('clientes/fetchAll', async (url) => {
     const response = await fetchApi(url);
+    return response;
+});
+
+export const fetchClientes = createAsyncThunk('fetchAll', async (url) => {
+    const response = await fetchApi(url);
+    return response;
+});
+
+export const fetchAsignaciones = createAsyncThunk('asignaciones/fetchAll', async () => {
+    const response = await fetchApi('asignacion'); // Ruta específica para asignaciones
+    return response;
+});
+
+export const fetchActividad = createAsyncThunk('actividad/fetchAll', async () => {
+    const response = await fetchApi('Actividad');
     return response;
 });
 
@@ -54,8 +71,12 @@ export const updateData = createAsyncThunk('updateData', async ({ url, id, data 
     const response = await fetchApi(`${url}/${id}`, 'PUT', data);
     return response;
 });
-
+export const updateASignData = createAsyncThunk('asignacion/updateData', async ({ url, id, data }) => {
+    const response = await fetchApi(`${url}/${id}`, 'PUT', data);
+    return response;
+});
 const initialState = {
+    
     data: [],
     status: 'idle',
     error: null,
