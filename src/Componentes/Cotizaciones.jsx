@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Header from "./Header";
+import Header from "./otros/Header";
 
 function Cotizaciones() {
   const [activeTab, setActiveTab] = useState("Cotizaciones");

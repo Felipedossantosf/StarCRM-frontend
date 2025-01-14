@@ -1,20 +1,20 @@
 import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import Header from "./Header";
+import Header from "../otros/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchProveedores, borrarProveedor } from "../redux/ProveedoresSlice";
+import { fetchData, deleteData } from "../../redux/apiSlice";
 import { useNavigate } from 'react-router-dom';
 
 function Proveedores() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { proveedor, status, error } = useSelector((state) => state.proveedor);
+  const { proveedores, status, error } = useSelector((state) => state.api);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("Proveedores");
 
   useEffect(() => {
-    dispatch(fetchProveedores('/proveedor'));
+    dispatch(fetchData('/proveedor'));
   }, [dispatch]);
 
   const handleDeleteProveedor = async (provId) => {
@@ -32,7 +32,7 @@ function Proveedores() {
     if (!result.isConfirmed) return;
 
     try {
-      await dispatch(borrarProveedor({ url: '/proveedor', id: provId }));
+      await dispatch(deleteData({ url: '/proveedor', id: provId }));
 
       await Swal.fire({
         title: "Eliminado",
@@ -45,7 +45,7 @@ function Proveedores() {
     }
   };
 
-  const filteredProveedores = proveedor.filter((prov) => 
+  const filteredProveedores = proveedores.filter((prov) => 
     !search || prov.nombre.toLowerCase().startsWith(search.toLowerCase())
   );
 
@@ -80,7 +80,7 @@ function Proveedores() {
         </div>
         <button
           className="px-4 py-2 rounded bg-[#56C3CE] hover:bg-[#59b1ba] text-white transition-all"
-          onClick={() => navigate("/crearProveedor")}
+          onClick={() => navigate("/proveedores/crear")}
         >
           <div className="flex space-x-1">
             <p>Nuevo</p>
@@ -130,7 +130,7 @@ function Proveedores() {
                           </a>
 
                           <button className="text-black hover:text-gray-600" title="Editar"
-                            onClick={() => navigate(`/modificarProveedor/${prov.id}`)}
+                            onClick={() => navigate(`/proveedores/editar/${prov.id}`)}
                           >
                             <svg className="h-8 w-8" viewBox="0 0 24 24" stroke="currentColor" fill="none">
                             <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />

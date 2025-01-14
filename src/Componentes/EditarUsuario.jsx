@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { fetchByAtributo, updateData } from '../redux/apiSlice';
-import Header from './Header';
+import Header from './otros/Header';
 
 function EditarUsuario() {
   const navigate = useNavigate();

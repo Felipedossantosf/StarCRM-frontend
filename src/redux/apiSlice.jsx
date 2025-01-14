@@ -17,6 +17,7 @@ const fetchApi = async (url, method = 'GET', data = null) => {
             }
         });
         return response.data;
+        
     } catch (error) {
         const errorMessage = error.response?.data?.message || error.message || 'Error, intente nuevamente.';
         throw new Error(errorMessage);
@@ -41,6 +42,7 @@ export const fetchByAtributo = createAsyncThunk('fetchByAtributo', async ({ url,
 });
 
 export const postData = createAsyncThunk('postData', async ({ url, data }) => {
+    console.log(data)
     const response = await fetchApi(url, 'POST', data);
     return response;
 });
@@ -59,6 +61,16 @@ const initialState = {
     data: [],
     status: 'idle',
     error: null,
+    notificaciones: [],
+    usuarios: [],
+    asignaciones: [],
+    proveedores: [],
+    proveedorDetail: null,
+    actividades: [],
+    clientes: [],
+    clienteDetail: null,
+    cotizaciones: [],
+    eventos: []
 };
 
 const apiSlice = createSlice({
@@ -70,13 +82,35 @@ const apiSlice = createSlice({
         }
     },
     extraReducers: (builder) => {
+        const getStateKeyFromUrl = (arg) => {
+            const url = arg.url || arg;
+
+            if (url.includes("notificacion")) return "notificaciones";
+            if (url.includes("usuario")) return "usuarios";
+            if (url.includes("asignacion")) return "asignaciones";
+            if (url.includes("proveedor")) {
+                if (arg.id) return "proveedorDetail";  
+                return "proveedores"; 
+            }
+            if (url.includes("cliente")) {
+                if (arg.id) return "clienteDetail";  
+                return "clientes"; 
+            }
+            if (url.includes("actividad")) return "actividades";
+            if (url.includes("cliente")) return "clientes";
+            if (url.includes("cotizacion")) return "cotizaciones";
+            if (url.includes("evento")) return "eventos";
+            return "data";
+        };
+
         builder
             .addCase(fetchData.pending, (state) => {
                 state.status = 'loading';
             })
             .addCase(fetchData.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.data = action.payload;
+                const stateKey = getStateKeyFromUrl(action.meta.arg);
+                state[stateKey] = action.payload;
             })
             .addCase(fetchData.rejected, (state, action) => {
                 state.status = 'failed';
@@ -87,26 +121,11 @@ const apiSlice = createSlice({
             })
             .addCase(fetchById.fulfilled, (state, action) => {
                 state.status = 'succeeded';
+                const stateKey = getStateKeyFromUrl(action.meta.arg);
                 const item = action.payload;
-                state.data = state.data.map((dataItem) =>
-                    dataItem.id === item.id ? item : dataItem
-                );
+                state[stateKey] = item;
             })
             .addCase(fetchById.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message;
-            })
-            .addCase(fetchByAtributo.pending, (state) => {
-                state.status = 'loading';
-            })
-            .addCase(fetchByAtributo.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                const item = action.payload;
-                state.data = state.data.map((dataItem) =>
-                    dataItem.id === item.id ? item : dataItem
-                );
-            })
-            .addCase(fetchByAtributo.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             })
@@ -115,9 +134,11 @@ const apiSlice = createSlice({
             })
             .addCase(postData.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.data.push(action.payload);
+                const stateKey = getStateKeyFromUrl(action.meta.arg);
+                state[stateKey].push(action.payload);
             })
             .addCase(postData.rejected, (state, action) => {
+                console.log(action.error.message)
                 state.status = 'failed';
                 state.error = action.error.message;
             })
@@ -126,7 +147,8 @@ const apiSlice = createSlice({
             })
             .addCase(deleteData.fulfilled, (state, action) => {
                 state.status = 'succeeded';
-                state.data = state.data.filter(item => item.id !== action.meta.arg.id);
+                const stateKey = getStateKeyFromUrl(action.meta.arg.url);
+                state[stateKey] = state[stateKey].filter(item => item.id !== action.meta.arg.id);
             })
             .addCase(deleteData.rejected, (state, action) => {
                 state.status = 'failed';
@@ -137,10 +159,11 @@ const apiSlice = createSlice({
             })
             .addCase(updateData.fulfilled, (state, action) => {
                 state.status = 'succeeded';
+                const stateKey = getStateKeyFromUrl(action.meta.arg.url);
                 const updatedItem = action.payload;
-                const index = state.data.findIndex(item => item.id === updatedItem.id);
+                const index = state[stateKey].findIndex(item => item.id === updatedItem.id);
                 if (index !== -1) {
-                    state.data[index] = updatedItem;
+                    state[stateKey][index] = updatedItem;
                 }
             })
             .addCase(updateData.rejected, (state, action) => {

@@ -1,18 +1,18 @@
 import React, { useEffect } from 'react';
-import Header from './Header';
+import Header from '../otros/Header';
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchProveedorById, borrarProveedor } from '../redux/ProveedoresSlice';
+import { fetchById, deleteData } from '../../redux/apiSlice';
 
 function DetalleProveedor() {
   const { proveedorId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { proveedorDetail, status, error } = useSelector((state) => state.proveedor);
+  const { proveedorDetail, status, error } = useSelector((state) => state.api);
 
   useEffect(() => {
-    dispatch(fetchProveedorById({ url: 'proveedor/', id: proveedorId })); // Fetch the specific provider by ID
+    dispatch(fetchById({ url: 'proveedor', id: proveedorId }));
   }, [dispatch, proveedorId]);
 
   if (status === 'loading') {
@@ -41,7 +41,7 @@ function DetalleProveedor() {
 
     if (!result.isConfirmed) return;
 
-    dispatch(borrarProveedor({ url: '/proveedor', id: proveedorId })); // Dispatch delete action
+    dispatch(deleteData({ url: 'proveedor', id: proveedorId })); // Dispatch delete action
     Swal.fire({
       title: "Eliminado",
       text: "El proveedor ha sido eliminado correctamente.",
@@ -85,7 +85,7 @@ function DetalleProveedor() {
 
       <div className="bg-white my-6 mx-6 1190-screen:mx-20 px-6 1190-screen:px-40 py-10 1190-screen:py-20 rounded flex flex-col 1190-screen:flex-row 1190-screen:space-x-20">
         <div className="flex flex-col space-y-4 text-white w-full 1190-screen:w-1/3 justify-start items-start order-last 1190-screen:order-first 800-screen:px-60 500-screen:px-20 600-screen:px-40 px-10 1600-screen:px-20 1190-screen:px-0">
-          <button onClick={() => navigate(`/modificarProveedor/${proveedorId}`)} className="bg-gray-300 hover:bg-gray-400 p-4 text-sm rounded w-full">Modificar</button>
+          <button onClick={() => navigate(`/proveedores/editar/${proveedorId}`)} className="bg-gray-300 hover:bg-gray-400 p-4 text-sm rounded w-full">Modificar</button>
           <button className="bg-red-800 hover:bg-red-900 p-4 text-sm rounded w-full" onClick={handleDeleteProveedor}>Eliminar</button>
         </div>
 

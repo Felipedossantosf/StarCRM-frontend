@@ -2,19 +2,30 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { postData, resetError, fetchData } from "../redux/apiSlice";
 import { useNavigate } from 'react-router-dom';
-import Header from "./Header";
+import Header from "./otros/Header";
 import Swal from "sweetalert2";
 
 function Registro() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { usuarios, error } = useSelector((state) => state.api);
 
   useEffect(() => {
+    dispatch(fetchData('usuario'));
     const userRole = localStorage.getItem("userRole");
     if (userRole !== "ADMIN") {
-      //navigate("/accesoDenegado");
+      navigate("/NoAutorizado")
     }
-  }, [navigate]);
+    if (error) {
+      Swal.fire({
+        title: "Error",
+        text: error || "Ocurrió un error al registrar el usuario",
+        icon: "error",
+        confirmButtonColor: "#56C3CE"
+      });
+      dispatch(resetError());
+    }
+  }, [navigate, error]);
 
   const [activeTab, setActiveTab] = useState("Registrar usuario");
   const [username, setUsername] = useState("");
@@ -29,8 +40,6 @@ function Registro() {
 
   const camposCompletos = username && email && password && rol && nombre && apellido && cargo;
 
-  const { error } = useSelector((state) => state.api);
-
   // Generar username dinámicamente
   const generarUsername = async (nombre, apellido) => {
     if (!nombre || !apellido) return "";
@@ -41,13 +50,11 @@ function Registro() {
     const baseUsername = `${inicial}${apellidoLower}`;
 
     try {
-      const response = await dispatch(fetchData('usuario'));
-      const usuariosBD = response.payload;
       let contador = 0;
-      
-      for (let i = 0; i < usuariosBD.length; i++) {
-        const user = usuariosBD[i];
-        if(lower(user.nombre) == lower(nombre) && lower(user.apellido) == apellidoLower)
+
+      for (let i = 0; i < usuarios.length; i++) {
+        const user = usuarios[i];
+        if (lower(user.nombre) == lower(nombre) && lower(user.apellido) == apellidoLower)
           contador++;
       }
       // Si ya existen registros con ese nombre base, incrementar el número
@@ -73,18 +80,6 @@ function Registro() {
       actualizarUsername();
     }
   }, [nombre, apellido]);
-
-  useEffect(() => {
-    if (error) {
-      Swal.fire({
-        title: "Error",
-        text: error || "Ocurrió un error al registrar el usuario",
-        icon: "error",
-        confirmButtonColor: "#56C3CE"
-      });
-      dispatch(resetError());
-    }
-  }, [error, dispatch]);
 
   const handleRegistro = async () => {
     if (camposCompletos) {

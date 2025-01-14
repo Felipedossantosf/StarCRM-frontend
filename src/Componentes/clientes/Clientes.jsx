@@ -1,33 +1,146 @@
 import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
-import Header from "./Header";
+import Header from "../otros/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchData, deleteData } from "../redux/apiSlice";
+import { fetchData, deleteData, postData } from "../../redux/apiSlice";
 import { useNavigate } from 'react-router-dom';
 
 function Clientes() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [clientes, setClientes] = useState([]);
-  const [assignees, setAssignees] = useState([]);
-
   useEffect(() => {
-    dispatch(fetchData('/cliente'))
-      .then((response) => setClientes(response.payload))
-      .catch((error) => console.error("Error fetching clients", error));
-
-    dispatch(fetchData('/usuario'))
-      .then((response) => setAssignees(response.payload))
-      .catch((error) => console.error("Error fetching assignees", error));
+    dispatch(fetchData('cliente'));
+    dispatch(fetchData('usuario'));
+    dispatch(fetchData('asignacion'));
   }, [dispatch]);
 
-  const { status, error } = useSelector((state) => state.api);
+  const { clientes, usuarios, status, asignaciones, error } = useSelector((state) => state.api);
+  console.log(asignaciones)
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [assignedFilter, setAssignedFilter] = useState("");
   const [activeTab, setActiveTab] = useState("Clientes");
+
+  const asignado = (clienteId) => {
+    // Buscar todas las asignaciones para un cliente específico
+    let lista = asignaciones.filter((asignacion) => asignacion.cliente_id === clienteId);
+
+    if (lista.length === 0) return "Libre"; // Si no hay asignaciones, el cliente está libre
+
+    // En caso de que haya asignaciones, seleccionamos la primera y mostramos el nombre del usuario asignado
+    const resultado = lista[0]; // Suponemos que solo hay una asignación por cliente
+    if (resultado) {
+      // Verificamos que haya un usuario asignado y mostramos su nombre completo
+      const usuario = usuarios.find((usuario) => usuario.userId === resultado.comun_id);
+      return usuario ? `${usuario.nombre} ${usuario.apellido}` : "Usuario no encontrado";
+    }
+
+    return "Libre"; // En caso de que no se haya encontrado un usuario asignado
+  };
+
+
+  const handleAsignar = async (clienteId) => {
+    // Verificar si el cliente está asignado o no
+    if (asignado(clienteId) !== "Libre") {
+      const result = await Swal.fire({
+        title: "El cliente ya tiene un usuario asignado.",
+        text: "¿Deseas reasignar el cliente?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#56C3CE",
+        confirmButtonText: "Confirmar",
+        cancelButtonText: "Cancelar",
+      });
+
+      if (!result.isConfirmed) return;  // Si no confirma, no hacemos nada
+
+      // Buscar la asignación existente y eliminarla
+      let asignacionExistente = asignaciones.find((asignacion) => asignacion.cliente_id === clienteId);
+      if (asignacionExistente) {
+        // Eliminar la asignación existente
+        await dispatch(deleteData({ url: 'asignacion', id: asignacionExistente.id }));
+      }
+    }
+
+    // Luego de eliminar la asignación (si es necesario), pedir al usuario que elija un nuevo usuario
+    const { value: userId } = await Swal.fire({
+      title: 'Selecciona un usuario',
+      input: 'select',
+      inputOptions: usuarios.reduce((options, u) => {
+        options[u.userId] = `${u.nombre} ${u.apellido}`;
+        return options;
+      }, {}),
+      inputPlaceholder: 'Selecciona un usuario',
+      showCancelButton: true,
+      confirmButtonText: 'Asignar',
+      cancelButtonText: 'Cancelar',
+    });
+
+    if (userId) {
+      // Crear nueva asignación
+      const data = {
+        cliente_id: clienteId,
+        comun_id: userId,
+        descripcion: "Reasignación de cliente",
+        estado: "Aprobada",
+        fecha: new Date().toISOString(),
+      };
+
+      // Realizar el POST para crear la nueva asignación
+      dispatch(postData({ url: 'asignacion', data }));
+
+      Swal.fire({
+        title: "Cliente reasignado",
+        text: "El cliente ha sido reasignado correctamente.",
+        icon: "success",
+        confirmButtonColor: "#56C3CE"
+      });
+    }
+  };
+
+  const handleLiberarCliente = async (clienteId) => {
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Este cliente será marcado como libre y su asignación será eliminada.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#56C3CE",
+      confirmButtonText: "Liberar",
+      cancelButtonText: "Cancelar",
+    });
+  
+    if (!result.isConfirmed) return;
+  
+    try {
+      // Buscar la asignación del cliente
+      let asignacionExistente = asignaciones.find((asignacion) => asignacion.cliente_id === clienteId);
+      if (asignacionExistente) {
+        // Eliminar la asignación existente
+        await dispatch(deleteData({ url: 'asignacion', id: asignacionExistente.id }));
+      }
+  
+      // Marcar al cliente como libre (estado "Libre")
+      const cliente = clientes.find((cliente) => cliente.id === clienteId);
+      if (cliente) {
+        const updatedCliente = { ...cliente, estado: "Libre" }; 
+        await dispatch(postData({ url: 'cliente', data: updatedCliente }));
+      }
+  
+      Swal.fire({
+        title: "Cliente liberado",
+        text: "El cliente ha sido liberado correctamente.",
+        icon: "success",
+        confirmButtonColor: "#56C3CE"
+      });
+    } catch (error) {
+      console.log(error);
+      Swal.fire("Error", "No se pudo liberar el cliente. Intenta nuevamente.", "error");
+    }
+  };
 
   const handleDeleteCliente = async (clienteId) => {
     const result = await Swal.fire({
@@ -44,8 +157,7 @@ function Clientes() {
     if (!result.isConfirmed) return;
 
     try {
-      const response = await dispatch(deleteData({ url: '/cliente', id: clienteId }));
-      console.log(response)
+      const response = await dispatch(deleteData({ url: 'cliente', id: clienteId }));
       if (response.error) {
         throw new Error();
       }
@@ -68,10 +180,10 @@ function Clientes() {
     return <div>Error: {error}</div>;
   }
 
-  const filteredClients = clientes.filter((client) => {
-    if (statusFilter && (client.estado !== statusFilter && client.esInactivo.toString() !== statusFilter)) return false;
-    if (assignedFilter && client.assigned !== assignedFilter) return false;
-    if (search && !client.nombre.toLowerCase().startsWith(search.toLowerCase())) return false;
+  const filteredClients = clientes.filter((cliente) => {
+    if (statusFilter && (cliente.estado !== statusFilter && cliente.esInactivo.toString() !== statusFilter)) return false;
+    if (assignedFilter && cliente.assigned !== assignedFilter) return false;
+    if (search && !cliente.nombre.toLowerCase().startsWith(search.toLowerCase())) return false;
 
     return true;
   });
@@ -112,12 +224,9 @@ function Clientes() {
               <option value="" disabled>
                 Filtrar por
               </option>
-              <option value="Asignado">Asignados</option>
-              <option value="Pendiente">Pendientes</option>
               <option value="Libre">Libres</option>
               <option value="false">Activos</option>
               <option value="true">Inactivos</option>
-              <option value="Perdido">Perdidos</option>
             </select>
             <select
               className="px-4 py-2 rounded bg-white w-full sm:w-auto"
@@ -128,9 +237,9 @@ function Clientes() {
                 Asignado a
               </option>
               <option value="JRW">JRW</option>
-              {assignees.length > 0 ? assignees.map((assignee) => (
-                <option key={assignee.id} value={assignee.id}>
-                  {assignee.nombre} {assignee.apellido}
+              {usuarios.length > 0 ? usuarios.map((usuario) => (
+                <option key={usuario.id} value={usuario.id}>
+                  {usuario.nombre} {usuario.apellido}
                 </option>
               )) : (
                 <option value="" disabled>No hay usuarios disponibles</option>
@@ -150,7 +259,7 @@ function Clientes() {
           </button>
           <button
             className="px-4 py-2 rounded bg-[#56C3CE] hover:bg-[#59b1ba] text-white transition-all"
-            onClick={() => navigate("/crearCliente")}
+            onClick={() => navigate("/clientes/crear")}
           >
             <div className="flex space-x-1">
               <p>Nuevo</p>
@@ -172,11 +281,11 @@ function Clientes() {
             ) : (
               <table className="table-auto w-full truncate">
                 <tbody>
-                  {filteredClients.map((client, index) => (
-                    <tr key={client.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}>
+                  {filteredClients.map((cliente, index) => (
+                    <tr key={cliente.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}>
                       <td className="px-4 py-2 border-b border-gray-300 hover:text-gray-700 hover:underline">
-                        <Link to={`/clientes/${client.id}`} className="flex">
-                          <b>{client.nombre}</b>
+                        <Link to={`/clientes/${cliente.id}`} className="flex">
+                          <b>{cliente.nombre}</b>
                           <svg
                             className="h-6"
                             viewBox="0 0 24 24"
@@ -189,16 +298,18 @@ function Clientes() {
                           </svg>
                         </Link>
                       </td>
-                      <td className="px-4 py-2 border-b border-gray-300">{client.estado == "Asignado" ? "Asignado a: " : client.estado}</td> {/* traer nombre de asignado */}
+                      <td className="px-4 py-2 border-b border-gray-300">
+                        {asignado(cliente.id)}
+                      </td>
                       <td className="px-4 py-2 border-b border-gray-300">
                         <div className="flex space-x-1">
                           <span>
                             Última carga:{" "}
-                            {client.fechaUltCarga != null ? client.fechaUltCarga : "--"}
+                            {cliente.fechaUltCarga != null ? cliente.fechaUltCarga : "--"}
                           </span>
                           <svg className="h-3" viewBox="0 0 24 24" fill="none">
                             <circle
-                              fill={`${client.esInactivo ? "red" : "green"}`}
+                              fill={`${cliente.esInactivo ? "red" : "green"}`}
                               cx="12"
                               cy="12"
                               r="9"
@@ -208,8 +319,18 @@ function Clientes() {
                       </td>
                       <td className="px-4 py-2 border-b border-gray-300">
                         <div className="flex justify-end space-x-2">
+                          {/* Liberar Cliente Button */}
+                          {asignado(cliente.id) !== "Libre" && (
+                            <button
+                              className="text-orange-500 hover:text-orange-700"
+                              title="Liberar"
+                              onClick={() => handleLiberarCliente(cliente.id)}
+                            >Liberar
+                            </button>
+                          )}
+
                           {/* WhatsApp Button */}
-                          <a target="blank" href={`https://wa.me/${client.telefono}`} className="text-green-600 hover:text-green-700">
+                          <a target="blank" href={`https://wa.me/${cliente.telefono}`} className="text-green-600 hover:text-green-700">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" />
                             </svg>
@@ -217,17 +338,37 @@ function Clientes() {
 
                           {/* Edit Button */}
                           <button className="text-black hover:text-gray-600" title="Editar"
-                            onClick={() => navigate(`/modificarCliente/${client.id}`)}>
+                            onClick={() => navigate(`/clientes/editar/${cliente.id}`)}>
                             <svg className="h-8 w-8" viewBox="0 0 24 24" stroke="currentColor" fill="none">
                               <path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4" />
                               <line x1="13.5" y1="6.5" x2="17.5" y2="10.5" />
                             </svg>
                           </button>
+
+                          {/* Asignar Button */}
+                          <button
+                            className="text-blue-500 hover:text-blue-700"
+                            title="Asignar"
+                            onClick={() => handleAsignar(cliente.id)}
+                          >
+                            <svg
+                              className="h-8 w-8"
+                              viewBox="0 0 24 24"
+                              strokeWidth="2"
+                              stroke="currentColor"
+                              fill="none"
+                            >
+                              <path stroke="none" d="M0 0h24v24H0z" />
+                              <line x1="12" y1="5" x2="12" y2="19" />
+                              <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                          </button>
+
                           {/* Delete Button */}
                           <button
                             className="text-red-500 hover:text-red-700"
                             title="Eliminar"
-                            onClick={() => handleDeleteCliente(client.id)}
+                            onClick={() => handleDeleteCliente(cliente.id)}
                           >
                             <svg
                               className="h-8 w-8"
@@ -241,6 +382,8 @@ function Clientes() {
                               <line x1="6" y1="6" x2="18" y2="18" />
                             </svg>
                           </button>
+
+
                         </div>
                       </td>
                     </tr>

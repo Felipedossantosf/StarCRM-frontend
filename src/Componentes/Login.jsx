@@ -2,7 +2,7 @@ import React from 'react'
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import { loginUser } from '../redux/loginSlice';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [usuario, setUsuario] = useState('');
@@ -11,7 +11,6 @@ function Login() {
   const dispatch = useDispatch();
 
   const token2 = localStorage.getItem("token");
-  const success = useSelector(state => state.login.success);
   const error = useSelector(state => state.login.error);
   const token = useSelector(state => state.login.token);
 

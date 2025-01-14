@@ -1,6 +1,6 @@
 //delete slice
 import { createSlice } from "@reduxjs/toolkit";
-import { postData } from "../redux/apiSlice"; // Ensure postData is imported from apiSlice
+import { postData } from "../redux/apiSlice"; 
 
 // Define loginUser action
 export const loginUser = (usuario, password) => async (dispatch) => {
@@ -22,6 +22,7 @@ export const loginUser = (usuario, password) => async (dispatch) => {
             const usuarioLogueado = data;
 
             localStorage.setItem('token', token);
+            localStorage.setItem('usuarioId', 61); //usuarioLogueado.userId ARREGLAR
             localStorage.setItem('usuario', usuarioLogueado.username);
             localStorage.setItem('userRole', usuarioLogueado.rol);
             localStorage.setItem('nombre', usuarioLogueado.nombre);

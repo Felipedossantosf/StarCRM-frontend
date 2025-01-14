@@ -2,16 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { fetchById, updateData } from '../redux/apiSlice';
-import Header from './Header';
+import { fetchById, updateData } from '../../redux/apiSlice';
+import Header from '../otros/Header';
 
 function ModificarCliente() {
+ const { clienteId } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { status } = useSelector((state) => state.api);
-  const { clienteId } = useParams();
   const [activeTab, setActiveTab] = useState('');
-  const [clienteDetail, setClienteDetail] = useState(null);
+
+  useEffect(() => {
+    dispatch(fetchById({ url: 'cliente', id: clienteId }));
+  }, [dispatch, clienteId]);
+
+  const {status, clienteDetail} = useSelector((state) => state.api);
 
   const [cliente, setCliente] = useState({
     nombre: '',
@@ -31,15 +35,10 @@ function ModificarCliente() {
   });
 
   useEffect(() => {
-    dispatch(fetchById({ url: 'cliente', id: clienteId }))
-      .then((response) => {
-        if (response.payload) {
-          setClienteDetail(response.payload);
-        }
-      })
-      .catch((err) => {
-      });
-  }, [dispatch, clienteId]);
+    if (clienteDetail) {
+      setCliente(clienteDetail);
+    }
+  }, [clienteDetail]);
 
   if (status === 'loading') {
     return <div>Cargando...</div>;
@@ -61,7 +60,7 @@ function ModificarCliente() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(updateData({ url: '/cliente', id: clienteId, data: cliente }));
+      await dispatch(updateData({ url: 'cliente', id: clienteId, data: cliente }));
       Swal.fire('Éxito', 'Cliente actualizado correctamente', 'success');
       navigate(`/clientes/${clienteId}`);
     } catch (error) {

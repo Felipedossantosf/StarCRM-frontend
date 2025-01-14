@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { fetchProveedorById, editarProveedor } from '../redux/ProveedoresSlice';
-import Header from './Header';
+import { fetchById, updateData } from '../../redux/apiSlice';
+import Header from '../otros/Header';
 
 function ModificarProveedor() {
   const { proveedorId } = useParams();
@@ -11,7 +11,15 @@ function ModificarProveedor() {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('');
 
-  const proveedorDetail = useSelector((state) => state.proveedor.proveedorDetail);
+  // Dispatch action to fetch data by ID
+  useEffect(() => {
+    dispatch(fetchById({ url: 'proveedor', id: proveedorId }));
+  }, [dispatch, proveedorId]);
+
+  // Access the proveedor data from the Redux store
+  const proveedorDetail = useSelector((state) => state.api.proveedorDetail);
+
+  // Initialize the form state with default values
   const [proveedor, setProveedor] = useState({
     nombre: '',
     telefono: '',
@@ -23,24 +31,18 @@ function ModificarProveedor() {
     rut: ''
   });
 
+  // Update the form state once the proveedorDetail is fetched
   useEffect(() => {
-    if (!proveedorDetail || proveedorDetail.id !== parseInt(proveedorId)) {
-      dispatch(fetchProveedorById({ url: 'proveedor/', id: proveedorId }));
-    } else {
+    if (proveedorDetail) {
       setProveedor(proveedorDetail);
     }
-  }, [dispatch, proveedorId, proveedorDetail]);
-
-  useEffect(() => {
-    if (proveedorDetail && proveedorDetail.id === parseInt(proveedorId)) {
-      setProveedor(proveedorDetail);
-    }
-  }, [proveedorDetail, proveedorId]);
+  }, [proveedorDetail]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(editarProveedor({ url: '/proveedor', id: proveedorId, data: proveedor }));
+      // Dispatch the update action
+      await dispatch(updateData({ url: 'proveedor', id: proveedorId, data: proveedor }));
       Swal.fire('Éxito', 'Proveedor actualizado correctamente', 'success');
       navigate(`/proveedores/${proveedorId}`);
     } catch (error) {
@@ -83,6 +85,7 @@ function ModificarProveedor() {
       <main className="flex justify-center flex-grow items-center px-4 sm:px-6 py-6 sm:py-8">
         <div className="bg-white bg-opacity-5 w-full max-w-lg p-10 space-y-8 rounded-lg shadow-lg">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Form Fields */}
             <div className="grid gap-1 grid-cols-2">
               <div>
                 <label htmlFor="nombre" className="block text-sm font-medium text-white">
@@ -209,7 +212,7 @@ function ModificarProveedor() {
               type="submit"
               className="w-full py-3 rounded bg-[#005469] hover:bg-[#00728F] text-white duration-300"
             >
-              Actualizar Proveedor
+              Actualizar
             </button>
           </form>
         </div>
