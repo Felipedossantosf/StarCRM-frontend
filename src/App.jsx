@@ -18,6 +18,9 @@ import CrearCliente from './Componentes/clientes/CrearCliente';
 import ModificarCliente from './Componentes/clientes/ModificarCliente';
 import EditarUsuario from './Componentes/EditarUsuario';
 import Notificaciones from './Componentes/Notificaciones';
+import AgregarEvento from './Componentes/AgregarEvento';
+import DetalleEvento from './Componentes/DetalleEvento';
+
 
 function App() {
   return (
@@ -44,6 +47,11 @@ function App() {
         <Route path="/clientes/crear" element={<CrearCliente />} />
         <Route path="/perfil" element={<EditarUsuario />} />
         <Route path="/notificaciones" element={<Notificaciones />} />
+        <Route path="/AgregarEvento" element={<AgregarEvento />} />
+        <Route path="/DetalleEvento" element={<DetalleEvento />} />
+
+
+        
 
 
         {/* Error Route */}

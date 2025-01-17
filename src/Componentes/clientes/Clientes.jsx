@@ -172,13 +172,6 @@ function Clientes() {
     }
   };
 
-  if (status === 'loading') {
-    return <div>Cargando...</div>;
-  }
-
-  if (status === 'failed') {
-    return <div>Error: {error}</div>;
-  }
 
   const filteredClients = clientes.filter((cliente) => {
     if (statusFilter && (cliente.estado !== statusFilter && cliente.esInactivo.toString() !== statusFilter)) return false;
