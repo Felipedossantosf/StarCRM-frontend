@@ -20,6 +20,8 @@ import EditarUsuario from './Componentes/EditarUsuario';
 import Notificaciones from './Componentes/Notificaciones';
 import AgregarEvento from './Componentes/AgregarEvento';
 import DetalleEvento from './Componentes/DetalleEvento';
+import ModificarEvento from './Componentes/ModificarEvento';
+
 
 
 function App() {
@@ -49,6 +51,8 @@ function App() {
         <Route path="/notificaciones" element={<Notificaciones />} />
         <Route path="/AgregarEvento" element={<AgregarEvento />} />
         <Route path="/DetalleEvento" element={<DetalleEvento />} />
+        <Route path="/ModificarEvento" element={<ModificarEvento />} />
+
 
 
         

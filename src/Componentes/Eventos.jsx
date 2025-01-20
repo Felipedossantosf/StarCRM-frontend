@@ -137,6 +137,14 @@ function Eventos() {
             >
               Eliminar
             </button>
+
+            <button
+              className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-2 rounded mr-2 text-sm"
+              title="Modificar"
+              onClick={() => navigate("/ModificarEvento", { state: event })}
+            >
+              Modificar
+            </button>
           </td>
         </tr>
       ))}

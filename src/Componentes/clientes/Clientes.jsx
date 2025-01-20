@@ -17,7 +17,6 @@ function Clientes() {
   }, [dispatch]);
 
   const { clientes, usuarios, status, asignaciones, error } = useSelector((state) => state.api);
-  console.log(asignaciones)
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [assignedFilter, setAssignedFilter] = useState("");

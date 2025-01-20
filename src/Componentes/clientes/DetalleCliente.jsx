@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import { fetchById, deleteData } from '../../redux/apiSlice';
+import MapWithShare from '../MapWithShare';
 
 function validar(string) {
   return !string == "" || string == null;
@@ -137,8 +138,12 @@ function DetalleCliente() {
                   </svg>
                 </button>
               </p>
-              <p><b>Dirección: </b>{validar(clienteDetail.direccion) ? clienteDetail.direccion : "--"}</p>
-              <img className="rounded" src="https://s1.elespanol.com/2024/06/19/elandroidelibre/864174177_244151195_1706x960.jpg" />
+              <div>
+                <h2>Mapa y Compartir</h2>
+                {/* Llamar al componente MapWithShare */}
+                <MapWithShare address={clienteDetail.direccion} />
+             </div>
+              
             </div>
           </div>
         </div>
