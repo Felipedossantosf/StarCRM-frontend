@@ -112,7 +112,7 @@ function ModificarCliente() {
                   id="nombre"
                   name="nombre"
                   type="text"
-                  value={clienteDetail.nombre}
+                  value={cliente.nombre}
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
@@ -127,7 +127,7 @@ function ModificarCliente() {
                   id="telefono"
                   name="telefono"
                   type="number"
-                  value={clienteDetail.telefono}
+                  value={cliente.telefono}
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
@@ -145,7 +145,7 @@ function ModificarCliente() {
                   id="correo"
                   name="correo"
                   type="email"
-                  value={clienteDetail.correo}
+                  value={cliente.correo}
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
@@ -161,7 +161,7 @@ function ModificarCliente() {
                   id="razonSocial"
                   name="razonSocial"
                   type="text"
-                  value={clienteDetail.razonSocial}
+                  value={cliente.razonSocial}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Razón social"
@@ -178,7 +178,7 @@ function ModificarCliente() {
                   id="rut"
                   name="rut"
                   type="text"
-                  value={clienteDetail.rut}
+                  value={cliente.rut}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="RUT"
@@ -193,7 +193,7 @@ function ModificarCliente() {
                   id="direccion"
                   name="direccion"
                   type="text"
-                  value={clienteDetail.direccion}
+                  value={cliente.direccion}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Dirección"
@@ -210,7 +210,7 @@ function ModificarCliente() {
                   id="sitioWeb"
                   name="sitioWeb"
                   type="text"
-                  value={clienteDetail.sitioWeb}
+                  value={cliente.sitioWeb}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Sitio web"
@@ -225,7 +225,7 @@ function ModificarCliente() {
                   id="credito"
                   name="credito"
                   type="text"
-                  value={clienteDetail.credito}
+                  value={cliente.credito}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Crédito"
@@ -242,7 +242,7 @@ function ModificarCliente() {
                   id="zafras"
                   name="zafras"
                   type="text"
-                  value={clienteDetail.zafras}
+                  value={cliente.zafras}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Zafras"
@@ -257,7 +257,7 @@ function ModificarCliente() {
                   id="notas"
                   name="notas"
                   type="text"
-                  value={clienteDetail.notas}
+                  value={cliente.notas}
                   onChange={handleChange}
                   className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
                   placeholder="Notas"
