@@ -1,169 +1,224 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "./otros/Header";
+import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchData, deleteData, postData } from "../redux/apiSlice";
+import { useNavigate } from "react-router-dom";
+import { pdf } from "@react-pdf/renderer";
+import QuotationPdf from "./QuotationPDF"; // Importa el componente del PDF
 
 
 function Cotizaciones() {
-  const [activeTab, setActiveTab] = useState("Cotizaciones");
-  const [clientesSeleccionados, setClientesSeleccionados] = useState([{ description: '', quantity: 1, price: 0 }]);
-  const [items, setItems] = useState([{ description: '', quantity: 1, price: 0 }]);
+   const [activeTab, setActiveTab] = useState("Eventos");
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { cotizaciones, clientes, usuarios} = useSelector((state) => state.api);
+    
+    useEffect(() => {
+        dispatch(fetchData('cotizacion'));
+        dispatch(fetchData('cliente'));
+        dispatch(fetchData('usuario'));
+      }, [dispatch])
 
-  const addItem = () => {
-    setItems([...items, { description: '', quantity: 1, price: 0 }])
+
+
+const handleCopiar = async (cotizacion) => {
+  try {
+    
+    const cotizacion2 = {
+      id: cotizacion.id,
+      estado: cotizacion.estado,
+      fecha: cotizacion.fecha,
+      metodosPago: cotizacion.metodosPago,
+      subtotal: cotizacion.subtotal,
+      porcDesc: cotizacion.porcDesc,
+      subtotalDesc: cotizacion.subtotalDesc,
+      porcIva: cotizacion.porcIva,
+      total: cotizacion.total,
+      cliente_id: cotizacion.cliente_id || null,
+      empresa_id: 1,
+      usuario_id: cotizacion.usuario_id || null,
+      proveedor_id: cotizacion.proveedor_id || null,
+      fechaValidez: cotizacion.fechaValidez,
+      origen:cotizacion.origen || "N/A",
+      destino: cotizacion.destino || "N/A",
+      condicionFlete: cotizacion.condicionFlete || "N/A",
+      modo: cotizacion.modo || "N/A",
+      mercaderia: cotizacion.mercaderia || "N/A",
+      peso: cotizacion.peso || 0,
+      volumen: cotizacion.volumen || 0,
+      terminosCondiciones: cotizacion.terminosCondiciones || "N/A",
+      tipo: cotizacion.tipo || "N/A",
+      lineas: cotizacion.lineas
+    };
+
+    console.log("🔹 Cotización a enviar:", cotizacion2);
+
+    const response = await dispatch(postData({ url: "cotizacion", data: cotizacion2 }));
+
+    console.log("✅ Respuesta del servidor:", response);
+
+    if (response.error) {
+      throw new Error(response.error.message || "Error desconocido");
+    }
+
+    Swal.fire({
+      icon: "success",
+      title: "Cotización copiada exitosamente.",
+      showConfirmButton: false,
+      timer: 1500
+    });
+
+  
+    navigate("/cotizaciones");
+  } catch (error) {
+    console.error("❌ Error en agregarCotizacion:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Error al copiar la cotización",
+      text: error.message
+    });
   }
+}
+  
 
-  const removeItem = (index) => {
-    setItems(items.filter((_, i) => i !== index))
+
+const handleDetalle = async(cotizacion) => {
+  try {
+    console.log("⏳ Generando PDF...");
+    const doc = <QuotationPdf data={cotizacion} />;
+
+    if (!doc) {
+      throw new Error("Error: QuotationPdf no se generó correctamente.");
+    }
+
+    const blob = await pdf(doc).toBlob();
+
+    if (!blob) {
+      throw new Error("Error: No se pudo generar el Blob del PDF.");
+    }
+
+    console.log("✅ PDF generado correctamente.");
+    const pdfURL = URL.createObjectURL(blob);
+    window.open(pdfURL, "_blank");
+  } catch (pdfError) {
+    console.error("🚨 Error al generar el PDF:", pdfError);
+    Swal.fire({
+      icon: "error",
+      title: "Error al generar el PDF",
+      text: pdfError.message
+    });
   }
+};
 
-  const updateItem = (index, field, value) => {
-    const newItems = [...items]
-    newItems[index] = { ...newItems[index], [field]: value }
-    setItems(newItems)
-  }
-
-  const calculateTotal = () => {
-    return items.reduce((total, item) => total + item.quantity * item.price, 0).toFixed(2)
-  }
-
+const handleDeleteCotizacion = async (cotizacionId) => {
+      const result = await Swal.fire({
+        title: "¿Estás seguro?",
+        text: "Una vez eliminado, no podrás recuperar esta cotizacion.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#56C3CE",
+        confirmButtonText: "Eliminar",
+        cancelButtonText: "Cancelar",
+      });
+  
+      if (!result.isConfirmed) return;
+  
+      try {
+        const response = await dispatch(deleteData({ url: 'cotizacion', id: cotizacionId }));
+        if (response.error) {
+          throw new Error();
+        }
+        Swal.fire({
+          title: "Eliminado",
+          text: "la Cotizacion ha sido eliminada correctamente.",
+          icon: "success",
+          confirmButtonColor: "#56C3CE"
+        });
+      } catch (error) {
+        Swal.fire("Error", "No se pudo eliminar la cotizacion. Intenta nuevamente.", "error");
+      }
+    };
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      <div className="w-full max-w-6xl mx-auto border rounded-lg shadow-lg p-8 mt-10 bg-gray-50">
-      <div className="mb-6">
-        <h2 className="text-3xl font-bold text-blue-600">Cotizacion</h2>
-      </div>
-      <div>
-        <form className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-4 rounded-lg shadow-sm">
-            <div className="col-span-2">
-              <label htmlFor="invoiceNumber" className="block text-sm font-medium text-gray-700">Número de Cotizacion</label>
-              <input id="invoiceNumber" placeholder="Ej: FAC-001" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-4 rounded-lg shadow-sm">
-            <div>
-              <label htmlFor="provider" className="block text-sm font-medium text-gray-700">Proveedor</label>
-              <input id="provider" placeholder="Nombre del proveedor" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div>
-              <label htmlFor="vendor" className="block text-sm font-medium text-gray-700">Vendedor</label>
-              <input id="vendor" placeholder="Nombre del vendedor" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div>
-              <label htmlFor="status" className="block text-sm font-medium text-gray-700">Estado</label>
-              <input id="status" placeholder="Estado" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-4 rounded-lg shadow-sm">
-            <div>
-              <label htmlFor="client" className="block text-sm font-medium text-gray-700">Cliente</label>
-              <input id="client" placeholder="Nombre del cliente" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div>
-              <label htmlFor="att" className="block text-sm font-medium text-gray-700">Att</label>
-              <input id="att" placeholder="Atención" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 bg-white p-4 rounded-lg shadow-sm">
-            <div>
-              <label htmlFor="mode" className="block text-sm font-medium text-gray-700">Modo</label>
-              <input id="mode" placeholder="Modo de transporte" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div>
-              <label htmlFor="type" className="block text-sm font-medium text-gray-700">Tipo</label>
-              <input id="type" placeholder="Tipo" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div>
-              <label htmlFor="incoterm" className="block text-sm font-medium text-gray-700">Incoterm</label>
-              <input id="incoterm" placeholder="Incoterm" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div>
-              <label htmlFor="freightCondition" className="block text-sm font-medium text-gray-700">Condición de Flete</label>
-              <input id="freightCondition" placeholder="Condición de flete" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-4 rounded-lg shadow-sm">
-            <div>
-              <label htmlFor="origin" className="block text-sm font-medium text-gray-700">Origen</label>
-              <input id="origin" placeholder="Lugar de origen" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div>
-              <label htmlFor="destination" className="block text-sm font-medium text-gray-700">Destino</label>
-              <input id="destination" placeholder="Lugar de destino" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-4 rounded-lg shadow-sm">
-            <div>
-              <label htmlFor="goods" className="block text-sm font-medium text-gray-700">Mercadería</label>
-              <input id="goods" placeholder="Descripción de la mercadería" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div>
-              <label htmlFor="weight" className="block text-sm font-medium text-gray-700">Peso</label>
-              <input id="weight" placeholder="Peso" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-            <div>
-              <label htmlFor="volume" className="block text-sm font-medium text-gray-700">Volumen</label>
-              <input id="volume" placeholder="Volumen" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
-            </div>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <label className="block text-sm font-medium text-gray-700">Ítems de la Cotizacion</label>
-            {items.map((item, index) => (
-              <div key={index} className="flex flex-col md:flex-row gap-2 mb-2">
-                <input
-                  placeholder="Descripción"
-                  value={item.description}
-                  onChange={(e) => updateItem(index, 'description', e.target.value)}
-                  className="flex-grow border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
-                <input
-                  type="number"
-                  placeholder="Cantidad"
-                  value={item.quantity}
-                  onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
-                  className="w-20 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
-                <input
-                  type="number"
-                  placeholder="Precio"
-                  value={item.price}
-                  onChange={(e) => updateItem(index, 'price', parseFloat(e.target.value))}
-                  className="w-24 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeItem(index)}
-                  className="text-red-600 hover:text-red-800"
-                >
-                  &#128465;
-                </button>
-              </div>
-            ))}
-            <button
-              type="button"
-              onClick={addItem}
-              className="mt-2 text-blue-600 hover:text-blue-800"
-            >
-              &#43; Agregar Ítem
+      <div className="container mx-auto p-4">
+        {/* Filtros y botones */}
+        <div className="mb-4 space-y-4">
+          <div className="flex gap-4">
+            <button className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+              onClick={() => navigate("/CrearCotizacion")}
+            >Crear Cotizacion
             </button>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow-sm">
-            <label htmlFor="notes" className="block text-sm font-medium text-gray-700">Notas</label>
-            <textarea id="notes" placeholder="Notas adicionales..." className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
-          </div>
-          <div className="text-right">
-            <p className="text-lg font-semibold">Total: ${calculateTotal()}</p>
-          </div>
-        </form>
-      </div>
-      <div className="mt-6">
-        <button className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">Guardar Cotizacion</button>
+        </div>
+
+        {/* Tabla para pantallas más grandes */}
+        <div className="hidden md:block">
+          <table className="min-w-full bg-white">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="py-2 px-4 text-left">id</th>
+                <th className="py-2 px-4 text-left">fecha</th>
+                <th className="py-2 px-4 text-left">Cliente</th>
+                <th className="py-2 px-4 text-left">Usuario</th>
+              </tr>
+            </thead>
+            <tbody>
+              {cotizaciones.map((coti) => (
+                <tr
+                  key={coti.id}
+                  className={`border-b "bg-blue-300" `}
+                >
+                  <td className="py-2 px-4">{coti.id}</td>
+                  <td className="py-2 px-4">{coti.fecha}</td>
+                  <td className="py-2 px-4">
+                    {clientes.find(cli => cli.id == coti.cliente_id)?.nombre || 'N/A'}
+                  </td>
+                  <td className="py-2 px-4">
+                    {usuarios.find(user => user.userId == coti.usuario_id)?.nombre || 'N/A'}
+                  </td>
+                  <td className="py-2 px-4">
+                    <button
+                      className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mr-2 text-sm"
+                      title="Detalle"
+                      onClick={() => handleDetalle(coti)}
+                    >
+                      Detalle
+                    </button>
+                    <button
+                      className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded mr-2 text-sm"
+                      title="Eliminar"
+                      onClick={() => handleDeleteCotizacion(coti.id)}
+                    >
+                      Eliminar
+                    </button>
+
+                    <button
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-2 rounded mr-2 text-sm"
+                      title="Modificar"
+                      onClick={() => navigate("/ModificarCotizacion", { state: coti })}
+                    >
+                      Modificar
+                    </button>
+                    <button
+                      className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-2 rounded mr-2 text-sm"
+                      title="Modificar"
+                      onClick={() => handleCopiar(coti)}
+                    >
+                      Copiar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  
-   </div>
-   );
+  );
 }
 
 export default Cotizaciones; 

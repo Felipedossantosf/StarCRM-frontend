@@ -10,7 +10,6 @@ const ModificarEvento = () => {
     
     const location = useLocation();
     const user = location.state
-    console.log(user)
     const [error, setError] = useState("");
     const [Nombre, setNombre] = useState(user.nombre || "");
     const [descripcion, setDescripcion] = useState(user.descrpicion || "");
