@@ -9,6 +9,7 @@ function Registro() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { usuarios, error } = useSelector((state) => state.api);
+  const usuarioId = localStorage.getItem("usuarioId");
 
   useEffect(() => {
     dispatch(fetchData('usuario'));
@@ -84,7 +85,7 @@ function Registro() {
   const handleRegistro = async () => {
     if (camposCompletos) {
       const resultAction = await dispatch(
-        postData({ url: 'usuario', data: { username, email, password, rol, nombre, apellido, cargo, contraseñaActual } })
+        postData({ url: 'usuario', data: { username, email, password, rol, nombre, apellido, cargo, contraseñaActual, usuarioId } })
       );
 
       if (resultAction.type === 'postData/fulfilled') {

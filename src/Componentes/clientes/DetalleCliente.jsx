@@ -148,6 +148,35 @@ function DetalleCliente() {
           </div>
         </div>
       </div>
+      <div className="bg-white my-6 mx-6 px-6 py-10 rounded flex flex-col">
+      <div className="overflow-x-auto">
+        <h2 className="text-xl font-bold mb-4">Eventos del Cliente</h2>
+        <table className="min-w-full bg-white border border-gray-200">
+          <thead>
+            <tr className="bg-gray-100 border-b">
+              <th className="px-4 py-2 text-left">Fecha</th>
+              <th className="px-4 py-2 text-left">Descripción</th>
+              <th className="px-4 py-2 text-left">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {clienteDetail.eventos && clienteDetail.eventos.length > 0 ? (
+              clienteDetail.eventos.map((evento, index) => (
+                <tr key={index} className="border-b">
+                  <td className="px-4 py-2">{evento.fecha}</td>
+                  <td className="px-4 py-2">{evento.descripcion}</td>
+                  <td className="px-4 py-2">{evento.estado}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td className="px-4 py-2 text-center" colSpan="3">No hay eventos registrados</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
     </div>
   );
 }
