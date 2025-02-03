@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useDispatch } from "react-redux";
-import { logoutUser } from "../redux/loginSlice";
+import { logoutUser } from "../../redux/loginSlice";
 
 const Header = ({ activeTab, setActiveTab }) => {
   const navigate = useNavigate();
@@ -22,11 +22,10 @@ const Header = ({ activeTab, setActiveTab }) => {
   const menuItems = [
     { name: "Dashboard", route: "/dashboard" },
     { name: "Registrar usuario", route: "/registro" },
-    { name: "Asignaciones", route: "/asignaciones" },
     { name: "Clientes", route: "/clientes" },
     { name: "Proveedores", route: "/proveedores" },
     { name: "Eventos", route: "/eventos" },
-    { name: "Historial de actividad", route: "/historialActividad" },
+    { name: "Historial de actividad", route: "/historial" },
     { name: "Cotizaciones", route: "/cotizaciones" },
   ];
 
@@ -60,7 +59,7 @@ const Header = ({ activeTab, setActiveTab }) => {
           />
         </button>
         <div className="flex items-center lg:space-x-4 relative">
-          <button className="focus:outline-none">
+          <button onClick={() => navigate("/notificaciones")} className="block lg:hidden focus:outline-none">
             <img
               src="https://i.imgur.com/0i6ndAu.png"
               alt="Campana"
@@ -86,8 +85,20 @@ const Header = ({ activeTab, setActiveTab }) => {
           {isDropdownOpen && (
             <div
               ref={dropdownRef}
-              className="hidden lg:block absolute right-0 mt-6 w-48 bg-white text-black rounded shadow-lg z-50"
+              className="hidden lg:block absolute right-0 mt-20 w-48 bg-white text-black rounded shadow-lg z-50"
             >
+              <button
+                onClick={() => navigate("/notificaciones")}
+                className="block w-full text-left px-4 py-2 rounded hover:bg-gray-100 transition-all"
+              >
+                Ver notificaciones
+              </button>
+              <button
+                onClick={() => navigate("/perfil")}
+                className="block w-full text-left px-4 py-2 rounded hover:bg-gray-100 transition-all"
+              >
+                Mi perfil
+              </button>
               <button
                 onClick={handleLogout}
                 className="block w-full text-left px-4 py-2 rounded hover:bg-gray-100 transition-all"
