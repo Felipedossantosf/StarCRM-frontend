@@ -216,6 +216,32 @@ const handleDeleteCotizacion = async (cotizacionId) => {
             </tbody>
           </table>
         </div>
+        <div className="block md:hidden">
+  <div className="grid gap-4">
+    {cotizaciones.map((coti) => (
+      <div key={coti.id} className="bg-white shadow-md rounded-lg p-4 border-l-4 border-blue-500">
+        <p className="text-gray-800"><strong>ID:</strong> {coti.id}</p>
+        <p className="text-gray-800"><strong>Fecha:</strong> {coti.fecha}</p>
+        <p className="text-gray-800"><strong>Cliente:</strong> {clientes.find(cli => cli.id === coti.cliente_id)?.nombre || 'N/A'}</p>
+        <p className="text-gray-800"><strong>Usuario:</strong> {usuarios.find(user => user.userId === coti.usuario_id)?.nombre || 'N/A'}</p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-3 rounded text-sm" onClick={() => handleDetalle(coti)}>
+            Detalle
+          </button>
+          <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded text-sm" onClick={() => handleDeleteCotizacion(coti.id)}>
+            Eliminar
+          </button>
+          <button className="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-3 rounded text-sm" onClick={() => navigate("/ModificarCotizacion", { state: coti })}>
+            Modificar
+          </button>
+          <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-1 px-3 rounded text-sm" onClick={() => handleCopiar(coti)}>
+            Copiar
+          </button>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
       </div>
     </div>
   );

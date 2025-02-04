@@ -19,6 +19,8 @@ const CrearCotizacion = () => {
     const [vendedor, setVendedor] = useState([]);
     const [estado, setEstado] = useState('');
     const [cliente, setCliente] = useState([]);
+    const [fecha, setFecha] = useState("");
+    const [validez, setValidez] = useState("");
     const [att, setAtt] = useState('');
     const [modo, setModo] = useState('');
     const [tipo, setTipo] = useState('');
@@ -100,8 +102,8 @@ const CrearCotizacion = () => {
       
           const cotizacion = {
             id: 16,
-            estado: "1",
-            fecha: "2025-01-21T14:53:05.923",
+            estado: estado?.label || "Pendiente",
+            fecha: fecha,
             metodosPago: "metodos prueba",
             subtotal: parseFloat(subtotal),
             porcDesc: 0,
@@ -112,7 +114,7 @@ const CrearCotizacion = () => {
             empresa_id: 1,
             usuario_id: vendedorid[0] || null,
             proveedor_id: proveedorid[0] || null,
-            fechaValidez: "2025-01-22T13:44:33.57",
+            fechaValidez: validez,
             origen: origen || "N/A",
             destino: destino || "N/A",
             condicionFlete: condicionFlete || "N/A",
@@ -250,10 +252,18 @@ const CrearCotizacion = () => {
         <div>
           <form className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-4 rounded-lg shadow-sm">
-              <div className="col-span-2">
+              <div >
                 <label htmlFor="invoiceNumber" className="block text-sm font-medium text-gray-700">Número de Cotizacion</label>
                 <input id="invoiceNumber" placeholder="Ej: FAC-001" className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" value={invoiceNumber} onChange={(e) => setInvoiceNumber(e.target.value)} />
               </div>
+             <div>
+               <label htmlFor="fecha" className="block text-sm font-medium text-gray-700">Fecha</label>
+               <input id="fecha" name="fecha" type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} required className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"/>
+             </div>
+             <div>
+               <label htmlFor="fecha" className="block text-sm font-medium text-gray-700">Validez</label>
+               <input id="fecha" name="fecha" type="date" value={validez} onChange={(e) => setValidez(e.target.value)} required className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"/>
+             </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-4 rounded-lg shadow-sm">
               <div>
@@ -268,7 +278,7 @@ const CrearCotizacion = () => {
               </div>
               <div>
                 <label htmlFor="status" className="block text-sm font-medium text-gray-700">Estado</label>
-                <Select id="status" isMulti options={listaEstados} value={estado} onChange={setEstado} placeholder="Estado" 
+                <Select id="status"  options={listaEstados} value={estado} onChange={setEstado} placeholder="Estado" 
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
               </div>
             </div>
@@ -350,7 +360,7 @@ const CrearCotizacion = () => {
                     value={item.quantity}
                     onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value))}
                     className="w-20 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />6
+                  />
                    <input
                     type="number"
                     placeholder="Iva"
