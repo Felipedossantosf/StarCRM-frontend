@@ -9,19 +9,25 @@ function HistorialActividad() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchData("actividad"));
     dispatch(fetchData("usuario"));
+    dispatch(fetchData("cliente"));
+    dispatch(fetchData("proveedor"));
+    dispatch(fetchData("actividad"));
   }, [dispatch]);
 
   const [activeTab, setActiveTab] = useState("Historial de actividad");
-  const { actividades, usuarios } = useSelector((state) => state.api);
+  const { usuarios, actividades, clientes, proveedores } = useSelector((state) => state.api);
   const [filtroUsuario, setFiltroUsuario] = useState("");
   const [filtroFecha, setFiltroFecha] = useState("");
+  const [filtroCliente, setFiltroCliente] = useState("");
+  const [filtroProveedor, setFiltroProveedor] = useState("");
 
   const filteredActividades = actividades.filter((a) => {
     if (filtroUsuario && filtroUsuario != a.usuario_id) return false;
     const actividadFecha = new Date(a.fecha).toISOString().split("T")[0];
     if (filtroFecha && filtroFecha != actividadFecha) return false;
+    if (filtroCliente && !actividadCoincide(a, filtroCliente)) return false;
+    if (filtroProveedor && !actividadCoincide(a, filtroProveedor)) return false;
     return true;
   });
 
@@ -32,7 +38,19 @@ function HistorialActividad() {
   const clearFilters = () => {
     setFiltroUsuario("");
     setFiltroFecha("");
+    setFiltroCliente("");
+    setFiltroProveedor("");
   };
+
+  function extraerComercial(desc) {
+    const partes = desc.split(':');
+    if (partes.length > 1)
+      return partes[1].trim();
+  }
+
+  function actividadCoincide(actividad, filtro) {
+      return extraerComercial(actividad.descripcion) === filtro;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
@@ -63,6 +81,38 @@ function HistorialActividad() {
                 </option>
               )) : (
                 <option value="" disabled>No hay usuarios disponibles</option>
+              )}
+            </select>
+            <select
+              value={filtroCliente}
+              className="p-2 rounded bg-white w-full sm:w-auto"
+              onChange={(e) => setFiltroCliente(e.target.value)}
+            >
+              <option value="" disabled>
+                Filtrar por cliente
+              </option>
+              {clientes.length > 0 ? clientes.map((c) => (
+                <option key={c.id} value={c.nombre}>
+                  {c.nombre}
+                </option>
+              )) : (
+                <option value="" disabled>No hay clientes disponibles</option>
+              )}
+            </select>
+            <select
+              value={filtroProveedor}
+              className="p-2 rounded bg-white w-full sm:w-auto"
+              onChange={(e) => setFiltroProveedor(e.target.value)}
+            >
+              <option value="" disabled>
+                Filtrar por proveedor
+              </option>
+              {proveedores.length > 0 ? proveedores.map((p) => (
+                <option key={p.id} value={p.nombre}>
+                  {p.nombre}
+                </option>
+              )) : (
+                <option value="" disabled>No hay proveedores disponibles</option>
               )}
             </select>
             <button

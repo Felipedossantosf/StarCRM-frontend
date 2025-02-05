@@ -81,13 +81,28 @@ function Registro() {
       actualizarUsername();
     }
   }, [nombre, apellido]);
-
+ 
   const handleRegistro = async () => {
     if (camposCompletos) {
-      const resultAction = await dispatch(
-        postData({ url: 'usuario', data: { username, email, password, rol, nombre, apellido, cargo, contraseñaActual, usuarioId } })
-      );
 
+    const data = {
+      
+        userId: 0,
+        username: username,
+        email: email,
+        password: password,
+        rol: rol,
+        nombre: nombre,
+        apellido: apellido,
+        cargo: cargo,
+        contraseñaActual: contraseñaActual,
+        usuario_id: usuarioId
+      }
+    
+      const resultAction = await dispatch(
+        postData({ url: 'usuario', data: data })
+      );
+       console.log(resultAction);
       if (resultAction.type === 'postData/fulfilled') {
         Swal.fire({
           title: "Registrado",

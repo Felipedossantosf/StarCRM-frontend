@@ -16,6 +16,7 @@ const AgregarEvento = () => {
   const [fecha, setFecha] = useState("");
   const [clientesSeleccionados, setClientesSeleccionados] = useState([]);
   const [usuariosSeleccionados, setUsuariosSeleccionados] = useState([]);
+  const usuarioId = localStorage.getItem("usuarioId");
 
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -57,7 +58,8 @@ const AgregarEvento = () => {
             descripcion: descripcion,
             esCarga: carga.esCarga,
             idUsuarios: usuariosIds,
-            idComerciales: clientesIds
+            idComerciales: clientesIds,
+            usuario_id: usuarioId
           };
     
           const response = await dispatch(postData({ url: 'evento', data: eventoData }));

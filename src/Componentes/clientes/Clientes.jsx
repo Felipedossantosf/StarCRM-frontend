@@ -174,6 +174,7 @@ function Clientes() {
 
   const filteredClients = clientes.filter((cliente) => {
     if (statusFilter && (cliente.estado !== statusFilter && cliente.esInactivo.toString() !== statusFilter)) return false;
+    if (assignedFilter && assignedFilter != cliente.usuario_id) return false; //usuario_id siempre es 0...
     if (assignedFilter && cliente.assigned !== assignedFilter) return false;
     if (search && !cliente.nombre.toLowerCase().startsWith(search.toLowerCase())) return false;
 
