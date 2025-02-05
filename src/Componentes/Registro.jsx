@@ -81,13 +81,13 @@ function Registro() {
       actualizarUsername();
     }
   }, [nombre, apellido]);
-
+ 
   const handleRegistro = async () => {
     if (camposCompletos) {
       const resultAction = await dispatch(
         postData({ url: 'usuario', data: { username, email, password, rol, nombre, apellido, cargo, contraseñaActual, usuarioId } })
       );
-
+       console.log(resultAction);
       if (resultAction.type === 'postData/fulfilled') {
         Swal.fire({
           title: "Registrado",

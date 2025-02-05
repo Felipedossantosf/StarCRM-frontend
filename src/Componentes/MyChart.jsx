@@ -5,7 +5,6 @@ import React, { useState, useEffect } from "react";
 
 const MyChart = ({ clientes }) => {
 
-console.log(clientes);
 
 const activos = clientes.filter(cliente => !cliente.esInactivo).length;
 const inactivos = clientes.filter(cliente => cliente.esInactivo).length;
