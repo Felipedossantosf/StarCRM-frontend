@@ -26,6 +26,7 @@ import ModificarCotizacion from './Componentes/ModificarCotizacion';
 
 
 
+
 function App() {
   return (
     <Router>
@@ -56,6 +57,9 @@ function App() {
         <Route path="/ModificarEvento" element={<ModificarEvento />} />
         <Route path="/CrearCotizacion" element={<CrearCotizacion />} />
         <Route path="/ModificarCotizacion" element={<ModificarCotizacion />} />
+ 
+
+
 
 
 

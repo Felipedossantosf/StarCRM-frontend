@@ -16,7 +16,7 @@ function CrearCliente() {
   const [sitioWeb1, setSitioWeb] = useState('');
   const [zafras, setZafras] = useState('');
   const [notas, setNotas] = useState('');
-
+  const usuario_id = localStorage.getItem('usuarioId');
   const [activeTab, setActiveTab] = useState('');
   const [error, setError] = useState(null);
 
@@ -43,7 +43,8 @@ function CrearCliente() {
         notas: notas,
         esInactivo: true,
         fechaUltCarga: null,
-        estado: 'Libre'
+        estado: 'Libre',
+        usuario_id: usuario_id 
       };
 
       const response = await dispatch(postData({ url: 'cliente', data: clienteData }));
