@@ -23,6 +23,7 @@ import DetalleEvento from './Componentes/DetalleEvento';
 import ModificarEvento from './Componentes/ModificarEvento';
 import CrearCotizacion from './Componentes/CrearCotizacion';
 import ModificarCotizacion from './Componentes/ModificarCotizacion';
+import ActualizarEstados from './Componentes/actualizarEstados';
 
 
 
@@ -57,6 +58,7 @@ function App() {
         <Route path="/ModificarEvento" element={<ModificarEvento />} />
         <Route path="/CrearCotizacion" element={<CrearCotizacion />} />
         <Route path="/ModificarCotizacion" element={<ModificarCotizacion />} />
+        <Route path="/actualizarEstados" element={<ActualizarEstados />} />
  
 
 
