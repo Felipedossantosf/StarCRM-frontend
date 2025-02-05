@@ -16,6 +16,8 @@ const ModificarEvento = () => {
     const [fecha, setFecha] = useState(user.fecha);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const usuarioId = localStorage.getItem("usuarioId");
+    
     const { clientes, usuarios, eventos} = useSelector((state) => state.api);
       const listaclientes = clientes.map(cliente => ({
         label: cliente.nombre,
@@ -58,7 +60,8 @@ const ModificarEvento = () => {
           descripcion: descripcion,
           esCarga: user.esCarga,
           usuariosId: usuariosIds,
-          comercialesId: clientesIds
+          comercialesId: clientesIds,
+          usuario_id: usuarioId
         }
                 
            const response = await dispatch(updateData({ url: 'evento', id: user.id , data: eventoData }));

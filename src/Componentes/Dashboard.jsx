@@ -31,7 +31,7 @@ function Dashboard() {
         {/* Botón para actualizar estados */}
         <div className="mt-4 flex justify-center">
           <button
-          
+            onClick={() => {navigate("/actualizarEstados")}}  
             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow-md transition duration-300"
           >
             🔄 Actualizar Estados

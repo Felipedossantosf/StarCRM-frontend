@@ -101,7 +101,7 @@ const apiSlice = createSlice({
             if (url.includes("cliente")) return "clientes";
             if (url.includes("cotizacion")) return "cotizaciones";
             if (url.includes("evento")) return "eventos";
-            if (url.includes("inactivos")) return "inactivos";
+            if (url.includes("/Cliente/Inactivos")) return "inactivos";
             return "data";
         };
 
