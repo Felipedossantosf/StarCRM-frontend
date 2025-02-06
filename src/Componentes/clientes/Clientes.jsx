@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Header from "../otros/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchData, deleteData, postData, updateData } from "../../redux/apiSlice";
+import { fetchData, deleteData,deleteData2, postData, updateData } from "../../redux/apiSlice";
 import { useNavigate } from 'react-router-dom';
 
 function Clientes() {
@@ -159,7 +159,7 @@ function Clientes() {
     if (!result.isConfirmed) return;
 
     try {
-      const response = await dispatch(deleteData({ url: 'cliente', id: clienteId }));
+      const response = await dispatch(deleteData2({ url: 'cliente', id: clienteId, data: usuario_id }));
       if (response.error) {
         throw new Error();
       }
