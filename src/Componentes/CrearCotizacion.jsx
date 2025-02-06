@@ -97,7 +97,7 @@ const CrearCotizacion = () => {
             cant: item.quantity,
             precioUnit: item.price,
             totalLinea: item.price,
-            descripcion: item.description,
+            descripcion: item.description, 
           }));
       
           const cotizacion = {
