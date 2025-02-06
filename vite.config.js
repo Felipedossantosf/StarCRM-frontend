@@ -5,7 +5,7 @@ import react from "@vitejs/plugin-react-swc";
 export default defineConfig({
   build: {
     outDir: "dist",
-    chunkSizeWarningLimit: 1000, // Aumenta el límite
+    chunkSizeWarningLimit: 2000, // Aumenta el límite
     rollupOptions: {
       output: {
         manualChunks(id) {
