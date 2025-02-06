@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "./otros/Header";
-import { postData, fetchData } from "../redux/apiSlice";
+import { fetchData, updateData } from "../redux/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -129,7 +129,7 @@ const CrearCotizacion = () => {
       
           console.log("🔹 Cotización a enviar:", cotizacion);
       
-          const response = await dispatch(postData({ url: "cotizacion", data: cotizacion }));
+          const response = await dispatch(updateData({ url: "cotizacion",id:cotizacion.id, data: cotizacion }));
       
           console.log("✅ Respuesta del servidor:", response);
       
@@ -139,7 +139,7 @@ const CrearCotizacion = () => {
       
           Swal.fire({
             icon: "success",
-            title: "Cotización creada exitosamente.",
+            title: "Cotización Modificada exitosamente.",
             showConfirmButton: false,
             timer: 1500
           });
@@ -173,10 +173,10 @@ const CrearCotizacion = () => {
       
           navigate("/cotizaciones");
         } catch (error) {
-          console.error("❌ Error en agregarCotizacion:", error);
+          console.error("❌ Error en modificar:", error);
           Swal.fire({
             icon: "error",
-            title: "Error al crear la cotización",
+            title: "Error al modificar la cotización",
             text: error.message
           });
         }

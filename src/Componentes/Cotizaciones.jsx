@@ -149,7 +149,7 @@ function Cotizaciones() {
   const cotizacionesFiltradas = cotizaciones.filter((c) => {
     if (filtroCliente && filtroCliente != c.cliente_id) return false;
     if (filtroUsuario && filtroUsuario != c.usuario_id) return false;
-    const cotiFecha = new Date(c.fecha).toISOString().split("T")[0];
+    const cotiFecha = c.fecha ? new Date(c.fecha).toISOString().split("T")[0] : null;
     if (filtroFecha && filtroFecha != cotiFecha) return false;
     return true;
   });

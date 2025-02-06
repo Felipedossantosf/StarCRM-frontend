@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Header from "../otros/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchData, deleteData, postData } from "../../redux/apiSlice";
+import { fetchData, deleteData, postData, updateData } from "../../redux/apiSlice";
 import { useNavigate } from 'react-router-dom';
 
 function Clientes() {
@@ -21,6 +21,8 @@ function Clientes() {
   const [statusFilter, setStatusFilter] = useState("");
   const [assignedFilter, setAssignedFilter] = useState("");
   const [activeTab, setActiveTab] = useState("Clientes");
+  const usuario_id = localStorage.getItem('usuarioId');
+
 
   const asignado = (clienteId) => {
     // Buscar todas las asignaciones para un cliente específico
@@ -115,7 +117,7 @@ function Clientes() {
     if (!result.isConfirmed) return;
 
     try {
-      // Buscar la asignación del cliente
+      // Buscar la asignación del cliente}
       let asignacionExistente = asignaciones.find((asignacion) => asignacion.cliente_id === clienteId);
       if (asignacionExistente) {
         // Eliminar la asignación existente
@@ -125,8 +127,8 @@ function Clientes() {
       // Marcar al cliente como libre (estado "Libre")
       const cliente = clientes.find((cliente) => cliente.id === clienteId);
       if (cliente) {
-        const updatedCliente = { ...cliente, estado: "Libre" };
-        await dispatch(postData({ url: 'cliente', data: updatedCliente }));
+        const updatedCliente = { ...cliente, estado: "Libre", usuario_id: usuario_id };
+        await dispatch(updateData({ url: 'cliente', id: updatedCliente.id, data: updatedCliente }));
       }
 
       Swal.fire({
@@ -142,6 +144,7 @@ function Clientes() {
   };
 
   const handleDeleteCliente = async (clienteId) => {
+    console.log(clienteId)
     const result = await Swal.fire({
       title: "¿Estás seguro?",
       text: "Una vez eliminado, no podrás recuperar este cliente.",
