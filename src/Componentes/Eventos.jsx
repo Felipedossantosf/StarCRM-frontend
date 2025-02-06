@@ -46,6 +46,7 @@ function Eventos() {
       if (response.error) {
         throw new Error();
       }
+
       Swal.fire({
         title: "Eliminado",
         text: "El Evento ha sido eliminado correctamente.",

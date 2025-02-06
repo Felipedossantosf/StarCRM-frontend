@@ -2,7 +2,7 @@ import React, { useState, useEffect} from "react";
 import Select from "react-select";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchData, postData } from "../redux/apiSlice";
+import { fetchData, postData, updateData } from "../redux/apiSlice";
 import Swal from "sweetalert2";
 
 
@@ -17,7 +17,7 @@ const AgregarEvento = () => {
   const [clientesSeleccionados, setClientesSeleccionados] = useState([]);
   const [usuariosSeleccionados, setUsuariosSeleccionados] = useState([]);
   const usuarioId = localStorage.getItem("usuarioId");
-
+console.log(carga)
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -48,36 +48,64 @@ const AgregarEvento = () => {
     const clientesIds = clientesSeleccionados.map((cliente) => cliente.value);
     const usuariosIds = usuariosSeleccionados.map((usuario) => usuario.value);
     
-  
 
-
-     try {
-          const eventoData = {
-            fecha: fecha,
-            nombre: titulo,
-            descripcion: descripcion,
-            esCarga: carga.esCarga,
-            idUsuarios: usuariosIds,
-            idComerciales: clientesIds,
-            usuario_id: usuarioId
-          };
+    try {
+      const eventoData = {
+        fecha,
+        nombre: titulo,
+        descripcion,
+        esCarga: carga.esCarga,
+        idUsuarios: usuariosIds,
+        idComerciales: clientesIds,
+        usuario_id: usuarioId
+      };
     
-          const response = await dispatch(postData({ url: 'evento', data: eventoData }));
-          console.log(response)
-          if (response.type  = 'postData/fulfilled') {
-            Swal.fire({
-              icon: 'success',
-              title: 'Evento creado exitosamente.',
-              showConfirmButton: false,
-              timer: 1500,
-            });
-            navigate('/eventos');
-          } else {
-            setError('Hubo un problema al crear el evento. Por favor, inténtalo de nuevo.');
+      const response = await dispatch(postData({ url: 'evento', data: eventoData }));
+      console.log(response);
+    
+      if (response.type === 'postData/fulfilled') {  // ✅ Corrección aquí
+        Swal.fire({
+          icon: 'success',
+          title: 'Evento creado exitosamente.',
+          showConfirmButton: false,
+          timer: 1500,
+        });
+    
+        if (carga.esCarga) {
+          // Clonar la lista de clientes para no mutar el estado directamente
+          const nuevosClientes = [...clientes];
+    
+          for (const clienteId of clientesIds) {
+            const clienteIndex = nuevosClientes.findIndex(c => c.id == clienteId);
+            
+            if (clienteIndex !== -1) {
+              const clienteActualizado = { 
+                ...nuevosClientes[clienteIndex], 
+                esInactivo: false, 
+                fechaUltCarga: new Date().toISOString(), // Actualiza la fecha
+                usuario_id: usuarioId // Asigna el ID de usuario
+              };
+    
+              // Actualizar la lista de clientes localmente
+              nuevosClientes[clienteIndex] = clienteActualizado;
+              console.log(clienteActualizado);
+    
+              // Enviar la actualización al backend
+              await dispatch(updateData({ url: 'cliente', id: clienteActualizado.id, data: clienteActualizado }));
+            }
           }
-        } catch (error) {
-          setError('Hubo un error al crear el evento.');
+    
         }
+    
+        navigate('/eventos');
+      } else {
+        setError('Hubo un problema al crear el evento. Por favor, inténtalo de nuevo.');
+      }
+    } catch (error) {
+      setError('Hubo un error al crear el evento.');
+    }
+    
+    
   };
 
   return (

@@ -91,7 +91,7 @@ const actualizarEstados = () => {
     <div className="min-h-screen flex flex-col bg-[#2B2C2C] p-6">
     <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <h1 className="text-white text-2xl font-bold mb-4">Lista de Inactivos</h1>
+      <h1 className="text-white text-2xl font-bold mb-4">Clientes Activos sin carga los ultimos 6 meses</h1>
       <div className="flex space-x-2 w-full md:w-auto justify-end">
 
           <button
