@@ -111,8 +111,7 @@ function DetalleCliente() {
         <div className="flex flex-col space-y-4 text-white w-full 1190-screen:w-1/3 justify-start items-start order-last 1190-screen:order-first 800-screen:px-60 500-screen:px-20 600-screen:px-40 px-10 1600-screen:px-20 1190-screen:px-0">
           <button onClick={() => navigate(`/clientes/editar/${clienteId}`)} className="bg-gray-300 hover:bg-gray-400 p-4 text-sm rounded w-full">Modificar</button>
           <button className="bg-red-800 hover:bg-red-900 p-4 text-sm rounded w-full" onClick={() => handleDeleteCliente(clienteId)}>Eliminar</button>
-          <button className="bg-[#56C3CE] hover:bg-[#59b1ba] p-4 text-sm rounded w-full">Generar cotización</button>
-          <button className="bg-[#56C3CE] hover:bg-[#59b1ba] p-4 text-sm rounded w-full">Asignar</button>
+          <button className="bg-[#56C3CE] hover:bg-[#59b1ba] p-4 text-sm rounded w-full" onClick={() => navigate("/CrearCotizacion")}>Generar cotización</button>
         </div>
 
         {/* Gray Div taking up 2/3 on large screens, full width on smaller screens */}
@@ -159,21 +158,6 @@ function DetalleCliente() {
               <th className="px-4 py-2 text-left">Estado</th>
             </tr>
           </thead>
-          <tbody>
-            {clienteDetail.eventos && clienteDetail.eventos.length > 0 ? (
-              clienteDetail.eventos.map((evento, index) => (
-                <tr key={index} className="border-b">
-                  <td className="px-4 py-2">{evento.fecha}</td>
-                  <td className="px-4 py-2">{evento.descripcion}</td>
-                  <td className="px-4 py-2">{evento.estado}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td className="px-4 py-2 text-center" colSpan="3">No hay eventos registrados</td>
-              </tr>
-            )}
-          </tbody>
         </table>
       </div>
     </div>
