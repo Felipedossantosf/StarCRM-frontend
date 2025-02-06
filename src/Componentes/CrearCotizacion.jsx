@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "./otros/Header";
-import { fetchData, updateData } from "../redux/apiSlice";
+import { fetchData, postData, updateData } from "../redux/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -101,7 +101,7 @@ const CrearCotizacion = () => {
           }));
       
           const cotizacion = {
-            id: 16,
+            id: 0,
             estado: estado?.label || "Pendiente",
             fecha: fecha,
             metodosPago: "metodos prueba",
@@ -124,12 +124,16 @@ const CrearCotizacion = () => {
             volumen: parseFloat(volumen) || 0,
             terminosCondiciones: notas || "N/A",
             tipo: tipo?.label || "N/A",
+            incoterm: incoterm?.label || "N/A",
+            bulto: parseFloat(bulto) || 0,
+            precioMetro: parseFloat(Preciometro) || 0,
+            att: att || "N/A",
             lineas: lineas2.length ? lineas2 : []
           };
       
           console.log("🔹 Cotización a enviar:", cotizacion);
       
-          const response = await dispatch(updateData({ url: "cotizacion",id:cotizacion.id, data: cotizacion }));
+          const response = await dispatch(postData({ url: "cotizacion",id:cotizacion.id, data: cotizacion }));
       
           console.log("✅ Respuesta del servidor:", response);
       

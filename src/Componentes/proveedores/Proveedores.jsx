@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Header from "../otros/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchData, deleteData } from "../../redux/apiSlice";
+import { fetchData, deleteData, deleteData2 } from "../../redux/apiSlice";
 import { useNavigate } from 'react-router-dom';
 
 function Proveedores() {
@@ -12,6 +12,8 @@ function Proveedores() {
   const { proveedores, status, error } = useSelector((state) => state.api);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("Proveedores");
+  const usuario_id = localStorage.getItem('usuarioId');
+
 
   useEffect(() => {
     dispatch(fetchData('/proveedor'));
@@ -32,7 +34,7 @@ function Proveedores() {
     if (!result.isConfirmed) return;
 
     try {
-      await dispatch(deleteData({ url: '/proveedor', id: provId }));
+      await dispatch(deleteData2({ url: '/proveedor', id: provId, data: usuario_id }));
 
       await Swal.fire({
         title: "Eliminado",
@@ -48,14 +50,6 @@ function Proveedores() {
   const filteredProveedores = proveedores.filter((prov) => 
     !search || prov.nombre.toLowerCase().startsWith(search.toLowerCase())
   );
-
-  if (status === 'loading') {
-    return <div>Cargando...</div>;
-  }
-
-  if (status === 'failed') {
-    return <div>Error: {error}</div>;
-  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">

@@ -20,9 +20,9 @@ export const loginUser = (usuario, password) => async (dispatch) => {
             const data = response.payload; 
             const token = data.token;
             const usuarioLogueado = data;
-
+            
             localStorage.setItem('token', token);
-            localStorage.setItem('usuarioId', 61); //usuarioLogueado.userId ARREGLAR
+            localStorage.setItem('usuarioId', usuarioLogueado.usuario_id); //usuarioLogueado.userId ARREGLAR
             localStorage.setItem('usuario', usuarioLogueado.username);
             localStorage.setItem('userRole', usuarioLogueado.rol);
             localStorage.setItem('nombre', usuarioLogueado.nombre);

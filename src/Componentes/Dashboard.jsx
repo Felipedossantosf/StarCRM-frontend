@@ -20,7 +20,7 @@ function Dashboard() {
     dispatch(fetchData("asignacion"));
     dispatch(fetchData("usuario"));
   }, [dispatch]);
-
+console.log(cotizaciones)
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />

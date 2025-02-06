@@ -12,7 +12,7 @@ function Eventos() {
   const [activeTab, setActiveTab] = useState("Eventos");
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
+  const { clientes, usuarios, eventos, proveedores } = useSelector((state) => state.api);
   useEffect(() => {
     dispatch(fetchData('cliente'));
     dispatch(fetchData('usuario'));
@@ -57,18 +57,24 @@ function Eventos() {
     }
   };
 
-  const { clientes, usuarios, eventos, proveedores } = useSelector((state) => state.api);
+  
 
   const filteredEventos = eventos.filter((e) => {
-    console.log(e)
     if (filtroUsuario && !e.usuariosId.includes(parseInt(filtroUsuario))) return false;
+    
+    if (!e.fecha || isNaN(new Date(e.fecha).getTime())) {
+        console.log("Fecha inválida:", e.fecha);
+        return false;
+    }
     const eventoFecha = new Date(e.fecha).toISOString().split("T")[0];
     if (filtroFecha && filtroFecha != eventoFecha) return false;
     if (filtroCliente && !e.comercialesId.includes(parseInt(filtroCliente))) return false;
     if (filtroProveedor && !e.comercialesId.includes(parseInt(filtroProveedor))) return false;
     if (filtroTipo && filtroTipo == e.esCarga.toString()) return false;
+
     return true;
-  });
+});
+
 
   const clearFilters = () => {
     setFiltroUsuario("");
@@ -238,41 +244,52 @@ function Eventos() {
         {/* Tabla para pantallas chicas */}
 
         <div className="md:hidden space-y-4">
-          {eventos.map((event) => (
-            <div key={event.id} className="bg-white shadow-md rounded-lg p-4">
-              <p className="text-xs text-gray-500 mt-1">{event.nombre}</p>
-              <p className="text-xs text-gray-500 mt-1">{event.descrpicion}</p>
-              <p className="text-xs text-gray-500 mt-1">{event.fecha}</p>
+  {eventos && Array.isArray(eventos) && eventos.length > 0 ? (
+    eventos.map((event) => (
+      <div key={event.id} className="bg-white shadow-md rounded-lg p-4">
+        <p className="text-xs text-gray-500 mt-1">{event.nombre}</p>
+        <p className="text-xs text-gray-500 mt-1">{event.descrpicion}</p>
+        <p className="text-xs text-gray-500 mt-1">{event.fecha}</p>
 
-              <p className="text-xs text-gray-500 mt-1">
-                <ul>
-                  {event.usuariosId.map((userId) => {
-                    const user = usuarios.find((u) => u.userId === userId);
-                    return user ? <li key={userId}>{user.nombre}</li> : null;
-                  })}
-                </ul>
-              </p>
-              <div className="flex justify-between mt-2">
-                <button
-                  className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded text-sm"
-                  title="Detalle"
-                  onClick={() => navigate("/DetalleEvento", { state: event })}
-                >
-                  Detalle
-                </button>
-              </div>
-              <div className="flex justify-between mt-2">
-                <button
-                  className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-sm"
-                  title="Eliminar"
-                  onClick={() => handleDeleteEvento(event.id)}
-                >
-                  Eliminar
-                </button>
-              </div>
-            </div>
-          ))}
+        <p className="text-xs text-gray-500 mt-1">
+          <ul>
+            {event.usuariosId && Array.isArray(event.usuariosId) ? (
+              event.usuariosId.map((userId) => {
+                const user = usuarios.find((u) => u.userId === userId);
+                return user ? <li key={userId}>{user.nombre}</li> : null;
+              })
+            ) : (
+              <li>No hay usuarios</li>
+            )}
+          </ul>
+        </p>
+
+        <div className="flex justify-between mt-2">
+          <button
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded text-sm"
+            title="Detalle"
+            onClick={() => navigate("/DetalleEvento", { state: event })}
+          >
+            Detalle
+          </button>
         </div>
+
+        <div className="flex justify-between mt-2">
+          <button
+            className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded text-sm"
+            title="Eliminar"
+            onClick={() => handleDeleteEvento(event.id)}
+          >
+            Eliminar
+          </button>
+        </div>
+      </div>
+    ))
+  ) : (
+    <p className="text-gray-500">No hay eventos disponibles</p>
+  )}
+</div>
+
 
 
       </div>

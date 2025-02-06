@@ -158,6 +158,10 @@ const ModificarCotizacion = () => {
             volumen: parseFloat(volumen) || 0,
             terminosCondiciones: notas || "N/A",
             tipo: tipo?.label || "N/A",
+            incoterm: incoterm?.label || "N/A",
+            bulto: parseFloat(bulto) || 0,
+            precioMetro: parseFloat(Preciometro) || 0,
+            att: att || "N/A",
             lineas: lineas2.length ? lineas2 : []
           };
       

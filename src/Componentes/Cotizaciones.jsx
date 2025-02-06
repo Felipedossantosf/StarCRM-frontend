@@ -50,6 +50,10 @@ function Cotizaciones() {
         volumen: cotizacion.volumen || 0,
         terminosCondiciones: cotizacion.terminosCondiciones || "N/A",
         tipo: cotizacion.tipo || "N/A",
+        incoterm: cotizacion.incoterm || "N/A",
+        bulto: cotizacion.bulto,
+        precioMetro: cotizacion.precioMetro || 0,
+        att: cotizacion.att || "N/A",
         lineas: cotizacion.lineas
       };
 
