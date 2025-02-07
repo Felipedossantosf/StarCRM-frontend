@@ -21,7 +21,7 @@ function Clientes() {
   const [statusFilter, setStatusFilter] = useState("");
   const [assignedFilter, setAssignedFilter] = useState("");
   const [activeTab, setActiveTab] = useState("Clientes");
-  const usuario_id = localStorage.getItem('usuarioId');
+  const usuario_id = parseInt(localStorage.getItem('usuarioId'));
 
 
   const asignado = (clienteId) => {
@@ -112,9 +112,9 @@ function Clientes() {
       confirmButtonText: "Liberar",
       cancelButtonText: "Cancelar",
     });
-  
+
     if (!result.isConfirmed) return;
-  
+
     try {
       let asignacionExistente = asignaciones.find((asignacion) => asignacion.cliente_id === clienteId);
       if (!asignacionExistente) {
@@ -122,7 +122,7 @@ function Clientes() {
       }
       // Eliminar asignación
       await dispatch(deleteData({ url: "asignacion", id: asignacionExistente.id }));
-  
+
       // Marcar cliente como libre
       const cliente = clientes.find((c) => c.id === clienteId);
       if (!cliente) {
@@ -134,7 +134,7 @@ function Clientes() {
       console.log(updatedCliente);
       // Enviar notificación
       const listaUsuarios = asignacionExistente.comun_id ? [asignacionExistente.comun_id] : [];
-  
+
       const response = await dispatch(
         postData({
           url: "notificacion",
@@ -142,7 +142,7 @@ function Clientes() {
         })
       );
       console.log("✅ Notificación enviada:", response);
-  
+
       Swal.fire({
         title: "Cliente liberado",
         text: "El cliente ha sido liberado correctamente.",
@@ -153,12 +153,12 @@ function Clientes() {
       Swal.fire("Error", "No se pudo liberar el cliente. Intenta nuevamente.", "error");
     }
   };
-  
+
 
   const handleDeleteCliente = async (clienteId) => {
     const result = await Swal.fire({
       title: "¿Estás seguro?",
-      text: "Una vez eliminado, no podrás recuperar este cliente.",
+      text: "Una vez eliminado, no podrás recuperar este cliente y se eliminarán toda su actividad asociada.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -184,7 +184,6 @@ function Clientes() {
       Swal.fire("Error", "No se pudo eliminar el cliente. Intenta nuevamente.", "error");
     }
   };
-
 
   const filteredClients = clientes.filter((cliente) => {
     if (statusFilter) {

@@ -61,7 +61,6 @@ function EditarUsuario() {
       if (response.type == 'updateData/fulfilled') {
         Swal.fire('Éxito', 'Usuario actualizado correctamente', 'success');
       } else {
-        console.log(response)
         throw new Error("Contraseña incorrecta");
       }
     } catch (error) {
