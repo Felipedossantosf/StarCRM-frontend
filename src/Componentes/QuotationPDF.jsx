@@ -70,7 +70,7 @@ const QuotationPdf = ({ data }) => {
           {data.lineas.map((item, index) => (
             <View key={index} style={styles.tableRow}>
               <Text style={styles.tableCell}>{item.cant}</Text>
-              <Text style={styles.tableCell}>{data.mercaderia}</Text>
+              <Text style={styles.tableCell}>{item.descripcion}</Text>
               <Text style={styles.tableCell}>${item.precioUnit.toFixed(2)}</Text>
               <Text style={styles.tableCell}>${item.totalLinea.toFixed(2)}</Text>
             </View>
