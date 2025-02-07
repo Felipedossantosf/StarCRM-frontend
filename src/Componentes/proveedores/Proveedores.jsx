@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Header from "../otros/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchData, deleteData, deleteData2 } from "../../redux/apiSlice";
+import { fetchData, deleteData } from "../../redux/apiSlice";
 import { useNavigate } from 'react-router-dom';
 
 function Proveedores() {
@@ -34,7 +34,7 @@ function Proveedores() {
     if (!result.isConfirmed) return;
 
     try {
-      await dispatch(deleteData2({ url: '/proveedor', id: provId, data: usuario_id }));
+      await dispatch(deleteData({ url: '/proveedor', id: provId, data: usuario_id }));
 
       await Swal.fire({
         title: "Eliminado",

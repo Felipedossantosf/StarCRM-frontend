@@ -10,6 +10,7 @@ function EditarUsuario() {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('');
   const nombreUsuario = localStorage.getItem('usuario');
+  //const token = localStorage.getItem('token');
 
   const [usuario, setUsuario] = useState({
     username: '',
@@ -25,11 +26,15 @@ function EditarUsuario() {
   // Fetch usuario al montar el componente
   useEffect(() => {
     const fetchUsuario = async () => {
-      try {
+      if (nombreUsuario) {
         const response = await dispatch(fetchByAtributo({ url: 'usuario', atributo: 'username', valor: nombreUsuario }));
         setUsuario(response.payload);
-      } catch (error) {
-        Swal.fire('Error', 'No se pudo cargar el usuario', 'error');
+      } else {
+        return (
+          <div className="text-white min-h-screen flex items-center justify-center">
+            Error al cargar el usuario.
+          </div>
+        );
       }
     };
 
@@ -39,19 +44,28 @@ function EditarUsuario() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      validar();
+      if (document.getElementById('passwordNueva').value === "") {
+        usuario.password = usuario.contraseñaActual;
+      }
       const response = await dispatch(updateData({
         url: 'usuario',
         id: usuario.userId,
-        data: usuario
+        data: usuario,
+        // headers: {
+        //   'Authorization': `Bearer ${token}`, 
+        //   'Content-Type': 'application/json'
+        // }
       }));
 
-      if (response.type == 'updateData/fulfilled')
+      if (response.type == 'updateData/fulfilled') {
         Swal.fire('Éxito', 'Usuario actualizado correctamente', 'success');
-      else {
-        throw new Error();
+      } else {
+        console.log(response)
+        throw new Error("Contraseña incorrecta");
       }
     } catch (error) {
-      Swal.fire('Error', 'Datos inválidos', 'error');
+      Swal.fire('Error', error.message, 'error');
     }
   };
 
@@ -61,6 +75,55 @@ function EditarUsuario() {
         Cargando...
       </div>
     );
+  }
+
+  function validar() {
+    try {
+      validarVacios();
+      validarCorreo();
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async function validarCorreo() {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailRegex.test(usuario.email)) {
+      throw new Error("Correo inválido");
+    }
+
+    const emailExiste = await verificarEmailExistente(usuario.email);
+    if (emailExiste) {
+      throw new Error("Correo ya registrado");
+    }
+
+    return true;
+  }
+
+  async function verificarEmailExistente(email) {
+    try {
+      const response = await dispatch(fetchByAtributo({ url: 'usuario', atributo: 'email', valor: email }));
+      // Si hay un usuario con ese correo y NO es el mismo usuario que está editando
+      return response.payload?.userId && response.payload.userId !== usuario.userId;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function validarVacios() {
+    let cargo = document.getElementById('cargo').value;
+    let contraseñaActual = document.getElementById('password').value;
+    let email = document.getElementById('email').value;
+
+    if (cargo !== "" && contraseñaActual !== "" && email !== "") {
+      usuario.cargo = usuario.cargo.trim();
+      usuario.email = usuario.email.trim();
+      return true;
+    } else {
+      throw new Error("Completar los campos mandatorios");
+    }
   }
 
   return (

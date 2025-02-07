@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Header from "../otros/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchData, deleteData, deleteData2, postData, updateData } from "../../redux/apiSlice";
+import { fetchData, deleteData, postData, updateData } from "../../redux/apiSlice";
 import { useNavigate } from 'react-router-dom';
 
 function Clientes() {
@@ -112,34 +112,48 @@ function Clientes() {
       confirmButtonText: "Liberar",
       cancelButtonText: "Cancelar",
     });
-
+  
     if (!result.isConfirmed) return;
-
+  
     try {
-      // Buscar la asignación del cliente}
       let asignacionExistente = asignaciones.find((asignacion) => asignacion.cliente_id === clienteId);
-      if (asignacionExistente) {
-        // Eliminar la asignación existente
-        await dispatch(deleteData({ url: 'asignacion', id: asignacionExistente.id }));
+      if (!asignacionExistente) {
+        throw new Error("No se encontró la asignación del cliente.");
       }
-
-      // Marcar al cliente como libre (estado "Libre")
-      const cliente = clientes.find((cliente) => cliente.id === clienteId);
-      if (cliente) {
-        const updatedCliente = { ...cliente, estado: "Libre", usuario_id: usuario_id };
-        await dispatch(updateData({ url: 'cliente', id: updatedCliente.id, data: updatedCliente }));
+      // Eliminar asignación
+      await dispatch(deleteData({ url: "asignacion", id: asignacionExistente.id }));
+  
+      // Marcar cliente como libre
+      const cliente = clientes.find((c) => c.id === clienteId);
+      if (!cliente) {
+        throw new Error("No se encontró el cliente.");
       }
+      const updatedCliente = { ...cliente, estado: "Libre", usuario_id: usuario_id };
+      await dispatch(updateData({ url: "cliente", id: updatedCliente.id, data: updatedCliente }));
 
+      console.log(updatedCliente);
+      // Enviar notificación
+      const listaUsuarios = asignacionExistente.comun_id ? [asignacionExistente.comun_id] : [];
+  
+      const response = await dispatch(
+        postData({
+          url: "notificacion",
+          data: { cliente_id: asignacionExistente.cliente_id, mensaje: `Cliente ${updatedCliente.nombre} liberado`, usuariosId: listaUsuarios },
+        })
+      );
+      console.log("✅ Notificación enviada:", response);
+  
       Swal.fire({
         title: "Cliente liberado",
         text: "El cliente ha sido liberado correctamente.",
         icon: "success",
-        confirmButtonColor: "#56C3CE"
+        confirmButtonColor: "#56C3CE",
       });
     } catch (error) {
       Swal.fire("Error", "No se pudo liberar el cliente. Intenta nuevamente.", "error");
     }
   };
+  
 
   const handleDeleteCliente = async (clienteId) => {
     const result = await Swal.fire({
@@ -156,7 +170,7 @@ function Clientes() {
     if (!result.isConfirmed) return;
 
     try {
-      const response = await dispatch(deleteData2({ url: 'cliente', id: clienteId, data: usuario_id }));
+      const response = await dispatch(deleteData({ url: 'cliente', id: clienteId, data: usuario_id }));
       if (response.error) {
         throw new Error();
       }

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Header from "./otros/Header";
-import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchData, deleteData, postData } from "../redux/apiSlice";
@@ -21,71 +20,36 @@ function Cotizaciones() {
     dispatch(fetchData('usuario'));
   }, [dispatch])
 
-
-
   const handleCopiar = async (cotizacion) => {
     try {
-
-      const cotizacion2 = {
-        id: cotizacion.id,
-        estado: cotizacion.estado,
-        fecha: cotizacion.fecha,
-        metodosPago: cotizacion.metodosPago,
-        subtotal: cotizacion.subtotal,
-        porcDesc: cotizacion.porcDesc,
-        subtotalDesc: cotizacion.subtotalDesc,
-        porcIva: cotizacion.porcIva,
-        total: cotizacion.total,
-        cliente_id: cotizacion.cliente_id || null,
-        empresa_id: 1,
-        usuario_id: cotizacion.usuario_id || null,
-        proveedor_id: cotizacion.proveedor_id || null,
-        fechaValidez: cotizacion.fechaValidez,
-        origen: cotizacion.origen || "N/A",
-        destino: cotizacion.destino || "N/A",
-        condicionFlete: cotizacion.condicionFlete || "N/A",
-        modo: cotizacion.modo || "N/A",
-        mercaderia: cotizacion.mercaderia || "N/A",
-        peso: cotizacion.peso || 0,
-        volumen: cotizacion.volumen || 0,
-        terminosCondiciones: cotizacion.terminosCondiciones || "N/A",
-        tipo: cotizacion.tipo || "N/A",
-        incoterm: cotizacion.incoterm || "N/A",
-        bulto: cotizacion.bulto,
-        precioMetro: cotizacion.precioMetro || 0,
-        att: cotizacion.att || "N/A",
-        lineas: cotizacion.lineas
+      const nuevaCotizacion = {
+        ...cotizacion
       };
-
-
-      const response = await dispatch(postData({ url: "cotizacion", data: cotizacion2 }));
-
-
+  
+      const response = await dispatch(postData({ url: "cotizacion", data: nuevaCotizacion }));
+  
       if (response.error) {
         throw new Error(response.error.message || "Error desconocido");
       }
-
+    
       Swal.fire({
         icon: "success",
         title: "Cotización copiada exitosamente.",
         showConfirmButton: false,
         timer: 1500
       });
-
-
-      navigate("/cotizaciones");
+  
     } catch (error) {
-      console.error("❌ Error en agregarCotizacion:", error);
+      console.error("Error en agregarCotizacion:", error);
       Swal.fire({
         icon: "error",
         title: "Error al copiar la cotización",
         text: error.message
       });
     }
-  }
-
-
-
+  };
+  
+  
   const handleDetalle = async (cotizacion) => {
     try {
       const doc = <QuotationPdf data={cotizacion} />;
@@ -103,7 +67,7 @@ function Cotizaciones() {
       const pdfURL = URL.createObjectURL(blob);
       window.open(pdfURL, "_blank");
     } catch (pdfError) {
-      console.error("🚨 Error al generar el PDF:", pdfError);
+      console.error("Error al generar el PDF:", pdfError);
       Swal.fire({
         icon: "error",
         title: "Error al generar el PDF",
@@ -115,7 +79,7 @@ function Cotizaciones() {
   const handleDeleteCotizacion = async (cotizacionId) => {
     const result = await Swal.fire({
       title: "¿Estás seguro?",
-      text: "Una vez eliminado, no podrás recuperar esta cotizacion.",
+      text: "Una vez eliminado, no podrás recuperar esta cotización.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
@@ -123,24 +87,28 @@ function Cotizaciones() {
       confirmButtonText: "Eliminar",
       cancelButtonText: "Cancelar",
     });
-
+  
     if (!result.isConfirmed) return;
-
+  
     try {
-      const response = await dispatch(deleteData({ url: 'cotizacion', id: cotizacionId }));
+      const response = await dispatch(deleteData({ url: "cotizacion", id: cotizacionId }));
+  
       if (response.error) {
         throw new Error();
       }
+  
       Swal.fire({
         title: "Eliminado",
-        text: "la Cotizacion ha sido eliminada correctamente.",
+        text: "La cotización ha sido eliminada correctamente.",
         icon: "success",
         confirmButtonColor: "#56C3CE"
       });
+  
     } catch (error) {
-      Swal.fire("Error", "No se pudo eliminar la cotizacion. Intenta nuevamente.", "error");
+      Swal.fire("Error", "No se pudo eliminar la cotización. Intenta nuevamente.", "error");
     }
   };
+  
 
   const [filtroUsuario, setFiltroUsuario] = useState("");
   const [filtroFecha, setFiltroFecha] = useState("");
@@ -149,7 +117,7 @@ function Cotizaciones() {
   const cotizacionesFiltradas = cotizaciones.filter((c) => {
     if (filtroCliente && filtroCliente != c.cliente_id) return false;
     if (filtroUsuario && filtroUsuario != c.usuario_id) return false;
-    const cotiFecha = c.fecha ? new Date(c.fecha).toISOString().split("T")[0] : null;
+    const cotiFecha = c.fecha ? c.fecha : null;
     if (filtroFecha && filtroFecha != cotiFecha) return false;
     return true;
   });
@@ -252,7 +220,7 @@ function Cotizaciones() {
                     {cotizacionesFiltradas.map((coti, index) => (
                       <tr key={coti.id} className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}>
                         <td className="px-4 py-2 border-b border-gray-300">{coti.id}</td>
-                        <td className="px-4 py-2 border-b border-gray-300">{new Date(coti.fecha).toISOString().split("T")[0]}</td>
+                        <td className="px-4 py-2 border-b border-gray-300">{new Date(coti.fecha).toLocaleDateString()}</td>
                         <td className="px-4 py-2 border-b border-gray-300">
                           {clientes.find(cli => cli.id == coti.cliente_id)?.nombre || 'N/A'}
                         </td>
@@ -267,7 +235,7 @@ function Cotizaciones() {
                           >
                             PDF
                           </button>
-                          
+
                           <button
                             className="bg-[#56C3CE] hover:bg-[#59b1ba] text-white font-bold py-1 px-2 rounded mr-2 text-sm"
                             title="Modificar"
@@ -309,7 +277,7 @@ function Cotizaciones() {
                 {cotizacionesFiltradas.map((coti) => (
                   <div key={coti.id} className="bg-white shadow-md rounded-lg p-4 border-l-4 border-blue-500">
                     <p className="text-gray-800"><strong>ID:</strong> {coti.id}</p>
-                    <p className="text-gray-800"><strong>Fecha:</strong> {new Date(coti.fecha).toISOString().split("T")[0]}</p>
+                    <p className="text-gray-800"><strong>Fecha:</strong> {new Date(coti.fecha).toLocaleDateString()}</p>
                     <p className="text-gray-800"><strong>Cliente:</strong> {clientes.find(cli => cli.id === coti.cliente_id)?.nombre || 'N/A'}</p>
                     <p className="text-gray-800"><strong>Usuario:</strong> {usuarios.find(user => user.userId === coti.usuario_id)?.nombre || 'N/A'}</p>
                     <div className="mt-3 flex flex-wrap gap-2">
