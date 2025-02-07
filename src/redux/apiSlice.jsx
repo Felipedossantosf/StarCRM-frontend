@@ -42,13 +42,17 @@ export const fetchByAtributo = createAsyncThunk('fetchByAtributo', async ({ url,
 });
 
 export const postData = createAsyncThunk('postData', async ({ url, data }) => {
-    console.log(data)
     const response = await fetchApi(url, 'POST', data);
     return response;
 });
 
 export const deleteData = createAsyncThunk('deleteData', async ({ url, id }) => {
     await fetchApi(`${url}/${id}`, 'DELETE');
+    return { id };
+});
+
+export const deleteData2 = createAsyncThunk('deleteData2', async ({ url, id, data }) => {
+    await fetchApi(`${url}/${id}`, 'DELETE', data);
     return { id };
 });
 
@@ -140,7 +144,6 @@ const apiSlice = createSlice({
                 state[stateKey].push(action.payload);
             })
             .addCase(postData.rejected, (state, action) => {
-                console.log(action.error.message)
                 state.status = 'failed';
                 state.error = action.error.message;
             })
@@ -153,6 +156,18 @@ const apiSlice = createSlice({
                 state[stateKey] = state[stateKey].filter(item => item.id !== action.meta.arg.id);
             })
             .addCase(deleteData.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message;
+            }) 
+            .addCase(deleteData2.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(deleteData2.fulfilled, (state, action) => {
+                state.status = 'succeeded';
+                const stateKey = getStateKeyFromUrl(action.meta.arg.url);
+                state[stateKey] = state[stateKey].filter(item => item.id !== action.meta.arg.id);
+            })
+            .addCase(deleteData2.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             })

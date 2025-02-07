@@ -17,6 +17,8 @@ function Registro() {
     if (userRole !== "ADMIN") {
       navigate("/NoAutorizado")
     }
+
+    
     if (error) {
       Swal.fire({
         title: "Error",
@@ -102,7 +104,6 @@ function Registro() {
       const resultAction = await dispatch(
         postData({ url: 'usuario', data: data })
       );
-       console.log(resultAction);
       if (resultAction.type === 'postData/fulfilled') {
         Swal.fire({
           title: "Registrado",

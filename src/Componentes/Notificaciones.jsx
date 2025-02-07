@@ -11,7 +11,6 @@ function Notificaciones() {
     const [filtroFecha, setFiltroFecha] = useState("");
     const usuarioId = localStorage.getItem("usuarioId");
     const dispatch = useDispatch();
-    console.log(usuarioId)
 
     // Fetch de datos al montar el componente
     useEffect(() => {
@@ -21,12 +20,15 @@ function Notificaciones() {
     const { notificaciones, loading, error } = useSelector((state) => state.api);
 
     // Filtrar notificaciones
-    const filteredNotificaciones = (notificaciones || []).filter((n) => {
+    const filteredNotificaciones = Array.isArray(notificaciones) 
+    ? notificaciones.filter((n) => {
         if (!n.activa) return false;
         const notificacionFecha = new Date(n.fecha).toISOString().split("T")[0];
         if (filtroFecha && filtroFecha !== notificacionFecha) return false;
         return true;
-    });
+      }) 
+    : [];
+  
 
     // Manejar eliminación de notificación
     const handleDeleteNotif = (n) => {

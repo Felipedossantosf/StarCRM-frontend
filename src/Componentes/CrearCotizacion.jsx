@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "./otros/Header";
-import { postData, fetchData } from "../redux/apiSlice";
+import { fetchData, postData, updateData } from "../redux/apiSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -97,11 +97,11 @@ const CrearCotizacion = () => {
             cant: item.quantity,
             precioUnit: item.price,
             totalLinea: item.price,
-            descripcion: item.description,
+            descripcion: item.description, 
           }));
       
           const cotizacion = {
-            id: 16,
+            id: 0,
             estado: estado?.label || "Pendiente",
             fecha: fecha,
             metodosPago: "metodos prueba",
@@ -124,14 +124,14 @@ const CrearCotizacion = () => {
             volumen: parseFloat(volumen) || 0,
             terminosCondiciones: notas || "N/A",
             tipo: tipo?.label || "N/A",
+            incoterm: incoterm?.label || "N/A",
+            bulto: parseFloat(bulto) || 0,
+            precioMetro: parseFloat(Preciometro) || 0,
+            att: att || "N/A",
             lineas: lineas2.length ? lineas2 : []
           };
       
-          console.log("🔹 Cotización a enviar:", cotizacion);
-      
-          const response = await dispatch(postData({ url: "cotizacion", data: cotizacion }));
-      
-          console.log("✅ Respuesta del servidor:", response);
+          const response = await dispatch(postData({ url: "cotizacion",id:cotizacion.id, data: cotizacion }));
       
           if (response.error) {
             throw new Error(response.error.message || "Error desconocido");
@@ -139,14 +139,12 @@ const CrearCotizacion = () => {
       
           Swal.fire({
             icon: "success",
-            title: "Cotización creada exitosamente.",
+            title: "Cotización Modificada exitosamente.",
             showConfirmButton: false,
             timer: 1500
           });
       
-          // 🚀 PROBANDO GENERACIÓN DEL PDF 🚀
           try {
-            console.log("⏳ Generando PDF...");
             const doc = <QuotationPdf data={cotizacion} />;
       
             if (!doc) {
@@ -159,7 +157,6 @@ const CrearCotizacion = () => {
               throw new Error("Error: No se pudo generar el Blob del PDF.");
             }
       
-            console.log("✅ PDF generado correctamente.");
             const pdfURL = URL.createObjectURL(blob);
             window.open(pdfURL, "_blank");
           } catch (pdfError) {
@@ -173,19 +170,16 @@ const CrearCotizacion = () => {
       
           navigate("/cotizaciones");
         } catch (error) {
-          console.error("❌ Error en agregarCotizacion:", error);
+          console.error("❌ Error en modificar:", error);
           Swal.fire({
             icon: "error",
-            title: "Error al crear la cotización",
+            title: "Error al modificar la cotización",
             text: error.message
           });
         }
       };
       
     const calcularLinea = () => {
-      console.log("🔹 Calculando línea...");
-      console.log("🔹 Modo:", modo);
-      console.log("🔹 Tipo:", tipo);
     if (modo.label == "MARITIMO" && tipo.label == "CONSOLIDADO") {
       const volumenKg = volumen * 167;
       if(volumenKg < peso){

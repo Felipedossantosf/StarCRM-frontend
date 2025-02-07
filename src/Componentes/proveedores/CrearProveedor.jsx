@@ -6,7 +6,9 @@ import { useNavigate } from 'react-router-dom';
 import { postData } from '../../redux/apiSlice';
 
 function CrearProveedor() {
+  const usuario_id = localStorage.getItem('usuarioId');
   const [formData, setFormData] = useState({
+    id: 0,
     nombre: '',
     telefono: '',
     correo: '',
@@ -14,11 +16,14 @@ function CrearProveedor() {
     razonSocial: '',
     rut: '',
     direccion: '',
-    sitioWeb: ''
+    sitioWeb: '',
+    usuario_id: usuario_id
   });
 
   const [activeTab, setActiveTab] = useState('');
   const [error, setError] = useState(null);
+  
+
 
   const dispatch = useDispatch();
   const navigate = useNavigate();

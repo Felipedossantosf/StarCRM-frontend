@@ -6,36 +6,99 @@ import { fetchData, updateData } from "../redux/apiSlice";
 
 const actualizarEstados = () => {
   const dispatch = useDispatch();
-  const [activeTab, setActiveTab] = useState("Actualizar Estados");
-  const { inactivos } = useSelector((state) => state.api);
+  const [activeTab, setActiveTab] = useState("");
+  const { inactivos, clientes } = useSelector((state) => state.api);
+  const usuario_id = localStorage.getItem('usuarioId');
 
   useEffect(() => {
     dispatch(fetchData("/Cliente/Inactivos"));
+    dispatch(fetchData("/Cliente"));
   }, [dispatch]);
 
-  const handleActualizarEstado = (id) => {
+  const handleActualizarEstado = async (id) => {
     // Lógica para actualizar el estado
-    Swal.fire({
-      title: "¿Actualizar estado?",
-      text: "¿Estás seguro de que quieres activar este usuario?",
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Este cliente será marcado como libre y su asignación será eliminada.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "Sí, actualizar",
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#56C3CE",
+      confirmButtonText: "Liberar",
       cancelButtonText: "Cancelar",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        dispatch(updateData({ id, estado: "activo" })); 
-        Swal.fire("Actualizado", "El estado ha sido actualizado", "success");
-      }
     });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const cliente = clientes.find((cliente) => cliente.id === id);
+      if (cliente) {
+        const updateCliente = { ...cliente, esInactivo: true, usuario_id: usuario_id }
+        await dispatch(updateData({ url: 'cliente', id: updateCliente.id, data: updateCliente }));
+      }
+      Swal.fire({
+        title: "Cliente actualizado",
+        text: "El cliente ha sido actualizado a inactivo.",
+        icon: "success",
+        confirmButtonColor: "#56C3CE"
+      });
+    } catch (error) {
+      Swal.fire("Error", "No se pudo pasar a inactivo", "error");
+    }
+
+
   };
 
-  console.log(inactivos);
-  return (
-    <div className="min-h-screen flex flex-col bg-[#2B2C2C] p-6">
-    <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+  const handleActualizarEstadoLista = async () => {
+    // Lógica para actualizar el estado de múltiples clientes
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Los clientes seleccionados serán marcados como libres y sus asignaciones serán eliminadas.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#56C3CE",
+      confirmButtonText: "Liberar",
+      cancelButtonText: "Cancelar",
+    });
 
-      <h1 className="text-white text-2xl font-bold mb-4">Lista de Inactivos</h1>
+    if (!result.isConfirmed) return;
+
+    try {
+      const clientesAActualizar = clientes.filter(cliente =>
+        inactivos.some(inactivo => inactivo.id === cliente.id)
+      );
+      for (const cliente of clientesAActualizar) {
+        const updateCliente = { ...cliente, esInactivo: true, usuario_id: usuario_id };
+        await dispatch(updateData({ url: 'cliente', id: updateCliente.id, data: updateCliente }));
+      }
+
+      Swal.fire({
+        title: "Clientes actualizados",
+        text: "Los clientes han sido actualizados a Inactivo.",
+        icon: "success",
+        confirmButtonColor: "#56C3CE"
+      });
+    } catch (error) {
+      Swal.fire("Error", "No se pudieron actualizar los clientes", "error");
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      <div className="text-white text-center pt-4">
+        <h2 className="text-3xl font-semibold">Clientes activos sin cargas en los últimos 6 meses</h2>
+        <div className="mt-4 flex justify-center">
+          <button
+            className="px-4 py-2 rounded bg-[#56C3CE] hover:bg-[#59b1ba] text-white transition-all"
+            onClick={() => handleActualizarEstadoLista()}
+          >
+            Actualizar todos
+          </button>
+        </div>
+      </div>
 
       <div className="grid gap-4">
         {inactivos.map((inactivo) => (

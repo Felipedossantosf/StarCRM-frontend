@@ -78,7 +78,6 @@ const MapWithShare = ({ address }) => {
 
   return (
     <div>
-      <h3>Mapa con Dirección y Compartir</h3>
       <p><strong>Dirección:</strong> {address}</p>
       {error && <p style={{ color: "red" }}>{error}</p>}
       {coordinates ? (

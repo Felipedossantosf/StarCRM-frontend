@@ -28,41 +28,53 @@ const LineChartExample = ({ cotizaciones }) => {
   const data =
     selectedYear
       ? Object.keys(groupedData[selectedYear] || {}).map((month) => {
-          let cantidad = 0;
+        let cantidad = 0;
 
-          if (selectedEstado === "Todos") {
-            // Sumar todas las cotizaciones de todos los estados en ese mes
-            cantidad = Object.values(groupedData[selectedYear][month] || {}).reduce((sum, val) => sum + val, 0);
-          } else {
-            // Tomar solo el estado seleccionado
-            cantidad = groupedData[selectedYear][month]?.[selectedEstado] || 0;
-          }
+        if (selectedEstado === "Todos") {
+          // Sumar todas las cotizaciones de todos los estados en ese mes
+          cantidad = Object.values(groupedData[selectedYear][month] || {}).reduce((sum, val) => sum + val, 0);
+        } else {
+          // Tomar solo el estado seleccionado
+          cantidad = groupedData[selectedYear][month]?.[selectedEstado] || 0;
+        }
 
-          return { name: month, cantidad };
-        })
+        return { name: month, cantidad };
+      })
       : [];
 
   return (
     <div>
-      {/* Selector de año */}
-      <label>Año: </label>
-      <select onChange={(e) => setSelectedYear(e.target.value)} value={selectedYear}>
-        {years.map((year) => (
-          <option key={year} value={year}>
-            {year}
-          </option>
-        ))}
-      </select>
+      {/* Contenedor para los selectores */}
+      <div className="flex items-center space-x-4 mb-6">
+        {/* Selector de Año */}
+        <div className="flex items-center space-x-2">
+          <label>Año: </label>
+          <select
+            onChange={(e) => setSelectedYear(e.target.value)}
+            value={selectedYear}
+            className="px-3 py-2 bg-gray-800 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
+        </div>
 
-      {/* Selector de estado */}
-      <label> Estado: </label>
-      <select onChange={(e) => setSelectedEstado(e.target.value)} value={selectedEstado}>
-        {estados.map((estado) => (
-          <option key={estado} value={estado}>
-            {estado}
-          </option>
-        ))}
-      </select>
+        {/* Selector de Estado */}
+        <div className="flex items-center space-x-2">
+          <label>Estado: </label>
+          <select
+            onChange={(e) => setSelectedEstado(e.target.value)}
+            value={selectedEstado}
+            className="px-3 py-2 bg-gray-800 text-white border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+          >
+            {estados.map((estado) => (
+              <option key={estado} value={estado}>{estado}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
 
       {/* Gráfica */}
       <ResponsiveContainer width="100%" height={300}>

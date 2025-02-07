@@ -65,7 +65,6 @@ const ModificarEvento = () => {
         }
                 
            const response = await dispatch(updateData({ url: 'evento', id: user.id , data: eventoData }));
-           console.log(response)
            if (response.type  = 'updateData/fulfilled') {
              Swal.fire({
                icon: 'success',
