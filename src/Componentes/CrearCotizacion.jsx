@@ -34,7 +34,7 @@ const CrearCotizacion = () => {
     const [volumen, setVolumen] = useState('');
     const [notas, setNotas] = useState('');
     const [Preciometro, setPreciometro] = useState('');
-    const {clientes, usuarios, proveedores} = useSelector((state) => state.api);
+    const {clientes, usuarios, proveedores, asignaciones} = useSelector((state) => state.api);
     const listaEstados = [
       { label: 'Pendiente', value: '1' },
       { label: 'Aprobada', value: '2' },
@@ -82,6 +82,8 @@ const CrearCotizacion = () => {
         dispatch(fetchData('cliente'));
         dispatch(fetchData('proveedor'));
         dispatch(fetchData('usuario'));
+        dispatch(fetchData('asignacion'));
+        
   
       }, [dispatch])
       
@@ -137,6 +139,31 @@ const CrearCotizacion = () => {
             throw new Error(response.error.message || "Error desconocido");
           }
       
+          //Crear Notifiacion
+          const notificacionesAsignacion = asignaciones.filter(asignacion => 
+                                  clientesIds.some(clienteId => clienteId === asignacion.cliente_id) // Se corrigió el acceso a clienteId
+                              );
+          
+          for (const notificacion of notificacionesAsignacion) {
+          const cliente = clientes.find((c) => c.id === notificacion.cliente_id);
+                                  
+          if (!cliente) {
+             continue;  // Si no encuentra el cliente, sigue con la siguiente iteración
+            }
+                
+         const listaUsuarios = notificacion.comun_id ? [notificacion.comun_id] : [];
+         const response = await dispatch(
+         postData({
+         url: "notificacion",
+         data: { 
+                cliente_id: notificacion.cliente_id, 
+                mensaje: `Se creo Cotizacion Para ${cliente.nombre}`, 
+                usuariosId: listaUsuarios 
+                },
+              })
+          );
+                  
+        }
           Swal.fire({
             icon: "success",
             title: "Cotización Modificada exitosamente.",

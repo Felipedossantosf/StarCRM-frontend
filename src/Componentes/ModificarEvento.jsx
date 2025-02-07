@@ -177,7 +177,7 @@ const ModificarEvento = () => {
                         id="fecha"
                         name="fecha"
                         type="date"
-                        value={fecha}
+                        value={fecha ? new Date(fecha).toISOString().split("T")[0] : ""}  // Asegurar formato YYYY-MM-DD
                         onChange={(e) => setFecha(e.target.value)}
                         required
                         className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"

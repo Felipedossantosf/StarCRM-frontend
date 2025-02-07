@@ -2,7 +2,7 @@ import React, { useState, useEffect} from "react";
 import Select from "react-select"
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchData, updateData } from "../redux/apiSlice";
+import { fetchData, updateData, postData } from "../redux/apiSlice";
 import Swal from "sweetalert2";
 import Header from "./otros/Header";
 import { pdf } from "@react-pdf/renderer";
@@ -26,7 +26,7 @@ const ModificarCotizacion = () => {
     const [items, setItems] = useState(listaItems);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const {clientes, usuarios, proveedores} = useSelector((state) => state.api);
+    const {clientes, usuarios, proveedores, asignaciones} = useSelector((state) => state.api);
     const [invoiceNumber, setInvoiceNumber] = useState(coti.id);
     //Seleccion Cliente
     const listaProveedores = proveedores.map(proveedor => ({
@@ -115,6 +115,7 @@ const ModificarCotizacion = () => {
         dispatch(fetchData('cliente'));
         dispatch(fetchData('proveedor'));
         dispatch(fetchData('usuario'));
+        dispatch(fetchData('asignacion'));
   
       }, [dispatch])
       
@@ -169,6 +170,31 @@ const ModificarCotizacion = () => {
           if (response.error) {
             throw new Error(response.error.message || "Error desconocido");
           }
+          
+          const notificacionesAsignacion = asignaciones.filter(asignacion => 
+                                            clientesIds.some(clienteId => clienteId === asignacion.cliente_id) // Se corrigió el acceso a clienteId
+                                        );
+                    
+                    for (const notificacion of notificacionesAsignacion) {
+                    const cliente = clientes.find((c) => c.id === notificacion.cliente_id);
+                                            
+                    if (!cliente) {
+                       continue;  // Si no encuentra el cliente, sigue con la siguiente iteración
+                      }
+                          
+                   const listaUsuarios = notificacion.comun_id ? [notificacion.comun_id] : [];
+                   const response = await dispatch(
+                   postData({
+                   url: "notificacion",
+                   data: { 
+                          cliente_id: notificacion.cliente_id, 
+                          mensaje: `Se modificacion Cotizacion Para ${cliente.nombre} con fecha ${fecha} `, 
+                          usuariosId: listaUsuarios 
+                          },
+                        })
+                    );
+                            
+                  }
       
           Swal.fire({
             icon: "success",
@@ -193,7 +219,6 @@ const ModificarCotizacion = () => {
             const pdfURL = URL.createObjectURL(blob);
             window.open(pdfURL, "_blank");
           } catch (pdfError) {
-            console.error("🚨 Error al generar el PDF:", pdfError);
             Swal.fire({
               icon: "error",
               title: "Error al generar el PDF",
@@ -203,7 +228,6 @@ const ModificarCotizacion = () => {
       
           navigate("/cotizaciones");
         } catch (error) {
-          console.error("❌ Error en agregarCotizacion:", error);
           Swal.fire({
             icon: "error",
             title: "Error al crear la cotización",
@@ -285,11 +309,11 @@ const ModificarCotizacion = () => {
               </div>
              <div>
                <label htmlFor="fecha" className="block text-sm font-medium text-gray-700">Fecha</label>
-               <input id="fecha" name="fecha" type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} required className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"/>
+               <input id="fecha" name="fecha" type="date" value={fecha ? new Date(fecha).toISOString().split("T")[0] : ""} onChange={(e) => setFecha(e.target.value)} required className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"/>
              </div>
              <div>
                <label htmlFor="fecha" className="block text-sm font-medium text-gray-700">Validez</label>
-               <input id="fecha" name="fecha" type="date" value={validez} onChange={(e) => setValidez(e.target.value)} required className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"/>
+               <input id="fecha" name="fecha" type="date" value={validez ? new Date(validez).toISOString().split("T")[0] : ""} onChange={(e) => setValidez(e.target.value)} required className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"/>
              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-4 rounded-lg shadow-sm">

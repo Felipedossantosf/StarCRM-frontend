@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
-import { fetchById, updateData } from '../../redux/apiSlice';
+import { fetchById,fetchData,  updateData, postData } from '../../redux/apiSlice';
 import Header from '../otros/Header';
 
 function ModificarCliente() {
@@ -10,12 +10,16 @@ function ModificarCliente() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState('');
+  const usuario_id = localStorage.getItem('usuarioId');
+
 
   useEffect(() => {
     dispatch(fetchById({ url: 'cliente', id: clienteId }));
+    dispatch(fetchData('asignacion'));
+    
   }, [dispatch, clienteId]);
 
-  const {status, clienteDetail} = useSelector((state) => state.api);
+  const {clienteDetail, asignaciones} = useSelector((state) => state.api);
 
   const [cliente, setCliente] = useState({
     nombre: '',
@@ -31,22 +35,18 @@ function ModificarCliente() {
     notas: '',
     esInactivo: true,
     fechaUltCarga: null,
-    estado: 'Libre'
+    estado: 'Libre',
+    usuario_id: ''
   });
 
   useEffect(() => {
     if (clienteDetail) {
-      setCliente(clienteDetail);
+        setCliente({
+            ...clienteDetail,
+            usuario_id: clienteDetail.usuario_id || localStorage.getItem('usuarioId') // Asegurar que tenga un valor
+        });
     }
-  }, [clienteDetail]);
-
-  if (status === 'loading') {
-    return <div>Cargando...</div>;
-  }
-
-  if (status === 'failed') {
-    navigate('/ErrorPage');
-  }
+}, [clienteDetail]);
 
   if (!clienteDetail) {
     return <div>Cliente no encontrado</div>;
@@ -59,14 +59,54 @@ function ModificarCliente() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Asegurar que usuario_id tiene el valor correcto
+    const clienteActualizado = { ...cliente, usuario_id: localStorage.getItem('usuarioId') };
+
     try {
-      await dispatch(updateData({ url: 'cliente', id: clienteId, data: cliente }));
-      Swal.fire('Éxito', 'Cliente actualizado correctamente', 'success');
-      navigate(`/clientes/${clienteId}`);
+        console.log("🟢 Cliente que se enviará:", clienteActualizado);
+
+        // Esperar la actualización
+        console.log("🔵 Enviando datos a updateData...");
+        await dispatch(updateData({ url: 'cliente', id: clienteId, data: clienteActualizado }));
+        console.log("✅ updateData completado");
+
+        // Buscar asignación
+        console.log("🔵 Buscando asignación...");
+        console.log(clienteId)
+        const notificacionAsignacion = asignaciones.find(asignacion => asignacion.cliente_id == clienteId);
+
+        if (notificacionAsignacion) {
+            console.log("🟢 Notificación asignación encontrada:", notificacionAsignacion);
+
+            console.log("🔵 Enviando notificación...");
+            await dispatch(
+                postData({
+                    url: "notificacion",
+                    data: { 
+                        cliente_id: notificacionAsignacion.cliente_id, 
+                        mensaje: `Se modificó el cliente: ${cliente.nombre} asignado a usted`, 
+                        usuariosId: [notificacionAsignacion.comun_id] 
+                    },
+                })
+            );
+            console.log("✅ Notificación enviada");
+        } else {
+            console.log("⚠️ No se encontró asignación, no se enviará notificación.");
+        }
+
+        console.log("🔵 Mostrando alerta de éxito...");
+        Swal.fire('Éxito', 'Cliente actualizado correctamente', 'success');
+
+        console.log("🔵 Navegando a la página de cliente...");
+        navigate(`/clientes/${clienteId}`);
+
     } catch (error) {
-      Swal.fire('Error', 'Hubo un error al actualizar el cliente', 'error');
+        console.error("❌ Error en handleSubmit:", error);
+        Swal.fire('Error', 'Hubo un error al actualizar el cliente', 'error');
     }
-  };
+};
+
 
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">

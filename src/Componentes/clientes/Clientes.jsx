@@ -92,6 +92,15 @@ function Clientes() {
       // Realizar el POST para crear la nueva asignación
       dispatch(postData({ url: 'asignacion', data }));
 
+      //Creo notificacion
+      const listaUsuarios = data.comun_id ? [data.comun_id] : [];
+      const clienteNotificacion = clientes.find((cliente) => cliente.id == clienteId ) 
+      const response = await dispatch(
+        postData({
+          url: "notificacion",
+          data: { cliente_id: data.cliente_id, mensaje: `Cliente ${clienteNotificacion.nombre} asignado`, usuariosId: listaUsuarios },
+        })
+      );
       Swal.fire({
         title: "Cliente reasignado",
         text: "El cliente ha sido reasignado correctamente.",
@@ -141,8 +150,6 @@ function Clientes() {
           data: { cliente_id: asignacionExistente.cliente_id, mensaje: `Cliente ${updatedCliente.nombre} liberado`, usuariosId: listaUsuarios },
         })
       );
-      console.log("✅ Notificación enviada:", response);
-
       Swal.fire({
         title: "Cliente liberado",
         text: "El cliente ha sido liberado correctamente.",

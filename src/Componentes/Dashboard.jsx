@@ -17,6 +17,10 @@ function Dashboard() {
     dispatch(fetchData("cotizacion"));
     dispatch(fetchData("asignacion"));
     dispatch(fetchData("usuario"));
+    const userRole = localStorage.getItem("userRole");
+    if (userRole !== "ADMIN") {
+      navigate("/NoAutorizado")
+    }
   }, [dispatch]);
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
