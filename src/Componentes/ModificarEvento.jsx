@@ -2,7 +2,7 @@ import React, { useState, useEffect} from "react";
 import Select from "react-select"
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchData, updateData } from "../redux/apiSlice";
+import { fetchData, updateData, postData } from "../redux/apiSlice";
 import Swal from "sweetalert2";
 import { FaMapMarkerAlt, FaWaze, FaWhatsapp } from "react-icons/fa";
 
@@ -18,7 +18,7 @@ const ModificarEvento = () => {
     const dispatch = useDispatch();
     const usuarioId = localStorage.getItem("usuarioId");
     
-    const { clientes, usuarios, eventos} = useSelector((state) => state.api);
+    const { clientes, usuarios, eventos,asignaciones} = useSelector((state) => state.api);
       const listaclientes = clientes.map(cliente => ({
         label: cliente.nombre,
         value: cliente.id,
@@ -38,48 +38,80 @@ const ModificarEvento = () => {
             dispatch(fetchData('cliente'));
             dispatch(fetchData('usuario'));
             dispatch(fetchData('evento'));
+            dispatch(fetchData('asignacion'));
           }, [dispatch])
 
 
-   const handleModificar = async () => {
-     if (!descripcion || !fecha || clientesSeleccionados.length === 0) {
-       setError("Por favor completa todos los campos y selecciona al menos un cliente.");
-       return;
-     }
- 
-     const clientesIds = clientesSeleccionados.map((cliente) => cliente.value);
-     const usuariosIds = usuariosSeleccionados.map((usuario) => usuario.value);
+          const handleModificar = async () => {
+            if (!descripcion || !fecha || clientesSeleccionados.length === 0) {
+                setError("Por favor completa todos los campos y selecciona al menos un cliente.");
+                return;
+            }
+        
+            const clientesIds = clientesSeleccionados.map((cliente) => cliente.value);
+            const usuariosIds = usuariosSeleccionados.map((usuario) => usuario.value);
+        
+            try {
+                const eventoData = {
+                    id: user.id,
+                    fecha: fecha,
+                    nombre: Nombre,
+                    descripcion: descripcion,
+                    esCarga: user.esCarga,
+                    usuariosId: usuariosIds,
+                    comercialesId: clientesIds,
+                    usuario_id: usuarioId
+                };
 
- 
-      try {
+                const response = await dispatch(updateData({ url: 'evento', id: user.id, data: eventoData }));
+        
+                if (response.type === 'updateData/fulfilled') {  // Cambié `=` por `===`
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Evento modificado exitosamente.',
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+        
+                    //Creo Notificacion
+                    const notificacionesAsignacion = asignaciones.filter(asignacion => 
+                        clientesIds.some(clienteId => clienteId === asignacion.cliente_id) // Se corrigió el acceso a clienteId
+                    );
 
-        const eventoData = {
-          id: user.id,
-          fecha: fecha,
-          nombre: Nombre,
-          descripcion: descripcion,
-          esCarga: user.esCarga,
-          usuariosId: usuariosIds,
-          comercialesId: clientesIds,
-          usuario_id: usuarioId
-        }
-                
-           const response = await dispatch(updateData({ url: 'evento', id: user.id , data: eventoData }));
-           if (response.type  = 'updateData/fulfilled') {
-             Swal.fire({
-               icon: 'success',
-               title: 'Evento modificado exitosamente.',
-               showConfirmButton: false,
-               timer: 1500,
-             });
-             navigate('/eventos');
-           } else {
-             setError('Hubo un problema al modificar el evento. Por favor, inténtalo de nuevo.');
-           }
-         } catch (error) {
-           setError('Hubo un error al modificar el evento.');
-         }
-   };    
+                    for (const notificacion of notificacionesAsignacion) {
+                        const cliente = clientes.find((c) => c.id === notificacion.cliente_id);
+                        
+                        if (!cliente) {
+                            continue;  // Si no encuentra el cliente, sigue con la siguiente iteración
+                        }
+        
+                        const mensaje = `Reunion del cliente ${cliente.nombre} modificada`
+                        if(user.escarga){
+                           mensaje = `Carga del cliente ${cliente.nombre} modificada`
+                        }
+        
+                        const listaUsuarios = notificacion.comun_id ? [notificacion.comun_id] : [];
+                        const response = await dispatch(
+                            postData({
+                                url: "notificacion",
+                                data: { 
+                                    cliente_id: notificacion.cliente_id, 
+                                    mensaje: mensaje, 
+                                    usuariosId: listaUsuarios 
+                                },
+                            })
+                        );
+        
+                    }
+                    navigate('/eventos');
+                } else {
+                    setError('Hubo un problema al modificar el evento. Por favor, inténtalo de nuevo.');
+                }
+            } catch (error) {
+                setError('Hubo un error al modificar el evento.');
+            }
+        };
+           
 
     
           return (
@@ -145,7 +177,7 @@ const ModificarEvento = () => {
                         id="fecha"
                         name="fecha"
                         type="date"
-                        value={fecha}
+                        value={fecha ? new Date(fecha).toISOString().split("T")[0] : ""}  // Asegurar formato YYYY-MM-DD
                         onChange={(e) => setFecha(e.target.value)}
                         required
                         className="w-full px-3 py-2 mt-1 rounded focus:outline-none focus:ring-2 focus:ring-[#56C3CE]"
@@ -189,7 +221,7 @@ const ModificarEvento = () => {
                       type="button"
                       className="w-full py-3 rounded bg-[#005469] hover:bg-[#00728F] text-white duration-300"
                     >
-                      Modificar Reunión
+                      Modificar Evento
                     </button>
         
                     {error && (

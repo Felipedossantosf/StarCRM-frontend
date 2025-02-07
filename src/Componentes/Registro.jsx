@@ -8,7 +8,7 @@ import Swal from "sweetalert2";
 function Registro() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { usuarios, error } = useSelector((state) => state.api);
+  const { usuarios } = useSelector((state) => state.api);
   const usuarioId = localStorage.getItem("usuarioId");
 
   useEffect(() => {
@@ -17,18 +17,7 @@ function Registro() {
     if (userRole !== "ADMIN") {
       navigate("/NoAutorizado")
     }
-
-    
-    if (error) {
-      Swal.fire({
-        title: "Error",
-        text: error || "Ocurrió un error al registrar el usuario",
-        icon: "error",
-        confirmButtonColor: "#56C3CE"
-      });
-      dispatch(resetError());
-    }
-  }, [navigate, error]);
+  }, [navigate]);
 
   const [activeTab, setActiveTab] = useState("Registrar usuario");
   const [username, setUsername] = useState("");

@@ -18,7 +18,7 @@ const actualizarEstados = () => {
   }, [dispatch]);
 
   const handleActualizarEstado = async (id) => {
-    console.log("🔵 Iniciando handleActualizarEstado", id);
+    
 
     const result = await Swal.fire({
       title: "¿Estás seguro?",
@@ -31,28 +31,20 @@ const actualizarEstados = () => {
       cancelButtonText: "Cancelar",
     });
 
-    if (!result.isConfirmed) {
-        console.log("🟡 Usuario canceló la acción");
-        return;
-    }
 
     try {
-        console.log("🔵 Buscando cliente...");
+        
         const cliente = clientes.find((cliente) => cliente.id == id);
         if (!cliente) {
             throw new Error("❌ Cliente no encontrado");
         }
-        console.log("✅ Cliente encontrado:", cliente);
-
-        console.log("🔵 Actualizando cliente...");
+        
         const updateCliente = { ...cliente, esInactivo: true, usuario_id: usuario_id };
         await dispatch(updateData({ url: 'cliente', id: updateCliente.id, data: updateCliente }));
-        console.log("✅ Cliente actualizado");
 
-        console.log("🔵 Buscando asignación...");
         const notificacionAsignacion = asignaciones.find(asignacion => asignacion.cliente_id === cliente.id);
         if (notificacionAsignacion) {
-          console.log("🔵 Enviando notificación...");
+        
         const response = await dispatch(
           postData({
             url: "notificacion",

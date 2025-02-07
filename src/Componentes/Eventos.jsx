@@ -232,7 +232,11 @@ function Eventos() {
                     <div key={event.id} className="bg-white shadow-md rounded-lg p-4">
                       <p className="text-xs text-gray-500 mt-1">{event.nombre}</p>
                       <p className="text-xs text-gray-500 mt-1">{event.descrpicion}</p>
-                      <p className="text-xs text-gray-500 mt-1">{new Date(event.fecha).toISOString().split("T")[0]}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {event.fecha && !isNaN(new Date(event.fecha)) 
+                          ? new Date(event.fecha).toISOString().split("T")[0] 
+                          : "Fecha no disponible"}
+                      </p>
                       <ul className="text-xs text-gray-500 mt-1">
                         {event.usuariosId && Array.isArray(event.usuariosId) ? (
                           event.usuariosId.map((userId) => {

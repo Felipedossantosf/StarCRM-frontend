@@ -17,7 +17,7 @@ const AgregarEvento = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { clientes, usuarios, eventos} = useSelector((state) => state.api);
+  const { clientes, usuarios, eventos, asignaciones} = useSelector((state) => state.api);
   const listaclientes = clientes.map(cliente => ({
     label: cliente.nombre,
     value: cliente.id,
@@ -32,73 +32,127 @@ const AgregarEvento = () => {
       dispatch(fetchData('cliente'));
       dispatch(fetchData('usuario'));
       dispatch(fetchData('evento'));
+      dispatch(fetchData('asignacion'));
+      
     }, [dispatch])
 
 
-  const handleCrear = async () => {
-    if (!descripcion || !fecha || clientesSeleccionados.length === 0) {
-      setError("Por favor completa todos los campos y selecciona al menos un cliente.");
-      return;
-    }
-
-    const clientesIds = clientesSeleccionados.map((cliente) => cliente.value);
-    const usuariosIds = usuariosSeleccionados.map((usuario) => usuario.value);
-    
-
-    try {
-      const eventoData = {
-        fecha,
-        nombre: titulo,
-        descripcion,
-        esCarga: carga.esCarga,
-        idUsuarios: usuariosIds,
-        idComerciales: clientesIds,
-        usuario_id: usuarioId
-      };
-    
-      const response = await dispatch(postData({ url: 'evento', data: eventoData }));
-    
-      if (response.type === 'postData/fulfilled') { 
-        Swal.fire({
-          icon: 'success',
-          title: 'Evento creado exitosamente.',
-          showConfirmButton: false,
-          timer: 1500,
-        });
-    
-        if (carga.esCarga) {
-          const nuevosClientes = [...clientes];
-    
-          for (const clienteId of clientesIds) {
-            const clienteIndex = nuevosClientes.findIndex(c => c.id == clienteId);
-            
-            if (clienteIndex !== -1) {
-              const clienteActualizado = { 
-                ...nuevosClientes[clienteIndex], 
-                esInactivo: false, 
-                fechaUltCarga: new Date().toISOString(), 
-                usuario_id: usuarioId 
-              };
-    
-              // Actualizar la lista de clientes localmente
-              nuevosClientes[clienteIndex] = clienteActualizado;
-    
-              // Enviar la actualización al backend
-              await dispatch(updateData({ url: 'cliente', id: clienteActualizado.id, data: clienteActualizado }));
-            }
-          }
-    
-        }
-    
-        navigate('/eventos');
-      } else {
-        setError('Hubo un problema al crear el evento. Por favor, inténtalo de nuevo.');
+    const handleCrear = async () => {
+      if (!descripcion || !fecha || clientesSeleccionados.length === 0) {
+          console.warn("⚠️ Falta completar los campos obligatorios.");
+          setError("Por favor completa todos los campos y selecciona al menos un cliente.");
+          return;
       }
-    } catch (error) {
-      setError('Hubo un error al crear el evento.');
-    }
+  
+      const clientesIds = clientesSeleccionados.map((cliente) => cliente.value);
+      const usuariosIds = usuariosSeleccionados.map((usuario) => usuario.value);
+  
+      try {
+          console.log("🔵 Iniciando creación de evento...");
+  
+          const eventoData = {
+              fecha,
+              nombre: titulo,
+              descripcion,
+              esCarga: carga.esCarga,
+              idUsuarios: usuariosIds,
+              idComerciales: clientesIds,
+              usuario_id: usuarioId
+          };
+  
+          console.log("📡 Enviando solicitud para crear evento:", eventoData);
+  
+          const response = await dispatch(postData({ url: 'evento', data: eventoData }));
+          
+          console.log("✅ Respuesta recibida de postData:", response);
+  
+          console.log("🔎 Buscando asignaciones...");
+          const notificacionesAsignacion = asignaciones.filter(asignacion => 
+              clientesIds.some(clienteId => clienteId === asignacion.cliente_id)
+          );
+  
+          console.log("✅ Asignaciones encontradas:", notificacionesAsignacion);
+  
+          for (const notificacion of notificacionesAsignacion) {
+              const cliente = clientes.find((c) => c.id === notificacion.cliente_id);
+              
+              if (!cliente) {
+                  console.warn(`⚠️ Cliente con ID ${notificacion.cliente_id} no encontrado.`);
+                  continue;  // Si no encuentra el cliente, sigue con la siguiente iteración
+              }
+  
+              let mensaje = `Reunión creada para cliente ${cliente.nombre}`;
+              if (carga.escarga) {
+                  mensaje = `Carga creada para cliente ${cliente.nombre}`;
+              }
+  
+              console.log(`📡 Enviando notificación para cliente ${cliente.nombre}...`);
+  
+              const listaUsuarios = notificacion.comun_id ? [notificacion.comun_id] : [];
+              const response = await dispatch(
+                  postData({
+                      url: "notificacion",
+                      data: { 
+                          cliente_id: notificacion.cliente_id, 
+                          mensaje: mensaje, 
+                          usuariosId: listaUsuarios 
+                      },
+                  })
+              );
+  
+              console.log("✅ Notificación enviada:", response);
+          }
+  
+          if (response.type === 'postData/fulfilled') { 
+              console.log("✅ Evento creado con éxito.");
+  
+              Swal.fire({
+                  icon: 'success',
+                  title: 'Evento creado exitosamente.',
+                  showConfirmButton: false,
+                  timer: 1500,
+              });
+  
+              if (carga.esCarga) {
+                  console.log("🔵 Actualizando clientes...");
+  
+                  const nuevosClientes = [...clientes];
+  
+                  for (const clienteId of clientesIds) {
+                      const clienteIndex = nuevosClientes.findIndex(c => c.id == clienteId);
+                      
+                      if (clienteIndex !== -1) {
+                          console.log(`📡 Actualizando cliente con ID ${clienteId}...`);
+                          const clienteActualizado = { 
+                              ...nuevosClientes[clienteIndex], 
+                              esInactivo: false, 
+                              fechaUltCarga: new Date().toISOString(), 
+                              usuario_id: usuarioId 
+                          };
+  
+                          // Actualizar la lista de clientes localmente
+                          nuevosClientes[clienteIndex] = clienteActualizado;
+  
+                          // Enviar la actualización al backend
+                          await dispatch(updateData({ url: 'cliente', id: clienteActualizado.id, data: clienteActualizado }));
+  
+                          console.log("✅ Cliente actualizado:", clienteActualizado);
+                      }
+                  }
+              }
+  
+              console.log("✅ Redirigiendo a eventos...");
+              navigate('/eventos');
+          } else {
+              console.error("❌ Error: postData no fue exitoso:", response);
+              setError('Hubo un problema al crear el evento. Por favor, inténtalo de nuevo.');
+          }
+      } catch (error) {
+          console.error("❌ Error en handleCrear:", error);
+          setError('Hubo un error al crear el evento.');
+      }
   };
-
+  
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
       <div className="flex items-center text-white pt-4 pb-1">

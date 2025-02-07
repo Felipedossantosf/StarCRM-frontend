@@ -13,10 +13,15 @@ function Login() {
   const token2 = localStorage.getItem("token");
   const error = useSelector(state => state.login.error);
   const token = useSelector(state => state.login.token);
-
+  const usuarioLogueado = useSelector(state => state.login.token);
   useEffect(() => {
     if (token || token2 != undefined) {
-      return navigate("/dashboard")
+      if (usuarioLogueado.rol == "ADMIN") {
+        return navigate("/dashboard")
+      }else{
+        return navigate("/Clientes")
+      }
+      
     }
   }, [token, token2]);
 

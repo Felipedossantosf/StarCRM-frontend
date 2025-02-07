@@ -41,14 +41,25 @@ export const fetchByAtributo = createAsyncThunk('fetchByAtributo', async ({ url,
     return result || null;
 });
 
+// export const fetchAllByAtributo = createAsyncThunk('fetchAllByAtributo', async ({ url, atributo, valor }) => {
+//     const response = await fetchApi(url);
+//     const result = response.filter(element => Array.isArray(element[atributo]) && element[atributo].includes(valor));
+//     return result.length > 0 ? result : [];
+// });
+
 export const postData = createAsyncThunk('postData', async ({ url, data }) => {
     const response = await fetchApi(url, 'POST', data);
     return response;
 });
 
-export const deleteData = createAsyncThunk('deleteData', async ({ url, id }) => {
-    await fetchApi(`${url}/${id}`, 'DELETE');
-    return { id };
+export const deleteData = createAsyncThunk('deleteData', async ({ url, id, data}) => {
+    let response;
+    if (data) {
+        response = await fetchApi(`${url}/${id}?usuario_id=${data}`, 'DELETE');
+    } else {
+        response = await fetchApi(`${url}/${id}`, 'DELETE');
+    }
+    return response;
 });
 
 export const updateData = createAsyncThunk('updateData', async ({ url, id, data }) => {
