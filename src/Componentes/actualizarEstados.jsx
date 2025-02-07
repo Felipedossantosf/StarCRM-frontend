@@ -22,12 +22,12 @@ const actualizarEstados = () => {
 
     const result = await Swal.fire({
       title: "¿Estás seguro?",
-      text: "Este cliente será marcado como libre y su asignación será eliminada.",
+      text: "este cliente pasara a inactivo, estas de acuerdo?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#56C3CE",
-      confirmButtonText: "Liberar",
+      confirmButtonText: "Aceptar",
       cancelButtonText: "Cancelar",
     });
 
@@ -79,12 +79,12 @@ const actualizarEstados = () => {
     // Lógica para actualizar el estado de múltiples clientes
     const result = await Swal.fire({
       title: "¿Estás seguro?",
-      text: "Los clientes seleccionados quedaran inactivos",
+      text: "Los clientes seleccionados quedaran inactivos, estas de acuerdo?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#56C3CE",
-      confirmButtonText: "Liberar",
+      confirmButtonText: "Aceptar",
       cancelButtonText: "Cancelar",
     });
 
