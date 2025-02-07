@@ -158,7 +158,7 @@ function Clientes() {
   const handleDeleteCliente = async (clienteId) => {
     const result = await Swal.fire({
       title: "¿Estás seguro?",
-      text: "Una vez eliminado, no podrás recuperar este cliente y se eliminarán toda su actividad asociada.",
+      text: "Una vez eliminado, no podrás recuperar este cliente.",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
