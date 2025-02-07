@@ -64,5 +64,5 @@ jobs:
         with:
           app-name: 'StarCRM-front'
           slot-name: 'Production'
-          package: dist
+          package: node-app
           
