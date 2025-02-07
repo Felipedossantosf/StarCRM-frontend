@@ -17,6 +17,8 @@ function Registro() {
     if (userRole !== "ADMIN") {
       navigate("/NoAutorizado")
     }
+
+    
     if (error) {
       Swal.fire({
         title: "Error",
