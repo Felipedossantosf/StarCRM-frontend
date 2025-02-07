@@ -5,49 +5,64 @@ import { fetchById, updateData } from "../redux/apiSlice";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 import { useActionData } from "react-router-dom";
+import Swal from "sweetalert2";
+import { useNavigate } from 'react-router-dom';
+
 
 function Notificaciones() {
     const [activeTab, setActiveTab] = useState("");
     const [filtroFecha, setFiltroFecha] = useState("");
     const usuarioId = localStorage.getItem("usuarioId");
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const [filteredNotificaciones, setFilteredNotificaciones] = useState([]);
 
-    // Fetch de datos al montar el componente
+    // Fetch de datos al montar el componente y filtrar notificaciones
     useEffect(() => {
         dispatch(fetchById({ url: 'notificacion', id: usuarioId }));
     }, [dispatch, usuarioId]);
 
-    const { notificaciones, loading, error } = useSelector((state) => state.api);
+    const { notificaciones } = useSelector((state) => state.api);
 
-    // Filtrar notificaciones
-    const filteredNotificaciones = Array.isArray(notificaciones) 
-    ? notificaciones.filter((n) => {
-        if (!n.activa) return false;
-        const notificacionFecha = new Date(n.fecha).toISOString().split("T")[0];
-        if (filtroFecha && filtroFecha !== notificacionFecha) return false;
-        return true;
-      }) 
-    : [];
+    useEffect(() => {
+        if (Array.isArray(notificaciones)) {
+            const filtered = notificaciones.filter((n) => {
+                if (!n.activa) return false;
+                const notificacionFecha = new Date(n.fecha).toISOString().split("T")[0];
+                if (filtroFecha && filtroFecha !== notificacionFecha) return false;
+                return true;
+            });
+            setFilteredNotificaciones(filtered);
+        }
+    }, [notificaciones, filtroFecha]);
   
 
     // Manejar eliminación de notificación
     const handleDeleteNotif = (n) => {
-        const updatedNotificacion = { ...n, activa: false };
-        dispatch(updateData({ url: 'notificacion', id: n.notificacion_id, data: updatedNotificacion }));
+        try {
+            const updatedNotificacion = { 
+                id:0,
+                notificacion_id: n.notificacion_id,
+                usuario_id: usuarioId,
+                activa: false
+            };
+            const response = dispatch(updateData({ url: 'notificacion', id: n.notificacion_usuario_id, data: updatedNotificacion }));
+            Swal.fire({
+                    title: "Notificacion Eliminada",
+                    text: "La Notifiacion fue Eliminada correctamente.",
+                    icon: "success",
+                    confirmButtonColor: "#56C3CE"
+                  });
+            navigate("/notificaciones");
+        } catch (error) {
+            Swal.fire("Error", "No se pudo eliminar la Notificacion", "error");
+        }
     };
 
     // Limpiar filtros
     const clearFilters = () => {
         setFiltroFecha("");
     };
-
-    if (loading) {
-        return <div className="text-center text-white">Cargando notificaciones...</div>;
-    }
-
-    if (error) {
-        return <div className="text-center text-red-500">Error al cargar notificaciones: {error}</div>;
-    }
 
     return (
         <div className="min-h-screen flex flex-col bg-[#2B2C2C] mb-4">
