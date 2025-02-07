@@ -5,9 +5,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchData, postData, updateData } from "../redux/apiSlice";
 import Swal from "sweetalert2";
 
-
-
-
 const AgregarEvento = () => {
   const location = useLocation();
   const carga = location.state;
@@ -61,7 +58,7 @@ const AgregarEvento = () => {
     
       const response = await dispatch(postData({ url: 'evento', data: eventoData }));
     
-      if (response.type === 'postData/fulfilled') {  // ✅ Corrección aquí
+      if (response.type === 'postData/fulfilled') { 
         Swal.fire({
           icon: 'success',
           title: 'Evento creado exitosamente.',
@@ -70,7 +67,6 @@ const AgregarEvento = () => {
         });
     
         if (carga.esCarga) {
-          // Clonar la lista de clientes para no mutar el estado directamente
           const nuevosClientes = [...clientes];
     
           for (const clienteId of clientesIds) {
@@ -80,8 +76,8 @@ const AgregarEvento = () => {
               const clienteActualizado = { 
                 ...nuevosClientes[clienteIndex], 
                 esInactivo: false, 
-                fechaUltCarga: new Date().toISOString(), // Actualiza la fecha
-                usuario_id: usuarioId // Asigna el ID de usuario
+                fechaUltCarga: new Date().toISOString(), 
+                usuario_id: usuarioId 
               };
     
               // Actualizar la lista de clientes localmente
@@ -101,8 +97,6 @@ const AgregarEvento = () => {
     } catch (error) {
       setError('Hubo un error al crear el evento.');
     }
-    
-    
   };
 
   return (

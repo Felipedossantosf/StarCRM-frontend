@@ -48,6 +48,7 @@ function Eventos() {
         icon: "success",
         confirmButtonColor: "#56C3CE"
       });
+
     } catch (error) {
       Swal.fire("Error", "No se pudo eliminar el evento. Intenta nuevamente.", "error");
     }
@@ -148,7 +149,7 @@ function Eventos() {
             onClick={() => navigate("/AgregarEvento", { state: { esCarga: false } })}
           >
             <div className="flex space-x-1 items-center">
-              <p>Evento</p>
+              <p>Reunión</p>
               <svg className="h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="16" />

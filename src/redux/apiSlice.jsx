@@ -51,11 +51,6 @@ export const deleteData = createAsyncThunk('deleteData', async ({ url, id }) => 
     return { id };
 });
 
-export const deleteData2 = createAsyncThunk('deleteData2', async ({ url, id, data }) => {
-    await fetchApi(`${url}/${id}`, 'DELETE', data);
-    return { id };
-});
-
 export const updateData = createAsyncThunk('updateData', async ({ url, id, data }) => {
     const response = await fetchApi(`${url}/${id}`, 'PUT', data);
     return response;
@@ -84,7 +79,7 @@ const apiSlice = createSlice({
     reducers: {
         resetError(state) {
             state.error = null;
-        }
+        },
     },
     extraReducers: (builder) => {
         const getStateKeyFromUrl = (arg) => {
@@ -153,24 +148,12 @@ const apiSlice = createSlice({
             .addCase(deleteData.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 const stateKey = getStateKeyFromUrl(action.meta.arg.url);
-                state[stateKey] = state[stateKey].filter(item => item.id !== action.meta.arg.id);
+                state[stateKey] = state[stateKey].filter(item => item.id !== action.payload.id);
             })
             .addCase(deleteData.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
             }) 
-            .addCase(deleteData2.pending, (state) => {
-                state.status = 'loading';
-            })
-            .addCase(deleteData2.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                const stateKey = getStateKeyFromUrl(action.meta.arg.url);
-                state[stateKey] = state[stateKey].filter(item => item.id !== action.meta.arg.id);
-            })
-            .addCase(deleteData2.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.error.message;
-            })
             .addCase(updateData.pending, (state) => {
                 state.status = 'loading';
             })
@@ -190,5 +173,5 @@ const apiSlice = createSlice({
     }
 });
 
-export const { resetError } = apiSlice.actions; 
+export const { resetError } = apiSlice.actions;
 export default apiSlice.reducer;
