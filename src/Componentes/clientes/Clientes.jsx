@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import Header from "../otros/Header";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchData, deleteData,deleteData2, postData, updateData } from "../../redux/apiSlice";
+import { fetchData, deleteData, deleteData2, postData, updateData } from "../../redux/apiSlice";
 import { useNavigate } from 'react-router-dom';
 
 function Clientes() {
@@ -16,7 +16,7 @@ function Clientes() {
     dispatch(fetchData('asignacion'));
   }, [dispatch]);
 
-  const { clientes, usuarios, status, asignaciones, error } = useSelector((state) => state.api);
+  const { clientes, usuarios, asignaciones } = useSelector((state) => state.api);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [assignedFilter, setAssignedFilter] = useState("");
@@ -66,7 +66,6 @@ function Clientes() {
       }
     }
 
-    // Luego de eliminar la asignación (si es necesario), pedir al usuario que elija un nuevo usuario
     const { value: userId } = await Swal.fire({
       title: 'Selecciona un usuario',
       input: 'select',
@@ -138,13 +137,11 @@ function Clientes() {
         confirmButtonColor: "#56C3CE"
       });
     } catch (error) {
-      console.log(error);
       Swal.fire("Error", "No se pudo liberar el cliente. Intenta nuevamente.", "error");
     }
   };
 
   const handleDeleteCliente = async (clienteId) => {
-    console.log(clienteId)
     const result = await Swal.fire({
       title: "¿Estás seguro?",
       text: "Una vez eliminado, no podrás recuperar este cliente.",
@@ -180,23 +177,23 @@ function Clientes() {
       if (statusFilter === 'activo' && cliente.esInactivo !== false) return false;
       if (statusFilter === 'inactivo' && cliente.esInactivo !== true) return false;
       if (statusFilter === 'libre' && cliente.estado.toLowerCase() !== statusFilter) return false;
-  }
-  
+    }
+
     // Filtrar asignados por comun_id (usuario_id)
     if (assignedFilter) {
       // Verifica si el cliente tiene una asignación
       const asignacion = asignaciones.find((asignacion) => asignacion.cliente_id === cliente.id);
       if (!asignacion) return false;  // Si no tiene asignación, se excluye el cliente
-  
+
       const usuario = usuarios.find((usuario) => usuario.userId === asignacion.comun_id);
       if (!usuario || usuario.userId !== parseInt(assignedFilter)) return false;
     }
-  
+
     if (search && !cliente.nombre.toLowerCase().startsWith(search.toLowerCase())) return false;
-  
+
     return true;
   });
-  
+
 
   const clearFilters = () => {
     setAssignedFilter("");
@@ -244,7 +241,7 @@ function Clientes() {
             onChange={(e) => setAssignedFilter(e.target.value)}
           >
             <option value="" disabled>Asignado a</option>
-            <option value="JRW">JRW</option>
+            {/* <option value="JRW">JRW</option> */}
             {usuarios.length > 0 ? usuarios.map((usuario) => (
               <option key={usuario.userId} value={usuario.userId}>
                 {usuario.nombre} {usuario.apellido}
@@ -264,10 +261,6 @@ function Clientes() {
 
         <div className="flex space-x-2 w-full md:w-auto justify-end">
           <button
-            className="px-4 py-2 rounded bg-white hover:bg-gray-200 transition-all">
-            Generar reporte
-          </button>
-          <button
             className="px-4 py-2 rounded bg-[#56C3CE] hover:bg-[#59b1ba] text-white transition-all"
             onClick={() => navigate("/clientes/crear")}
           >
@@ -284,7 +277,7 @@ function Clientes() {
         </div>
       </div>
 
-      {/* Client List */}
+      {/* lista de clientes */}
       <div className="flex-grow px-6 py-4">
         <div className="bg-white p-4 rounded">
           <div className="overflow-x-auto">
@@ -296,11 +289,22 @@ function Clientes() {
               <div className="grid grid-cols-1 md:hidden gap-4">
                 {filteredClients.map((cliente) => (
                   <div key={cliente.id} className="p-4 border rounded-lg shadow bg-gray-100">
-                    <Link to={`/clientes/${cliente.id}`} className="block font-bold text-lg">{cliente.nombre}</Link>
+                    <Link to={`/clientes/${cliente.id}`} className="flex font-bold hover:underline">
+                      {cliente.nombre}
+                    </Link>
                     <p>{asignado(cliente.id)}</p>
-                    <p>Última carga: {cliente.fechaUltCarga || "--"}</p>
+                    <div className="flex">
+                      <p>Última carga: {cliente.fechaUltCarga || "--"}</p>
+                      <svg className="h-3" viewBox="0 0 24 24" fill="none">
+                        <circle
+                          fill={cliente.esInactivo ? "red" : "green"}
+                          cx="12"
+                          cy="12"
+                          r="9"
+                        />
+                      </svg>
+                    </div>
                     <div className="flex justify-end space-x-2 mt-2">
-
                       <div className="flex justify-end space-x-2">
                         {asignado(cliente.id) !== "Libre" && (
                           <button
@@ -373,7 +377,21 @@ function Clientes() {
                       </Link>
                     </td>
                     <td className="px-4 py-2 border-b border-gray-300">{asignado(cliente.id)}</td>
-                    <td className="px-4 py-2 border-b border-gray-300">Última carga: {cliente.fechaUltCarga || "--"}</td>
+                    <td className="px-4 py-2 border-b border-gray-300">
+                      <div className="flex space-x-1">
+                        <span>
+                          Última carga: {cliente.fechaUltCarga == null ? "--" : new Date(cliente.fechaUltCarga).toISOString().split("T")[0]}
+                        </span>
+                        <svg className="h-3" viewBox="0 0 24 24" fill="none">
+                          <circle
+                            fill={cliente.esInactivo ? "red" : "green"}
+                            cx="12"
+                            cy="12"
+                            r="9"
+                          />
+                        </svg>
+                      </div>
+                    </td>
                     <td className="px-4 py-2 border-b border-gray-300">
                       <div className="flex justify-end space-x-2">
                         {asignado(cliente.id) !== "Libre" && (

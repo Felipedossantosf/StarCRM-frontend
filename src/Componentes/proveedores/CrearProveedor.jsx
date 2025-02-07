@@ -7,7 +7,6 @@ import { postData } from '../../redux/apiSlice';
 
 function CrearProveedor() {
   const usuario_id = localStorage.getItem('usuarioId');
-  console.log(usuario_id);
   const [formData, setFormData] = useState({
     id: 0,
     nombre: '',

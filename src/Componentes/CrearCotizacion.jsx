@@ -131,11 +131,7 @@ const CrearCotizacion = () => {
             lineas: lineas2.length ? lineas2 : []
           };
       
-          console.log("🔹 Cotización a enviar:", cotizacion);
-      
           const response = await dispatch(postData({ url: "cotizacion",id:cotizacion.id, data: cotizacion }));
-      
-          console.log("✅ Respuesta del servidor:", response);
       
           if (response.error) {
             throw new Error(response.error.message || "Error desconocido");
@@ -148,9 +144,7 @@ const CrearCotizacion = () => {
             timer: 1500
           });
       
-          // 🚀 PROBANDO GENERACIÓN DEL PDF 🚀
           try {
-            console.log("⏳ Generando PDF...");
             const doc = <QuotationPdf data={cotizacion} />;
       
             if (!doc) {
@@ -163,7 +157,6 @@ const CrearCotizacion = () => {
               throw new Error("Error: No se pudo generar el Blob del PDF.");
             }
       
-            console.log("✅ PDF generado correctamente.");
             const pdfURL = URL.createObjectURL(blob);
             window.open(pdfURL, "_blank");
           } catch (pdfError) {
@@ -187,9 +180,6 @@ const CrearCotizacion = () => {
       };
       
     const calcularLinea = () => {
-      console.log("🔹 Calculando línea...");
-      console.log("🔹 Modo:", modo);
-      console.log("🔹 Tipo:", tipo);
     if (modo.label == "MARITIMO" && tipo.label == "CONSOLIDADO") {
       const volumenKg = volumen * 167;
       if(volumenKg < peso){

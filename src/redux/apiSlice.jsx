@@ -42,7 +42,6 @@ export const fetchByAtributo = createAsyncThunk('fetchByAtributo', async ({ url,
 });
 
 export const postData = createAsyncThunk('postData', async ({ url, data }) => {
-    console.log(data)
     const response = await fetchApi(url, 'POST', data);
     return response;
 });
@@ -145,7 +144,6 @@ const apiSlice = createSlice({
                 state[stateKey].push(action.payload);
             })
             .addCase(postData.rejected, (state, action) => {
-                console.log(action.error.message)
                 state.status = 'failed';
                 state.error = action.error.message;
             })

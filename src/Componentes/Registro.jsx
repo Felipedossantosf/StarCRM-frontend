@@ -104,7 +104,6 @@ function Registro() {
       const resultAction = await dispatch(
         postData({ url: 'usuario', data: data })
       );
-       console.log(resultAction);
       if (resultAction.type === 'postData/fulfilled') {
         Swal.fire({
           title: "Registrado",

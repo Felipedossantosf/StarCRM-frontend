@@ -17,7 +17,6 @@ const AgregarEvento = () => {
   const [clientesSeleccionados, setClientesSeleccionados] = useState([]);
   const [usuariosSeleccionados, setUsuariosSeleccionados] = useState([]);
   const usuarioId = localStorage.getItem("usuarioId");
-console.log(carga)
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -61,7 +60,6 @@ console.log(carga)
       };
     
       const response = await dispatch(postData({ url: 'evento', data: eventoData }));
-      console.log(response);
     
       if (response.type === 'postData/fulfilled') {  // ✅ Corrección aquí
         Swal.fire({
@@ -88,7 +86,6 @@ console.log(carga)
     
               // Actualizar la lista de clientes localmente
               nuevosClientes[clienteIndex] = clienteActualizado;
-              console.log(clienteActualizado);
     
               // Enviar la actualización al backend
               await dispatch(updateData({ url: 'cliente', id: clienteActualizado.id, data: clienteActualizado }));

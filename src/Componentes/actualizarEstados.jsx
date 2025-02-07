@@ -6,7 +6,7 @@ import { fetchData, updateData } from "../redux/apiSlice";
 
 const actualizarEstados = () => {
   const dispatch = useDispatch();
-  const [activeTab, setActiveTab] = useState("Actualizar Estados");
+  const [activeTab, setActiveTab] = useState("");
   const { inactivos, clientes } = useSelector((state) => state.api);
   const usuario_id = localStorage.getItem('usuarioId');
 
@@ -17,100 +17,88 @@ const actualizarEstados = () => {
 
   const handleActualizarEstado = async (id) => {
     // Lógica para actualizar el estado
-       const result = await Swal.fire({
-          title: "¿Estás seguro?",
-          text: "Este cliente será marcado como libre y su asignación será eliminada.",
-          icon: "warning",
-          showCancelButton: true,
-          confirmButtonColor: "#d33",
-          cancelButtonColor: "#56C3CE",
-          confirmButtonText: "Liberar",
-          cancelButtonText: "Cancelar",
-        });
-
-      if (!result.isConfirmed) return;
-      
-        try {
-              const cliente = clientes.find((cliente) => cliente.id === id);
-            if (cliente){
-              const updateCliente = { ...cliente, esInactivo: true,usuario_id: usuario_id}
-              await dispatch(updateData({url: 'cliente', id: updateCliente.id, data: updateCliente}));
-            }
-              Swal.fire({
-                      title: "Cliente actualizado",
-                      text: "El cliente ha sido actualizado a Inactivo.",
-                      icon: "success",
-                      confirmButtonColor: "#56C3CE"
-                    });
-            } catch (error) {
-              Swal.fire("Error", "No se pudo pasar a inactivo", "error");
-            }
-             
-   
-  };
-
-  const handleActualizarEstadoLista = async () => {
-    // Lógica para actualizar el estado de múltiples clientes
     const result = await Swal.fire({
-        title: "¿Estás seguro?",
-        text: "Los clientes seleccionados serán marcados como libres y sus asignaciones serán eliminadas.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33",
-        cancelButtonColor: "#56C3CE",
-        confirmButtonText: "Liberar",
-        cancelButtonText: "Cancelar",
+      title: "¿Estás seguro?",
+      text: "Este cliente será marcado como libre y su asignación será eliminada.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#56C3CE",
+      confirmButtonText: "Liberar",
+      cancelButtonText: "Cancelar",
     });
 
     if (!result.isConfirmed) return;
 
     try {
-      const clientesAActualizar = clientes.filter(cliente => 
-        inactivos.some(inactivo => inactivo.id === cliente.id)
-    );
-         console.log(clientesAActualizar);
-        for (const cliente of clientesAActualizar) {
-            const updateCliente = { ...cliente, esInactivo: true, usuario_id: usuario_id };
-            await dispatch(updateData({ url: 'cliente', id: updateCliente.id, data: updateCliente }));
-        }
-
-        Swal.fire({
-            title: "Clientes actualizados",
-            text: "Los clientes han sido actualizados a Inactivo.",
-            icon: "success",
-            confirmButtonColor: "#56C3CE"
-        });
+      const cliente = clientes.find((cliente) => cliente.id === id);
+      if (cliente) {
+        const updateCliente = { ...cliente, esInactivo: true, usuario_id: usuario_id }
+        await dispatch(updateData({ url: 'cliente', id: updateCliente.id, data: updateCliente }));
+      }
+      Swal.fire({
+        title: "Cliente actualizado",
+        text: "El cliente ha sido actualizado a inactivo.",
+        icon: "success",
+        confirmButtonColor: "#56C3CE"
+      });
     } catch (error) {
-        Swal.fire("Error", "No se pudieron actualizar los clientes", "error");
+      Swal.fire("Error", "No se pudo pasar a inactivo", "error");
     }
-};
 
 
-  console.log(inactivos);
+  };
+
+  const handleActualizarEstadoLista = async () => {
+    // Lógica para actualizar el estado de múltiples clientes
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "Los clientes seleccionados serán marcados como libres y sus asignaciones serán eliminadas.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#56C3CE",
+      confirmButtonText: "Liberar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      const clientesAActualizar = clientes.filter(cliente =>
+        inactivos.some(inactivo => inactivo.id === cliente.id)
+      );
+      for (const cliente of clientesAActualizar) {
+        const updateCliente = { ...cliente, esInactivo: true, usuario_id: usuario_id };
+        await dispatch(updateData({ url: 'cliente', id: updateCliente.id, data: updateCliente }));
+      }
+
+      Swal.fire({
+        title: "Clientes actualizados",
+        text: "Los clientes han sido actualizados a Inactivo.",
+        icon: "success",
+        confirmButtonColor: "#56C3CE"
+      });
+    } catch (error) {
+      Swal.fire("Error", "No se pudieron actualizar los clientes", "error");
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#2B2C2C] p-6">
-    <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+    <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      <h1 className="text-white text-2xl font-bold mb-4">Clientes Activos sin carga los ultimos 6 meses</h1>
-      <div className="flex space-x-2 w-full md:w-auto justify-end">
-
+      <div className="text-white text-center pt-4">
+        <h2 className="text-3xl font-semibold">Clientes activos sin cargas en los últimos 6 meses</h2>
+        <div className="mt-4 flex justify-center">
           <button
             className="px-4 py-2 rounded bg-[#56C3CE] hover:bg-[#59b1ba] text-white transition-all"
             onClick={() => handleActualizarEstadoLista()}
           >
-            <div className="flex space-x-1 items-center">
-              <p>Actualizar todos</p>
-              <svg
-                className="h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="16" />
-                <line x1="8" y1="12" x2="16" y2="12" />
-              </svg>
-            </div>
+            Actualizar todos
           </button>
         </div>
-      
-
+      </div>
 
       <div className="grid gap-4">
         {inactivos.map((inactivo) => (

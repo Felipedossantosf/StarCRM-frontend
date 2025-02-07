@@ -55,14 +55,14 @@ function DetalleCliente() {
 
     if (!result.isConfirmed) return;
 
-    dispatch(deleteData({ url: '/cliente', id: clienteId })); 
+    dispatch(deleteData({ url: '/cliente', id: clienteId }));
     Swal.fire({
       title: "Eliminado",
       text: "El cliente ha sido eliminado correctamente.",
       icon: "success",
       confirmButtonColor: "#56C3CE"
     });
-    navigate("/clientes"); 
+    navigate("/clientes");
   };
 
   return (
@@ -128,7 +128,7 @@ function DetalleCliente() {
           {/* Apply flex and justify-end here to push the second block to the right */}
           <div className="flex-1 flex justify-end">
             <div className="space-y-4">
-              <p><b>Última carga: </b>{clienteDetail.fechaUltCarga != null ? clienteDetail.fechaUltCarga : "--"}</p>
+              <p><b>Última carga: </b>{clienteDetail.fechaUltCarga == null ? "--" : new Date(clienteDetail.fechaUltCarga).toISOString().split("T")[0]}</p>
               <p><b>Estado: </b>{clienteDetail.estado != null ? clienteDetail.estado : "--"}</p>
               <p className="flex space-x-2"><b>Teléfono:&nbsp;</b>{clienteDetail.telefono != null ? clienteDetail.telefono : "--"}
                 <button title="WhatsApp" className="text-green-600 hover:text-green-700">
@@ -138,29 +138,13 @@ function DetalleCliente() {
                 </button>
               </p>
               <div>
-                <h2>Mapa y Compartir</h2>
                 {/* Llamar al componente MapWithShare */}
                 <MapWithShare address={clienteDetail.direccion} />
-             </div>
-              
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div className="bg-white my-6 mx-6 px-6 py-10 rounded flex flex-col">
-      <div className="overflow-x-auto">
-        <h2 className="text-xl font-bold mb-4">Eventos del Cliente</h2>
-        <table className="min-w-full bg-white border border-gray-200">
-          <thead>
-            <tr className="bg-gray-100 border-b">
-              <th className="px-4 py-2 text-left">Fecha</th>
-              <th className="px-4 py-2 text-left">Descripción</th>
-              <th className="px-4 py-2 text-left">Estado</th>
-            </tr>
-          </thead>
-        </table>
-      </div>
-    </div>
     </div>
   );
 }

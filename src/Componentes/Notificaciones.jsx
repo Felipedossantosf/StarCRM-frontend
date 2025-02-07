@@ -11,7 +11,6 @@ function Notificaciones() {
     const [filtroFecha, setFiltroFecha] = useState("");
     const usuarioId = localStorage.getItem("usuarioId");
     const dispatch = useDispatch();
-    console.log(usuarioId)
 
     // Fetch de datos al montar el componente
     useEffect(() => {

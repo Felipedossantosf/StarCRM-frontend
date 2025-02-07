@@ -50,7 +50,7 @@ function DetalleProveedor() {
       icon: "success",
       confirmButtonColor: "#56C3CE"
     });
-    navigate("/proveedores"); // Navigate back to the providers list
+    navigate("/proveedores");
   };
 
   return (
@@ -109,7 +109,6 @@ function DetalleProveedor() {
                 </a>
               </p>
               <div>
-                <h2>Mapa y Compartir</h2>
                 {/* Llamar al componente MapWithShare */}
                 <MapWithShare address={proveedorDetail.direccion} />
              </div>
