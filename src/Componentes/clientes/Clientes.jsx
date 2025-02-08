@@ -139,9 +139,6 @@ function Clientes() {
       }
       const updatedCliente = { ...cliente, estado: "Libre", usuario_id: usuario_id };
       await dispatch(updateData({ url: "cliente", id: updatedCliente.id, data: updatedCliente }));
-
-
-     
       await dispatch(fetchData('asignacion'));
       // Enviar notificación
       const listaUsuarios = asignacionExistente.comun_id ? [asignacionExistente.comun_id] : [];
@@ -159,10 +156,9 @@ function Clientes() {
         confirmButtonColor: "#56C3CE",
       });
     } catch (error) {
-      Swal.fire("Error", "No se pudo liberar el cliente. Intenta nuevamente.", "error");
+      Swal.fire("Error", "No se pudo liberar el cliente. Puede que haya actividad asociada al mismo.", "error");
     }
   };
-
 
   const handleDeleteCliente = async (clienteId) => {
     const result = await Swal.fire({
@@ -217,7 +213,6 @@ function Clientes() {
 
     return true;
   });
-
 
   const clearFilters = () => {
     setAssignedFilter("");
