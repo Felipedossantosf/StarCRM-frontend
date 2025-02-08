@@ -105,7 +105,7 @@ const ModificarCotizacion = () => {
     const [origen, setOrigen] = useState(coti.origen);
     const [destino, setDestino] = useState(coti.destino);
     const [mercaderia, setMercaderia] = useState(coti.mercaderia);
-    const [bulto, setBulto] = useState("2");
+    const [bulto, setBulto] = useState(coti.bulto);
     const [peso, setPeso] = useState(coti.peso);
     const [volumen, setVolumen] = useState(coti.volumen);
     const [notas, setNotas] = useState(coti.terminosCondiciones);
@@ -132,6 +132,7 @@ const ModificarCotizacion = () => {
             precioUnit: item.price,
             totalLinea: item.price,
             descripcion: item.description,
+            iva: item.iva
           }));
       
           const cotizacion = {
@@ -159,7 +160,7 @@ const ModificarCotizacion = () => {
             terminosCondiciones: notas || "N/A",
             tipo: tipo?.label || "N/A",
             incoterm: incoterm?.label || "N/A",
-            bulto: Math.round(parseFloat(bulto)) || 0,
+            bulto: (parseFloat(bulto)) || 0,
             precioMetro: Math.round(parseFloat(Preciometro)) || 0,
             att: att || "N/A",
             lineas: lineas2.length ? lineas2 : []
@@ -287,10 +288,13 @@ const ModificarCotizacion = () => {
     const calculateTotal = () => {
       return Math.round(items.reduce((total, item) => total + item.quantity * item.price * (1 + item.iva / 100), 0));
     }
+    const calculateIva = () => {
+      return Math.round(total - subtotal);
+    }
   
     const total = calculateTotal();
     const subtotal = calculeSubtotal();
-    const iva = Math.round(total - subtotal);
+    const iva = calculateIva()
   
     return (
       <div className="min-h-screen flex flex-col bg-[#2B2C2C]">

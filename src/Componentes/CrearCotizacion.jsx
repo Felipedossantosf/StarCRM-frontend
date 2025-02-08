@@ -92,7 +92,52 @@ const CrearCotizacion = () => {
           const clientesIds = cliente.map((c) => c.value);
           const vendedorid = vendedor.map((v) => v.value);
           const proveedorid = proveedor.map((p) => p.value);
+
+          if (!fecha) {
+            Swal.fire({
+              icon: "warning",
+              title: "Fecha requerida",
+              text: "Debe completar la fecha antes de continuar.",
+            });
+            return;
+          }
+
+          if (!validez) {
+            Swal.fire({
+              icon: "warning",
+              title: "validez requerida",
+              text: "Debe completar la validez antes de continuar.",
+            });
+            return;
+          }
+          if (vendedorid.length === 0) {
+            Swal.fire({
+              icon: "warning",
+              title: "vendedor requerido",
+              text: "Debe elegir vendedor antes de continuar.",
+            });
+            return;
+          }
+
+          if (clientesIds.length === 0) {
+            Swal.fire({
+              icon: "warning",
+              title: "cliente requerido",
+              text: "Debe elegir cliente antes de continuar.",
+            });
+            return;
+          }
+
+          if (proveedorid.length === 0) {
+            Swal.fire({
+              icon: "warning",
+              title: "proveedor requerido",
+              text: "Debe elegir proveedor antes de continuar.",
+            });
+            return;
+          }
       
+ 
           const lineas2 = items.map((item) => ({
             id: 18,
             cotizacion_id: 16,
@@ -100,8 +145,10 @@ const CrearCotizacion = () => {
             precioUnit: item.price,
             totalLinea: item.price,
             descripcion: item.description, 
+            iva: item.iva
           }));
-      
+
+          
             const cotizacion = {
             id: 0,
             estado: estado?.label || "Pendiente",
