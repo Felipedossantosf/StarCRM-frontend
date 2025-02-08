@@ -167,7 +167,7 @@ const CrearCotizacion = () => {
         }
           Swal.fire({
             icon: "success",
-            title: "Cotización Modificada exitosamente.",
+            title: "Cotización Creada exitosamente.",
             showConfirmButton: false,
             timer: 1500
           });
@@ -199,10 +199,10 @@ const CrearCotizacion = () => {
       
           navigate("/cotizaciones");
         } catch (error) {
-          console.error("❌ Error en modificar:", error);
+          console.error("❌ Error en crear:", error);
           Swal.fire({
             icon: "error",
-            title: "Error al modificar la cotización",
+            title: "Error al crear la cotización",
             text: error.message
           });
         }
