@@ -58,19 +58,10 @@ function CrearCliente() {
         });
         navigate('/clientes');
       } else {
-        // Si la API devuelve un mensaje de error
-        const errorMessage = response?.payload?.message || 'Hubo un problema al crear el cliente. Inténtalo de nuevo.';
-        setError(errorMessage);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: errorMessage,
-        });
+        throw new Error(response.error.message);
       }
     } catch (error) {
-      // Capturar error si la API responde con un error en el catch
-      const apiError = error?.payload?.message || error?.response?.data?.message || 'Hubo un error inesperado al crear el cliente.';
-      setError(apiError);
+      const apiError = error.message || 'Hubo un error inesperado al crear el cliente.';
       Swal.fire({
         icon: 'error',
         title: 'Error',

@@ -17,7 +17,7 @@ const fetchApi = async (url, method = 'GET', data = null) => {
             }
         });
         return response.data;
-        
+
     } catch (error) {
         const errorMessage = error.response?.data?.message || error.message || 'Error, intente nuevamente.';
         throw new Error(errorMessage);
@@ -52,13 +52,8 @@ export const postData = createAsyncThunk('postData', async ({ url, data }) => {
     return response;
 });
 
-export const deleteData = createAsyncThunk('deleteData', async ({ url, id, data}) => {
-    let response;
-    if (data) {
-        response = await fetchApi(`${url}/${id}?usuario_id=${data}`, 'DELETE');
-    } else {
-        response = await fetchApi(`${url}/${id}`, 'DELETE');
-    }
+export const deleteData = createAsyncThunk('deleteData', async ({ url, id, data }) => {
+    const response = await fetchApi(`${url}/${id}`, 'DELETE', data);
     return response;
 });
 
@@ -100,12 +95,12 @@ const apiSlice = createSlice({
             if (url.includes("usuario")) return "usuarios";
             if (url.includes("asignacion")) return "asignaciones";
             if (url.includes("proveedor")) {
-                if (arg.id) return "proveedorDetail";  
-                return "proveedores"; 
+                if (arg.id) return "proveedorDetail";
+                return "proveedores";
             }
             if (url.includes("cliente")) {
-                if (arg.id) return "clienteDetail";  
-                return "clientes"; 
+                if (arg.id) return "clienteDetail";
+                return "clientes";
             }
             if (url.includes("actividad")) return "actividades";
             if (url.includes("cliente")) return "clientes";
@@ -159,12 +154,16 @@ const apiSlice = createSlice({
             .addCase(deleteData.fulfilled, (state, action) => {
                 state.status = 'succeeded';
                 const stateKey = getStateKeyFromUrl(action.meta.arg.url);
-                state[stateKey] = state[stateKey].filter(item => item.id !== action.payload.id);
+                const url = action.meta.arg.url;
+                const atributo = url.replace(/\//g, ""); 
+                state[stateKey] = state[stateKey].filter(item => 
+                    item.id ? item.id !== action.payload[atributo] : item[atributo] !== action.payload[atributo]
+                );
             })
             .addCase(deleteData.rejected, (state, action) => {
                 state.status = 'failed';
                 state.error = action.error.message;
-            }) 
+            })
             .addCase(updateData.pending, (state) => {
                 state.status = 'loading';
             })

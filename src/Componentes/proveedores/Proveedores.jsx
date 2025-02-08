@@ -9,10 +9,10 @@ import { useNavigate } from 'react-router-dom';
 function Proveedores() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { proveedores, status, error } = useSelector((state) => state.api);
+  const { proveedores } = useSelector((state) => state.api);
   const [search, setSearch] = useState("");
   const [activeTab, setActiveTab] = useState("Proveedores");
-  const usuario_id = localStorage.getItem('usuarioId');
+  const usuario_id = parseInt(localStorage.getItem('usuarioId'));
 
 
   useEffect(() => {
@@ -34,14 +34,17 @@ function Proveedores() {
     if (!result.isConfirmed) return;
 
     try {
-      await dispatch(deleteData({ url: '/proveedor', id: provId, data: usuario_id }));
-
-      await Swal.fire({
-        title: "Eliminado",
-        text: "El proveedor ha sido eliminado correctamente.",
-        icon: "success",
-        confirmButtonColor: "#56C3CE"
-      });
+      const response = await dispatch(deleteData({ url: '/proveedor', id: provId, data: usuario_id }));
+      if (response.type == 'deleteData/fulfilled') {
+        await Swal.fire({
+          title: "Eliminado",
+          text: "El proveedor ha sido eliminado correctamente.",
+          icon: "success",
+          confirmButtonColor: "#56C3CE"
+        });
+      } else {
+        throw new Error();
+      }
     } catch (error) {
       Swal.fire("Error", "No se pudo eliminar el proveedor. Intenta nuevamente.", "error");
     }
