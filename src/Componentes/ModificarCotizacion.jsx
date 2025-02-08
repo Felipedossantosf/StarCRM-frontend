@@ -139,11 +139,11 @@ const ModificarCotizacion = () => {
             estado: estado?.label || "Pendiente",
             fecha: fecha,
             metodosPago: "metodos prueba",
-            subtotal: parseFloat(subtotal),
+            subtotal: Math.round(subtotal),
             porcDesc: 0,
             subtotalDesc: 10,
-            porcIva: parseFloat(iva),
-            total: parseFloat(total),
+            porcIva: Math.round(iva),
+            total: Math.round(total),
             cliente_id: clientesIds[0] || null,
             empresa_id: 1,
             usuario_id: vendedorid[0] || null,
@@ -154,13 +154,13 @@ const ModificarCotizacion = () => {
             condicionFlete: condicionFlete || "N/A",
             modo: modo?.label || "N/A",
             mercaderia: mercaderia || "N/A",
-            peso: parseFloat(peso) || 0,
-            volumen: parseFloat(volumen) || 0,
+            peso: Math.round(parseFloat(peso)) || 0,
+            volumen: Math.round(parseFloat(volumen)) || 0,
             terminosCondiciones: notas || "N/A",
             tipo: tipo?.label || "N/A",
             incoterm: incoterm?.label || "N/A",
-            bulto: parseFloat(bulto) || 0,
-            precioMetro: parseFloat(Preciometro) || 0,
+            bulto: Math.round(parseFloat(bulto)) || 0,
+            precioMetro: Math.round(parseFloat(Preciometro)) || 0,
             att: att || "N/A",
             lineas: lineas2.length ? lineas2 : []
           };
@@ -282,15 +282,15 @@ const ModificarCotizacion = () => {
     }
     
     const calculeSubtotal = () => {
-      return items.reduce((total, item) => total + item.quantity * item.price, 0).toFixed(2)
+      return Math.round(items.reduce((total, item) => total + item.quantity * item.price, 0));
     }
     const calculateTotal = () => {
-      return items.reduce((total, item) => total + item.quantity * item.price * (1 + item.iva / 100), 0).toFixed(2);
+      return Math.round(items.reduce((total, item) => total + item.quantity * item.price * (1 + item.iva / 100), 0));
     }
   
     const total = calculateTotal();
     const subtotal = calculeSubtotal();
-    const iva = (total - subtotal).toFixed(2);
+    const iva = Math.round(total - subtotal);
   
     return (
       <div className="min-h-screen flex flex-col bg-[#2B2C2C]">
