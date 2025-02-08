@@ -197,7 +197,7 @@ function Eventos() {
                             })}
                           </ul>
                         </td>
-                        <td className="px-4 py-2 border-b border-gray-300 flex justify-end space-x-2">
+                        <td className="px-4 py-2 border-b border-gray-300">
                           <button
                             className="text-black hover:text-gray-600"
                             title="Editar"
