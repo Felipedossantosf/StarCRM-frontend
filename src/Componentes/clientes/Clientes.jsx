@@ -140,7 +140,9 @@ function Clientes() {
       const updatedCliente = { ...cliente, estado: "Libre", usuario_id: usuario_id };
       await dispatch(updateData({ url: "cliente", id: updatedCliente.id, data: updatedCliente }));
 
-      console.log(updatedCliente);
+
+     
+      await dispatch(fetchData('asignacion'));
       // Enviar notificación
       const listaUsuarios = asignacionExistente.comun_id ? [asignacionExistente.comun_id] : [];
 
@@ -181,6 +183,8 @@ function Clientes() {
       if (response.error) {
         throw new Error();
       }
+      await dispatch(fetchData('cliente'));
+
       Swal.fire({
         title: "Eliminado",
         text: "El cliente ha sido eliminado correctamente.",

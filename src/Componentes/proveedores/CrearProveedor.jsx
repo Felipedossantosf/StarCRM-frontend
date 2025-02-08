@@ -51,12 +51,15 @@ function CrearProveedor() {
         });
         navigate('/proveedores');
       } else {
-        setError('Hubo un problema al crear el proveedor. Por favor, inténtalo de nuevo.');
+        const errorMessage = response?.payload?.message || 'Hubo un problema al crear el proveedor. Inténtalo de nuevo.';
+        setError(errorMessage);
       }
     } catch (error) {
-      setError('Hubo un error al crear el proveedor.');
+      const apiError = error?.response?.data?.message || error.message || 'Hubo un error inesperado al crear el proveedor.';
+      setError(apiError);
     }
-  };
+};
+
 
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">

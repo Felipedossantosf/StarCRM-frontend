@@ -48,6 +48,7 @@ function CrearCliente() {
       };
 
       const response = await dispatch(postData({ url: 'cliente', data: clienteData }));
+
       if (response?.payload?.id) {
         Swal.fire({
           icon: 'success',
@@ -57,12 +58,28 @@ function CrearCliente() {
         });
         navigate('/clientes');
       } else {
-        setError('Hubo un problema al crear el cliente. Por favor, inténtalo de nuevo.');
+        // Si la API devuelve un mensaje de error
+        const errorMessage = response?.payload?.message || 'Hubo un problema al crear el cliente. Inténtalo de nuevo.';
+        setError(errorMessage);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: errorMessage,
+        });
       }
     } catch (error) {
-      setError('Hubo un error al crear el cliente.');
+      // Capturar error si la API responde con un error en el catch
+      const apiError = error?.payload?.message || error?.response?.data?.message || 'Hubo un error inesperado al crear el cliente.';
+      setError(apiError);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: apiError,
+      });
     }
-  };
+};
+
+
 
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">

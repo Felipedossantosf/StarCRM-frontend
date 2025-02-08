@@ -96,6 +96,7 @@ function Cotizaciones() {
       if (response.error) {
         throw new Error();
       }
+      await dispatch(fetchData("/cotizacion"));
   
       Swal.fire({
         title: "Eliminado",

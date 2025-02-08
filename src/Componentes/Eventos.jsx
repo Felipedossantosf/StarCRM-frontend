@@ -42,6 +42,7 @@ function Eventos() {
         throw new Error();
       }
 
+     await dispatch(fetchData('evento'));
       Swal.fire({
         title: "Eliminado",
         text: "El Evento ha sido eliminado correctamente.",
