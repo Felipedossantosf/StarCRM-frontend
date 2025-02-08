@@ -167,6 +167,16 @@ const ModificarCotizacion = () => {
                   });
                   return;
                 }
+
+          if (items.some(item => !item.description || !item.quantity || !item.price || item.iva === '')) {
+                      Swal.fire({
+                        icon: "warning",
+                        title: "Campos requeridos",
+                        text: "Todos los campos de los ítems deben estar completos antes de continuar.",
+                      });
+                      return;
+                      }
+                      
           const lineas2 = items.map((item) => ({
             id: 18,
             cotizacion_id: 16,
