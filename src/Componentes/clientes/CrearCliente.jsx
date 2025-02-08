@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../otros/Header';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from "react-redux";
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import { postData } from '../../redux/apiSlice';
+import { postData, fetchData } from '../../redux/apiSlice';
+
 
 function CrearCliente() {
   const [nombre1, setNombre1] = useState('');
@@ -19,9 +20,14 @@ function CrearCliente() {
   const usuario_id = localStorage.getItem('usuarioId');
   const [activeTab, setActiveTab] = useState('');
   const [error, setError] = useState(null);
+  const { clientes } = useSelector((state) => state.api);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  useEffect(() => {
+        dispatch(fetchData('cliente'));
+      }, [dispatch])
 
   const handleCrear = async () => {
     if (!nombre1 || !telefono1 || !correo1) {
@@ -29,6 +35,53 @@ function CrearCliente() {
       return;
     }
     try {
+
+    const correo = clientes.find((clientes) => clientes.correo == correo1)
+    if (correo) {
+      Swal.fire({
+                    icon: "warning",
+                    title: "correo ya registrado",
+                    text: "Debe elegir otro correo antes de continuar.",
+                  });
+                  return;
+    }
+
+    const telefono3 = clientes.find((clientes) => clientes.telefono == telefono1)
+    if (telefono3) {
+      Swal.fire({
+                    icon: "warning",
+                    title: "telefono ya registrado",
+                    text: "Debe elegir otro telefono antes de continuar.",
+                  });
+                  return;
+    }
+    const nombre3 = clientes.find((clientes) => clientes.nombre == nombre1)
+    if (nombre3) {
+      Swal.fire({
+                    icon: "warning",
+                    title: "nombre ya registrado",
+                    text: "Debe elegir otro nombre antes de continuar.",
+                  });
+                  return;
+    }
+    const razonSocial3 = clientes.find((clientes) => clientes.razonSocial == razonSocial1)
+    if (razonSocial3) {
+      Swal.fire({
+                    icon: "warning",
+                    title: "razonSocial ya registrada",
+                    text: "Debe elegir otra razonSocial antes de continuar.",
+                  });
+                  return;
+    }
+    const rut3 = clientes.find((clientes) => clientes.rut == rut1)
+    if (rut3) {
+      Swal.fire({
+                    icon: "warning",
+                    title: "rut ya registrado",
+                    text: "Debe elegir otro rut antes de continuar.",
+                  });
+                  return;
+    }
       const clienteData = {
         nombre: nombre1,
         telefono: telefono1,
