@@ -15,7 +15,7 @@ function Registro() {
     dispatch(fetchData('usuario'));
     const userRole = localStorage.getItem("userRole");
     if (userRole !== "ADMIN") {
-      navigate("/NoAutorizado")
+      navigate("/acceso-denegado")
     }
   }, [navigate]);
 

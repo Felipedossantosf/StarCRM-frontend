@@ -38,26 +38,35 @@ function Notificaciones() {
   
 
     // Manejar eliminación de notificación
-    const handleDeleteNotif = (n) => {
+    const handleDeleteNotif = async (n) => {
         try {
             const updatedNotificacion = { 
-                id:0,
+                id: 0,
                 notificacion_id: n.notificacion_id,
                 usuario_id: usuarioId,
                 activa: false
             };
-            const response = dispatch(updateData({ url: 'notificacion', id: n.notificacion_usuario_id, data: updatedNotificacion }));
+    
+            await dispatch(updateData({ url: 'notificacion', id: n.notificacion_usuario_id, data: updatedNotificacion }));
+    
             Swal.fire({
-                    title: "Notificacion Eliminada",
-                    text: "La Notifiacion fue Eliminada correctamente.",
-                    icon: "success",
-                    confirmButtonColor: "#56C3CE"
-                  });
-            navigate("/notificaciones");
+                title: "Notificación Eliminada",
+                text: "La notificación fue eliminada correctamente.",
+                icon: "success",
+                confirmButtonColor: "#56C3CE"
+            });
+    
+            // 🔄 Refrescar lista de notificaciones
+            await dispatch(fetchById({ url: 'notificacion', id: usuarioId }));
+    
+            // 💡 Forzar actualización de `filteredNotificaciones`
+            setFilteredNotificaciones(prev => prev.filter(notif => notif.notificacion_id !== n.notificacion_id));
+    
         } catch (error) {
-            Swal.fire("Error", "No se pudo eliminar la Notificacion", "error");
+            Swal.fire("Error", "No se pudo eliminar la notificación", "error");
         }
     };
+    
 
     // Limpiar filtros
     const clearFilters = () => {

@@ -22,7 +22,7 @@ function CrearProveedor() {
 
   const [activeTab, setActiveTab] = useState('');
   const [error, setError] = useState(null);
-  
+
 
 
   const dispatch = useDispatch();
@@ -35,28 +35,39 @@ function CrearProveedor() {
 
   const handleCrear = async () => {
     const { nombre, telefono, correo } = formData;
+
     if (!nombre || !telefono || !correo) {
       setError('Por favor, completa todos los campos obligatorios.');
       return;
     }
+
     try {
-      const response = await dispatch(postData({ url: 'proveedor', data: { ...formData, tipoComercial: 'Proveedor' } }));
-      
+      const response = await dispatch(postData({
+        url: 'proveedor',
+        data: { ...formData, tipoComercial: 'Proveedor' }
+      }));
+
       if (response?.payload?.id) {
         Swal.fire({
           icon: 'success',
-          title: 'Proveedor creado exitosamente.',
+          title: 'Cliente creado exitosamente.',
           showConfirmButton: false,
           timer: 1500,
         });
         navigate('/proveedores');
       } else {
-        setError('Hubo un problema al crear el proveedor. Por favor, inténtalo de nuevo.');
+        throw new Error(response.error.message);
       }
     } catch (error) {
-      setError('Hubo un error al crear el proveedor.');
+      const apiError = error.message || 'Hubo un error inesperado al crear el proveedor.';
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: apiError,
+      });
     }
   };
+
 
   return (
     <div className="min-h-screen flex flex-col bg-[#2B2C2C]">

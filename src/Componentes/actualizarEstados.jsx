@@ -18,106 +18,109 @@ const actualizarEstados = () => {
   }, [dispatch]);
 
   const handleActualizarEstado = async (id) => {
-    
-
     const result = await Swal.fire({
       title: "¿Estás seguro?",
-      text: "Este cliente será marcado como libre y su asignación será eliminada.",
+      text: "Este cliente pasará a inactivo, ¿estás de acuerdo?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#56C3CE",
-      confirmButtonText: "Liberar",
+      confirmButtonText: "Aceptar",
       cancelButtonText: "Cancelar",
     });
-
-
+  
+    if (!result.isConfirmed) return;
+  
     try {
-        
-        const cliente = clientes.find((cliente) => cliente.id == id);
-        if (!cliente) {
-            throw new Error("❌ Cliente no encontrado");
-        }
-        
-        const updateCliente = { ...cliente, esInactivo: true, usuario_id: usuario_id };
-        await dispatch(updateData({ url: 'cliente', id: updateCliente.id, data: updateCliente }));
-
-        const notificacionAsignacion = asignaciones.find(asignacion => asignacion.cliente_id === cliente.id);
-        if (notificacionAsignacion) {
-        
-        const response = await dispatch(
-          postData({
-            url: "notificacion",
-            data: { 
-              cliente_id: notificacionAsignacion.cliente_id, 
-              mensaje: `Cliente ${cliente.nombre} asignado a usted, pasado a inactivo`, 
-              usuariosId: [notificacionAsignacion.comun_id] 
-            },
-          })
-        );
-        console.log("✅ Notificación enviada", response);
-        }
-        
-
-        
-
-        Swal.fire({
-          title: "Cliente actualizado",
-          text: "El cliente ha sido actualizado a inactivo.",
-          icon: "success",
-          confirmButtonColor: "#56C3CE"
-        });
-
+      const cliente = clientes.find((cliente) => cliente.id == id);
+      if (!cliente) throw new Error("❌ Cliente no encontrado");
+  
+      const updateCliente = { ...cliente, esInactivo: true, usuario_id };
+      await dispatch(updateData({ url: "cliente", id: updateCliente.id, data: updateCliente }));
+  
+      // Enviar notificación si tiene asignación
+      const notificacionAsignacion = asignaciones.find(asignacion => asignacion.cliente_id === cliente.id);
+      if (notificacionAsignacion) {
+        await dispatch(postData({
+          url: "notificacion",
+          data: { 
+            cliente_id: notificacionAsignacion.cliente_id, 
+            mensaje: `Cliente ${cliente.nombre} asignado a usted, pasado a inactivo`, 
+            usuariosId: [notificacionAsignacion.comun_id] 
+          },
+        }));
+      }
+  
+      // 🔄 Refrescar lista de inactivos
+      await dispatch(fetchData("/Cliente/Inactivos"));
+  
+      Swal.fire({
+        title: "Cliente actualizado",
+        text: "El cliente ha sido actualizado a inactivo.",
+        icon: "success",
+        confirmButtonColor: "#56C3CE"
+      });
+  
     } catch (error) {
-        console.error("❌ Error en handleActualizarEstado:", error);
-        Swal.fire("Error", "No se pudo pasar a inactivo", "error");
+      console.error("❌ Error en handleActualizarEstado:", error);
+      Swal.fire("Error", "No se pudo pasar a inactivo", "error");
     }
-};
+  };
 
 
   const handleActualizarEstadoLista = async () => {
-    // Lógica para actualizar el estado de múltiples clientes
     const result = await Swal.fire({
       title: "¿Estás seguro?",
-      text: "Los clientes seleccionados quedaran inactivos",
+      text: "Los clientes seleccionados quedarán inactivos, ¿estás de acuerdo?",
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#56C3CE",
-      confirmButtonText: "Liberar",
+      confirmButtonText: "Aceptar",
       cancelButtonText: "Cancelar",
     });
-
+  
     if (!result.isConfirmed) return;
-
+  
     try {
       const clientesAActualizar = clientes.filter(cliente =>
         inactivos.some(inactivo => inactivo.id === cliente.id)
       );
+  
       for (const cliente of clientesAActualizar) {
-        const updateCliente = { ...cliente, esInactivo: true, usuario_id: usuario_id };
-        await dispatch(updateData({ url: 'cliente', id: updateCliente.id, data: updateCliente }));
+        const updateCliente = { ...cliente, esInactivo: true, usuario_id };
+        await dispatch(updateData({ url: "cliente", id: updateCliente.id, data: updateCliente }));
       }
- // Notificaciones
-     const notificacionesAsignacion = asignaciones.filter(asignacion => clientesAActualizar.some(cliente => cliente.id === asignacion.cliente_id));
-
+  
+      // Enviar notificaciones
+      const notificacionesAsignacion = asignaciones.filter(asignacion => 
+        clientesAActualizar.some(cliente => cliente.id === asignacion.cliente_id)
+      );
+  
       for (const notificacion of notificacionesAsignacion) {
-          const cliente = clientes.find((c) => c.id === notificacion.cliente_id);
-          const listaUsuarios = notificacion.comun_id ? [notificacion.comun_id] : [];
-          const response = await dispatch(
-              postData({
-                url: "notificacion",
-                data: { cliente_id: notificacion.cliente_id, mensaje: `Cliente ${cliente.nombre} asignado a usted, pasado a inactivo`, usuariosId: listaUsuarios },
-                })
-            );
+        const cliente = clientes.find((c) => c.id === notificacion.cliente_id);
+        if (cliente) {
+          await dispatch(postData({
+            url: "notificacion",
+            data: { 
+              cliente_id: notificacion.cliente_id, 
+              mensaje: `Cliente ${cliente.nombre} asignado a usted, pasado a inactivo`, 
+              usuariosId: [notificacion.comun_id] 
+            },
+          }));
+        }
       }
-
+  
+      // 🔄 Refrescar lista de inactivos
+      await dispatch(fetchData("/Cliente/Inactivos"));
+  
       Swal.fire({
         title: "Clientes actualizados",
         text: "Los clientes han sido actualizados a Inactivo.",
         icon: "success",
         confirmButtonColor: "#56C3CE"
       });
+  
     } catch (error) {
       Swal.fire("Error", "No se pudieron actualizar los clientes", "error");
     }
