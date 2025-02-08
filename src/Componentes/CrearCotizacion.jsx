@@ -132,9 +132,10 @@ const CrearCotizacion = () => {
             att: att || "N/A",
             lineas: lineas2.length ? lineas2 : []
             };
-        console.log(cotizacion)
+        
           const response = await dispatch(postData({ url: "cotizacion",id:cotizacion.id, data: cotizacion }));
-      
+         const coti = response.payload
+
           if (response.error) {
             throw new Error(response.error.message || "Error desconocido");
           }
@@ -172,7 +173,8 @@ const CrearCotizacion = () => {
           });
       
           try {
-            const doc = <QuotationPdf data={cotizacion} />;
+            
+            const doc = <QuotationPdf data={coti} />;
       
             if (!doc) {
               throw new Error("Error: QuotationPdf no se generó correctamente.");
