@@ -323,12 +323,12 @@ const ModificarCotizacion = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-4 rounded-lg shadow-sm">
               <div>
                 <label htmlFor="provider" className="block text-sm font-medium text-gray-700">Proveedor</label>
-                <Select id="provider" placeholder="Nombre del proveedor" isMulti options={listaProveedores} value={proveedor} onChange={setProvedor}
+                <Select id="provider" placeholder="Nombre del proveedor"  options={listaProveedores} value={proveedor} onChange={setProvedor}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
               </div>
               <div>
                 <label htmlFor="vendor" className="block text-sm font-medium text-gray-700">Vendedor</label>
-                <Select id="vendor" placeholder="Nombre del vendedor" isMulti options={listaUsurios} value={vendedor} onChange={setVendedor}
+                <Select id="vendor" placeholder="Nombre del vendedor"  options={listaUsurios} value={vendedor} onChange={setVendedor}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"/>
               </div>
               <div>
@@ -340,7 +340,7 @@ const ModificarCotizacion = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-4 rounded-lg shadow-sm">
               <div>
                 <label htmlFor="client" className="block text-sm font-medium text-gray-700">Cliente</label>
-                <Select id="client" isMulti options={listaclientes} value={cliente} onChange={setCliente} placeholder="Nombre del cliente" 
+                <Select id="client"  options={listaclientes} value={cliente} onChange={setCliente} placeholder="Nombre del cliente" 
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
               </div>
               <div>

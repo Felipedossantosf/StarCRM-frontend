@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Header from '../otros/Header';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
-import { postData } from '../../redux/apiSlice';
+import { postData, fetchData} from '../../redux/apiSlice';
 
 function CrearProveedor() {
   const usuario_id = localStorage.getItem('usuarioId');
+  const { proveedores } = useSelector((state) => state.api);
   const [formData, setFormData] = useState({
     id: 0,
     nombre: '',
@@ -20,6 +21,7 @@ function CrearProveedor() {
     usuario_id: usuario_id
   });
 
+
   const [activeTab, setActiveTab] = useState('');
   const [error, setError] = useState(null);
 
@@ -28,6 +30,12 @@ function CrearProveedor() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+
+  useEffect(() => {
+        dispatch(fetchData('/proveedor'));
+      }, [dispatch])
+
+      
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -40,6 +48,54 @@ function CrearProveedor() {
       setError('Por favor, completa todos los campos obligatorios.');
       return;
     }
+
+    const nombre2 = proveedores.find((prov) => prov.nombre == formData.nombre)
+     if (nombre2) {
+        Swal.fire({
+                    icon: "warning",
+                    title: "nombre ya registrado",
+                    text: "Debe elegir otro nombre antes de continuar.",
+                  });
+                  return;
+    }
+
+    const razonSocial2 = proveedores.find((prov) => prov.razonSocial == formData.razonSocial)
+    if (razonSocial2) {
+       Swal.fire({
+                   icon: "warning",
+                   title: "razonSocial ya registrada",
+                   text: "Debe elegir otra razonSocial antes de continuar.",
+                 });
+                 return;
+   }
+   const rut2 = proveedores.find((prov) => prov.rut == formData.rut)
+    if (rut2) {
+       Swal.fire({
+                   icon: "warning",
+                   title: "rut ya registrado",
+                   text: "Debe elegir otro rut antes de continuar.",
+                 });
+                 return;
+   }
+   const telefono2 = proveedores.find((prov) => prov.telefono == formData.telefono)
+    if (telefono2) {
+       Swal.fire({
+                   icon: "warning",
+                   title: "telefono ya registrado",
+                   text: "Debe elegir otro telefono antes de continuar.",
+                 });
+                 return;
+   }
+  
+   const correo2 = proveedores.find((prov) => prov.correo == formData.correo)
+    if (correo2) {
+       Swal.fire({
+                   icon: "warning",
+                   title: "correo ya registrado",
+                   text: "Debe elegir otro correo antes de continuar.",
+                 });
+                 return;
+   }
 
     try {
       const response = await dispatch(postData({
